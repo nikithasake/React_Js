@@ -1,0 +1,61 @@
+How Does Authentication work
+============================
+=> we can't jst save and use the "yes" after loggin in.
+=> we could send a fake "yes" to the server to request protected data
+
+There are two main solutions 
+
+1.server side sessions
+	After a user was logged in and authenticated we store a unique identifier
+	on the server.we basically stored a yes on the server and mapped that to a 
+	specific client with help of an id thats then sent back to the client.and the
+	client then sends that ID with future requests which do try to access protected resources.
+	And since we stored a yes mapped to that id on the server,the server
+	is able to check whether that client really does have permission to access protected resources.
+	but it requires tighly coupled b/w backend and frontend.
+	bcse backend must store info about the client.
+2.authentication tokens.
+	The idea behind authentication tokens is that on the server after a user was authenticated,
+	so after a user sent a valid pair of credentials,for example,we create but dont store a permission
+	token on the backend and we send that token back to the client.
+	The special about this token is that its validity can only be checked & proven by the backend
+	that created that token.bcse the token is created with help of some private key which is only known by the
+	backend.so in future requests from the client to the backend we attach that token to those
+	requests,and the backend is able to take a look at that token,validated and see if it is a token that was created
+	by that backend.and if it is a valid token,then permission to those protected resources
+	is granted.
+
+
+
+Project SetUp & Route Setup
+============================
+
+App.js
+------
+{
+ 	path:'auth',
+      element:<AuthenticationPage/>
+ }
+
+
+MainNavigation.js
+-----------------
+<li>
+    <NavLink
+     to="/auth"
+     className={({ isActive }) =>
+     isActive ? classes.active : undefined
+     }
+     >
+     Authentication
+     </NavLink>
+</li>
+
+o/p:Query Param1 
+
+
+
+
+
+Query param2 when i click on login button
+Query param3 when i click on create new use button pics

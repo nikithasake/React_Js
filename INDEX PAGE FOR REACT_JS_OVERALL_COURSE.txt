@@ -1,0 +1,408 @@
+Section 3 : React Basics & working with components
+
+24.Module Introduction
+25.What are Components?And why is React All About Them?
+26.React code is written in A "Declarative way"!
+27.Creating a new React Project
+28.The Starting Project
+29.Analyzing a Standard React project
+30.Introducing JSX
+31.How React Works
+32.Building a First Custom Component
+33.Writing More Complex JSX code
+34.Adding Basic CSS Styling
+35.Outputting Dynamic Data & Working with Expression in JSX.
+36.Passing Data via "props"
+37.Adding "normal" javascript Logic to Components
+38.Splitting Components Into Multiple Components
+39.The Concept of "composition"("children props")
+40.A First Summary
+41.A Closer Look At JSX.
+42.Organizing Component Files
+43.An Alternative Function Syntax.
+44.Module Resources.
+
+Section 4:React State & Working with Events
+
+45.Module Introduction
+46.Listening to Events & Working with Event Handlers
+47.How Component Functions are Executed
+48.Working with "State"
+49.A closer Look at the "useState" Hook
+50.State can be updated in many ways!
+51.Adding Form Inputs
+52.Listening to User Input
+53.Working with Multiple States
+54.Using One State Instead(And What's Better)
+55.Updating State That Depends On The Previous State
+56.Handling Form Submission
+57.Adding Two-Way Binding
+58.Child-to-Parent Component Communication(Bottom-up)
+59.Lifting The State Up
+60.Controlled vs Uncontrolled Components & Stateless vs Stateful Components
+61.Module Resources.
+
+Section 5:Rendering Lists & Conditional Content
+62.Module Introducing
+63.Rendering Lists of Data
+64.Using Stateful Lists
+65.Understanding "keys"
+66.Outputting Conditional Content
+67.Adding Conditional Return Statements
+68.Demo App:Adding a Chart
+69.Adding Dynamic Styles
+70.Wrap Up & Next Steps
+71.Fixing a Small Bug
+72.Module Resources
+
+Section 6:Styling React Components
+73:Module Introducing
+74.Setting Dynamic Inline Styles
+75.Setting CSS classes Dynamically
+76.Introducing Styled Components
+77.Styled Components & Dynamic Pops
+78.Styled Components & Media Queries
+79.Using CSS Modules
+80.Dynamic Styles with CSS Modules
+81.Module Resources
+
+
+Section 7:Debugging React App
+82:Module Introduction
+83:Understanding React Error Messages
+84:Analyzing Code Flow & Warnings
+85:Working with Breakpoints
+86:Using the ReactDevTools
+87:Module Resources
+
+Section 8:Time to Practise:A complete Practise Project
+88:Module Introduction
+89:Adding a "User" Component
+90:Adding a re-usable "Card" component
+91:Adding a re-usable "Button" Component
+92:Managing the User Input State
+93:Adding Validation & Resetting Logic
+94:Adding a Users List Component
+95:Managing a List of Users via State
+96:Adding The "ErrorModal" component
+97:Managing the Error State
+98:Module Resources
+
+Section 9:Diving Deeper:Working with Fragments,Portals & "Refs"
+99:Module Introduction
+100:JSX Limitations & Workarounds
+101:Creating a Wrapper Component
+102:React Fragments
+103:Introducing React Portals
+104:Working with Portals
+105:Working with "ref"s
+106:Controlled vs Uncontrolled Components
+107:Module Resources
+
+Section 10:Advanced:Handling Side Effects,Using Reducers & Using the Context API
+108:Module Introduction
+109:What are "Side Effects" & Inroducing useEffect
+110:using the useEffect() Hook
+111:useEffect & Dependencies
+112:What to add & Not to add as Dependencies
+113:Using the useEffect cleanup Function
+114:useEffect Summary
+115:Inroducing useReducer & Reducers in General
+116:Using the useReducer() Hook
+117:useReducer & useEffect
+118:Adding Nested properties As Dependencies to useEffect
+119:useReducer vs useState for State Management
+120:Introducing React Context(Context API)
+121:Using the React Context API
+122:Tapping into Context with the useContext Hook
+123:Making Context Dynamic
+124:Building & Using a Custom Context Provider Component
+125:React context Limitations
+126:Learning the "Rules of Hooks"
+127:Refactoring an Input Component
+128:Diving into "Forward Refs"
+129:Module Resources
+
+Section 11:Practise project:Building a Food order App
+130:Module Introduction
+131:Starting SetUp
+132:Adding a "Header" Component
+133:Adding the "Cart" Button Component
+134:Adding a "Meals" Component
+135:Adding Individual Meal Items & Display Them
+136:Adding a Form
+137:Fixing Form Input IDs
+138:Working on the "Shopping Cart" Component
+139:Adding a Modal via a React Portal
+140:Managing Cart & Modal State
+141:Adding a Cart Context
+142:Using the Context
+143:Adding a Cart Reducer
+144:Working with Refs & Forward Refs
+145:Outputting Cart Items
+146:Working on a More Complex Reducer Logic
+147:Making Items Removable
+148:Using the useEffect Hook
+149:Module Resources
+
+Section 12:A Look Behind The Scenes Of React & Optimization Techinques
+
+150:Module Introduction
+151:How React Really Works
+152:Component Updates in Action
+153:A Closer Look At Child Component Re-Evaluation
+154:Preventing Unneccesary Re-Evaluation with React.memo()
+155:Preventing Function Re-Creation with useCallback()
+156:useCallback() and its Dependencies
+157:A First Summary
+158:A Closer Look At State & Components
+159:Understanding State Scheduling & Batching
+160:Optimizing with useMemo()
+161:Module Resouces
+
+Section 13:A Look Behind The Scenes Of React & Optimization Techinques
+
+162:Module Introduction
+163:What & Why
+164:Adding a First Class-based Component
+165:Working with State & Events
+166:The components LifeCycle(Class-based components only)
+167:LifeCycle Methods in Action
+168:Class-based Components & Context
+169:Class-based vs Functional Components : A Summary
+170:Introducing Error Boundaries
+171:Module Resouces
+
+Section 14:Sending Http Request(eg:Connecting to a Database)
+
+172:Module Introduction
+173:How To(Not) Connect To A Database
+174:Using the Star Wars API
+175:Our Starting App & Backend
+176:Sending a GET Request
+177:Using async/await
+178:Handling Loading & Data States
+179:Handling Http Errors
+180:Using useEffect() for Requests
+181:preparing The project For the Next Steps
+182:Sending a POST Request
+183:Wrap Up
+184:Module Resources
+
+
+Section 15:Building Custom React Hooks
+185:Module Introduction
+186:What are "Custom Hooks"?
+187:Creating a Custom React Hook Function
+188:Using Custom Hooks
+189:Configuring Custom Hooks
+190:Onwards To A More Realistic Example
+191:Building a Custom Http Hook
+192:Using the Custom Http Hook
+193:Adjusting the Custom Hook Logic
+194:Using The Custom Hook in More Components
+195:Module Resources
+
+
+Section 16:Working with Forms & User Input
+196:Module Introduction
+197:Our Starting SetUp
+198:What's So Complex About Forms?
+199:Dealing with Form Submission & Getting User Input Values
+200:Adding Basic Validation
+201:Providing Validation Feedback
+202:Handling the "was touched" State
+203:React to LostFocus
+204:Refactoring & Deriving States
+205:Managing the overall Form Validity
+206:Adding A Custom Input Hook
+207:Re-Using The Custom Hook
+208:A Challenge For You
+209:Applying Our Hook & Knowledge To a New Form
+210:Summary
+211:Using useReducer()
+212:Module Resources
+
+Section 17:Practise Project:Adding Http& Forms To The Food Order App
+213:Module Introduction
+214:Moving "Meals" Data To The Backend
+215:Fetching Meals via Http
+216:Handling the Loading State
+217:Handling Errors
+218:Adding A Checkout Form
+219:Reading Form Values
+220:Adding Form Validation
+221:Submitting & Sending Cart Data
+222:Adding Better User Feedback
+223:Summary
+224:Module Resources
+
+Section 18:Diving into Redux(An Alternative To The Context API)
+225:Module Introduction
+226:Another Look At State In React Apps
+227:Redux vs React Context
+228:How Redux Works
+229:Must Read:Redux createStore() is (not) deprecated
+230:Exploring The Core Redux Concepts
+231:More Redux Basics
+232:Preparing a new Project
+233:Creating a Redux Store for React
+234:Providing the Store
+235:Using Redux Data in React Components
+236:Dispatching Actions From Inside Components
+237:Redux with Class-based Components
+238:Attaching Payloads to Actions
+239:Working with Multiple State Properties
+240:How to Work with Redux State correctly
+241:Redux Challenges & Introducing Redux Toolkit
+242:Adding State Slices
+243:Connecting Redux Toolkit State
+244:Migrating Everything To Redux Toolkit
+245:Working with Multiple Slices
+246:Reading & Dispatching From A New Slices
+247:Splitting Our Code
+248:Summary
+249:Module Resources
+
+
+Section 19:Advanced Redux
+250:Module Introduction
+251:Redux & Side Effects(and Asynchronous Code)
+252:Refresher/Practise:Part 1/2
+253:Refresher/Practise:Part 2/2
+254:Redux & Async Code
+255:Frontend Code vs Backend Code
+256:Where To Put Our Logic
+257:Using useEffect with Redux
+258:A problem with useEffect()
+259:Handling Http States & Feedback with Redux
+260:Using An Action Creator Thunk
+261:Getting Started With Fetching Data
+262:Finalizing the Fetching Logic
+263:Exploring the Redux DevTools
+264:Summary
+265:Module Resources
+
+
+Section 20:Building a Multi-Page SPA with React Route
+
+266:Module Introduction
+267:Routing:Multiple Pages in Single-Page Applications
+268:Project Setup & Installing React Route
+269:Defining Routes
+270:Adding a Second Route
+271:Exploring an Alternative Way of Defining Routes
+272:Navigating b/w Pages with Links
+273:Layouts & Nested Routes
+274:Showing Error Pages with errorElement
+275:Working with Navigation Links(Nav Link)
+276:Navigating Programmatically
+277:Defining & Using Dynamic Routes
+278:Adding Links for Dynamic Routes
+279:Understanding Relatives & Absolute Paths
+280:Working with Index Routes
+281:Onwards to a new Project SetUp
+282:Time to Practise:Problem
+283:Time to Practise:Solution
+284:Data Fetching with a loader()
+285:Using Data from a loader in the Route Component
+286:More loader() Data Usage
+287:Where should loader() code Be stored?
+288:When are loader() Functions Executed?
+290:Returing Responses in loader()s
+291:Which kind of Code Goes Into loader()s
+292:Error Handling with Custom Errors
+293:Extracting Error Data & Throwing Responses
+294:The json() Utility Function
+295:Extracting Error Data & Throwing Response
+296:The useRouteLoaderData() Hook & Accessing Data from other Routes
+297:Planning Data Submission
+298:Working with action() Functions
+299:Submitting Data Programmatically
+300:Updating the UI state Based on the Submission Status
+301:Validating User Input & Outputting Validation Errors
+302:Reusing Actions via Request Methods
+303:Behind-the-Scenes working with useFetcher() 
+304:Deferring Data Fetching with defer()
+305:Controlling which Data should be deferred
+306:Module Summary
+307:Upgrading from React Router v5
+308:Module Resources
+309:Old Lectures
+
+
+Section 21:Adding Authentication To React Apps
+310:Module Introduction
+311:How Authentication Works
+312:Project SetUp & Route Setup
+313:Working with Query Parameters
+314:Implementing the Auth Action
+315:Validating User Input & Outputting Validation Errors
+316:Adding User Login
+317:Attaching Auth Tokens to Outgoing Request
+318:Adding User Logout
+319:Updating the UI Based on Auth Status
+320:Important:loader()s must return null or any other value
+321:Adding Route Protection
+322:Adding Automatic Logout
+323:Managing the Token Expiration
+324:Module Resources
+
+
+Section 22:Deploying React Apps
+325:Module Introducing
+326:Deployment Steps
+327:Understanding Lazy Loading
+328:Adding Lazy Loading
+329:Building the Code For Production
+330:Deploying Example
+331:Server-side Routing & Required Configuration
+332:Module Resources
+
+Section 23:A (Pretty Deep Dive)Introduction to Next j.s 
+
+333:Module Introduction
+334:What is NextJs?
+335:Key Feature 1:Built-in Server-Side Rendering(Improved SEO)
+336:Key Feature 2:Simplified Routing with File-based Routing
+337:Key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

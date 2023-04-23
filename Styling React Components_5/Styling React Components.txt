@@ -1,0 +1,126 @@
+Dynamic inline styling in React
+=================================
+
+what if we want to set a style dynamically based on a given condition
+
+ex:for all the unavailable products i want to set the background color to gray
+for all the available products i want to set the background color should be white.
+
+
+Products.js
+------------
+
+style={{backgroundColor:props.isAvailable ? 'white' : '#dedede'}}
+
+o/p:Dynamic Inline styling pic in Proacademy_channel_output_Styling
+
+ Setting attribute value dynamically 
+====================================
+In this lecturer lets learn how to set the value of an attribute of a jsx element dynamically.
+
+=>when the product count is 0 then for a particular product the - button should be disabled.
+
+
+productDetails.js
+-----------------
+  
+<Button eventHandler={decrementProductCount} disable={productCount===0}>-</Button>
+
+Button.js
+---------
+
+import React from "react";
+
+function Button (props){
+    console.log("Button component executed");
+    return  <button  onClick={props.eventHandler} className="btn btn-primary" disabled={props.disable}>{props.children}</button>
+}
+
+export default Button;
+
+o/p:Setting attribute value dynamically pic in Proacademy_channel_output_Styling
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Introducing Styled Components
+=====================
+
+using normal css :
+
+if we had any other element anywhere else in a DOM that had a form controlled CSS class on it,
+would target it and would affect it...every element on the entire page is affected because 
+by default, those styles are not scoped..Now that is not necessarily a problem.
+You can use class selectors or ID selectors here, it is regular CSS after all, you can use any selector
+and you can ensure that the IDs and the classes you are selecting are only used in the places
+where you want to apply the styling. But of course, especially in larger projects, 
+potentially with a lot of developers working on the code, it could happen that a name is used twice.
+That form control, for example, is used in different parts of the application and therefore unfortunately
+styles spill over to our components and you might want to avoid this. And there are various ways of avoiding this
+and I will show youthe two most popular approaches therefore.
+Approach number one is to use a package
+
+ called styled components.
+
+Style components is a package that helps you build guess what, components which have certain styles
+
+attached to them where the styles really only affect the components
+
+to which they were attached and not any other components.
+
+https://styled-components.com/docs/basics#installation
+
+
+Using CSS Modules
+=============
+
+So if you import from the CSS file here in the button component, it will create unique classes, unique worshens
+
+of all those styles and classes here for this component. And for data it generates brand new class names
+
+
+https://create-react-app.dev/docs/adding-a-css-modules-stylesheet/

@@ -1,0 +1,2423 @@
+React Basics(Proacademy)
+========================
+
+Introduction to React
+======================
+
+What is React?
+--------------
+=> React is a declarative,efficient,and flexible javascript library for building
+user interfaces.it lets you compose complex UIs from small and isolated pieces of
+code called components.
+
+
+Why React?
+----------
+=>First of all,React is feature rich javascript library,which comes with a lot of
+utility codes that can be re-used in your application.
+=>Second,it divides the UI into several small building blocks called as component,
+and these components can be developed separately and are independent of each other.
+In this way,it is more maintainable and easily testable.
+=>The code which we write to implement a functionality with javascript,is drastically
+reduced when we write same functionality with React.In this way,development becomes
+faster and more productive.
+
+
+Single Page Application
+-----------------------
+=> we use React for creating Single page Applications.
+=>In traditional way when we request a new page the browser sends the request to the server.
+and then the server sends the requested htnl file back to the browser and that file gets 
+loaded in the browser.
+
+
+Eg:From the browser we are making a request to the server for sending us the html content of the 
+about page.and server has sent the about.html to the browser.this about.html will be rendered in
+the browser and the content of the about page will be displayed to the user.in the same way if we 
+want to render the contact page in the browser we will send another rqst to the server the 
+server will send us back the contact.html and that will be rendered in the browser
+content of the contact page will be displayed to the user.
+this request and response cycle makes a web application slower.
+bcse here every time we navigate from one page to another, browser needs to reach
+out to the server to get the requested html.
+
+
+	   https://website.com/About
+Browser -----------------------------> Server
+	  <-----------------------------
+		About.html
+
+
+=> A single Page application is a web application,which has only one HTML page.
+=> When we navigate around in the application,the content of that HTML file
+changes.The page itself never changes.
+
+
+Advantage
+---------
+=>Since we are using Javascript to change the content of the page,it is much faster.
+=>Here we are not reaching out to the server to request a new piece of HTML data,
+every time we navigate to a different URL.
+=>This allows us to create an application which is fast and reactive.
+
+
+
+
+Setting up React Project
+=========================
+=>Install Node js
+	->Node js is a runtime environment for executing javascript code outside of 
+	the browser environment.
+->nodejs.org
+->node --version
+
+Create a react app
+------------------
+=> npx create-react-app name_of_the_project
+
+	-> npx create-react-app demo
+
+
+A Closer look at React Project Structure
+========================================
+
+=> Index.js file is the entry point of a react application.
+JSX->javascript XML
+=> browser does not understand the jsx so to make the code work we have to pass the code
+through babel which is modern js compiler
+=>babel will take the jsx syntax and it will convert it into plain javascript so that 
+browsers can also understand it.
+	->babelijs/io
+
+Working with React Project 
+==========================
+=> Index.js file is the entry point of a react application.
+=>create react application and delete src files.
+=>create index.js 
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+
+const header=<h1>This is my first react app</h2>
+
+console.log(header)
+
+This is jsx expression
+this jsx expression when we compiled by babel it will make a call to react.createElement
+so basically behind the scenes the React.createElement() method will be called.
+This is the reason why we have imported the object(import React from 'react';) at the top.
+even though we are not going to use the object directly in the file. 
+but when our code will be compiled when the jsx expression will be compiled it will make
+a call React.createElement
+
+
+=>when we save the changes in the project it is automatically going to restart the
+react app - > This is what we call as hot module reloading
+
+
+=>o/p of above code is
+In developer console u will notice that here an object has been logged and this object
+is the output of a jsx expression.
+
+here is that this object this react element which u see here in console  this is part of virtual DOM.
+virtual DOM is a lightweight memory representation of ui its not the real browsers DOM its the virtual DOM.
+we want to render it in the real dom that means  we want to render it in the browser DOM.
+to do that
+in the React dom object we have a render method,and this render method renders an element from the 
+virtual dom in the real dom so the first argument of this render method is the element which we want to
+render so here we want to render this header then we also need to specify where do we want to render this element.
+so we need to  pass it as the second argument to the render method now here we want to render this element 
+the second argument is document.getelementbyid and to this lets pass the id of the div which is root which is 
+present in index.html
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+
+const header=<h1>This is my first react app</h2>
+
+//console.log(header)
+
+ReactDOM.render(header,document.getElementById('root'));
+
+o/p: This is my first React App in browser
+
+that h1 element has been rendered in the dom
+
+u can check also in Elements(ctrl+shift+j)
+
+but in real world applications we render our app component
+currently we dont have that app component in our project bcse we have deleted it
+
+Understanding React Components 
+==============================
+
+React Components
+----------------
+=> A component is basically a piece of user interface.
+=> Every react application has atleast one component(App.js).
+=> A react application is essentially a tree of components.
+=> Combining all these components together makes a UI.
+
+class App{
+	state;
+	render(){
+	}
+}
+
+=> the State here is the data that we want to display when the component is rendered.
+=> render method is responsible for describing what the ui should look like.
+=> the o/p of the render method is a react element which is simple plain javascript
+object that maps to a DOM element.
+
+
+
+creating a component
+====================
+=> create a App.js
+
+
+App.js
+-----
+function App(){
+	return <h2<This is App component</h2>
+}
+
+export default App;
+
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './app';
+
+
+const header=<h1>This is my first react app</h2>
+
+//console.log(header)
+
+ReactDOM.render(header,document.getElementById('root'));
+
+here we rendered this header inside this div which is root
+
+in react 18 ReactDOM has been deprecated
+
+in the browser This is my first react app
+o/p:in console we got an error
+Warning:ReactDOM.render is no longer supported in React 18.
+
+
+=> create const root and we want to assign the div 
+which we have inside in index.html with the id root.
+so for that we use createRoot method so this createRoot method
+we have in react DOM.
+=>Now ReactDOM is not the  ReactDOM(import ReactDOM from 'react-dom';) object
+which we are importing from react-dom
+=>The ReactDOM object we need to import it from react-dom-/client
+=>To the createRoot method we need to pass the html element which is going 
+to act as a container here the div which is present in index.html is acts a container
+=>Again use document.getElementbyId method and pass the id of that div which is root
+=>within this element we want to render our app component 
+so on the root we can call the render method.and to this render method
+we can pass the app component
+
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './app';
+
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+<App/>
+)
+
+=>o/p:This is my first react App
+
+
+
+Introduction to JavaScript XML
+==============================
+
+
+why do we need JSX why dont we need regular javascript instead
+--------------------------------------------------------------
+
+create a paragraph element using javascript:
+
+
+App.js
+-----
+function App(){
+	const p=document.createElement('p');
+	p.textContent='This is App Component!''
+	return p;
+	
+	//return <p<This is App component</p>
+}
+
+export default App;
+
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './app';
+
+//const root=ReactDOM.createRoot(document.getElementById('root'));
+//root.render(
+//<App/>)
+
+let div=document.getElementById('root');
+div.append(App());
+
+o/p:This is App Component
+
+=>It is also possible to use regular javascript to design the UI.
+but if we notice when we are using the regular javascriptwe have three lines of code
+but earlier using jsx syntax we had only one line of code.
+so this code might get more complex when we add more and more elements in the ui using javascript.
+so jsx gives us the adv of creating ui elements with ease using html syntax.
+thats why instead of using javascript we use jsxto design our ui.
+
+
+=> 
+App.js
+------
+
+function App(){
+	
+	let msg='awesome';
+	return <p<This is my first {msg} component</p>
+}
+
+export default App;
+
+
+o/p:This is my first awesome component
+
+Here From this app component we are returning single element i.e the paragraph element.
+
+Now what if we want to return more than one element
+---------------------------------------------------
+
+
+App.js
+------
+
+function App(){
+	
+	let msg='awesome';
+
+	return <h1>This is my header element</h1> <p<This is my first {msg} component</p>
+}
+
+export default App;
+
+
+
+o/p:we notic that here we have red squiggly lines 
+thats bcse when we want to return more than one html element in that case thos html elements 
+must be wrapped within one top level element.
+so to resolve this issue we can wrap these two html elements within a container element that
+container element can be div or a span or anything.
+
+
+
+App.js
+------
+
+function App(){
+	
+	let msg='awesome';
+
+	return (<div>
+		<h1>This is my header element</h1>
+		 <p><This is my first {msg} component</p>
+		</div>);
+}
+
+export default App;
+
+
+o/p:This is my header element
+    This is my first awesome component
+
+
+=> jsx is simply xml so jsx follows xml rules.
+therefore every html element must be properly closed.
+
+
+
+Adding CSS to Component
+-----------------------
+
+=> In css we add some styles for the class but 
+In jsx instead of using class  we use className
+why ?
+In javascript a class is a reserved keyword.
+
+
+App.js
+------
+
+import './app.css';
+function App(){
+	
+	let msg='awesome';
+
+	return (<div>
+		<h1 className="myHeader">This is my header element</h1>
+		 <p className="myParagraph"><This is my first {msg} component</p>
+		</div>);
+}
+
+export default App;
+
+
+create a css file 
+
+app.css
+-------
+.myHeader{
+	color:red;
+}
+
+.myParagraph{
+	color:blue;
+}
+
+
+
+o/p:This is my header element with red color
+    This is my first awesome component with blue color
+
+Adding Child Components
+======================
+
+create a folder called Components
+create a file called Products.js
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return <h1>All products</h1>
+
+}
+export default Products;
+
+
+App.js
+------
+
+import Products from './components/Products
+function App(){
+	
+	return <Products></Products>
+}
+
+export default App;
+
+
+o/p:All products
+
+
+here child component is Products.js and
+Parent component is App.js
+
+
+Working with Complex JSX
+========================
+
+Now Along with the h1 element i also want to returning the paragraph element
+
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return <h1>All products</h1><p>This is product Description</p>
+
+}
+export default Products;
+
+
+o/p:now we notice that we have the red squiggly indicating that here an error.
+bcse in react we can only return one element at a time 
+but here we are trying to return two elements 
+first the h1 elements and then the paragraph element
+thats why we have this error.
+Now behind the scenes when we are returning the jsx code
+behind the scenes react will use the
+
+React.CreateElement 
+
+method to create that element.
+when we return only one element at that time this createElement method knows that it has to
+create that element 
+Eg:
+
+return <h1>All products</h1>
+
+here the React.createElement knows that it has to create one h1 element.
+
+but when we have more than one elements which we are returning in that case this method 
+does not know which element to create.
+and bcse of this react does not allow us to return more than one html element at a time.
+we can resolve this problem by wrapping a container element.
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return <div> <h1>All products</h1><p>This is product Description</p></div>
+
+}
+export default Products;
+
+Now the createElement will create one html element which is the div and 
+this div element is containing h1 and p elements
+within that div the p and h1 elements will also get created.
+
+
+o/p:All products
+   This is product description
+
+
+ctrl+shift+ j-->elements
+
+o/p:
+<div id="root">
+<div>
+	<h1>All products</h1>
+	<p>This is product Description</p>
+</div>
+</div>
+
+=>When you are returning jsx code with more than one line you should wrap it within
+paranthesis 
+
+
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return (<div>
+		 	<h1>All products</h1>
+			<p>This is product Description</p>
+		</div>)
+
+}
+export default Products;
+
+
+Now why this paranthesis is required?
+-------------------------------------
+Javascript has a feature called as implicit semicolon insertion
+that means sometimes what javascript do is when it finds a new line and if that new line
+is not ending with semi colon it will implicitly insert a semicolon after that
+
+Ex:
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return 
+		
+		(<div>
+		 	<h1>All products</h1>
+			<p>This is product Description</p>
+		</div>)
+
+}
+export default Products;
+
+
+=>After return keyword javascript is implicitly insert a semicolon
+
+=>o/p:We dont have anything in web page.
+
+
+=>So whenever you are returning a multi line jsx code u should always wrap it with paranthesis
+so that whatever you have within that parenthesis that will be considered as a single expression.
+
+
+
+
+=>Now from this Product component we want to return a Products
+
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return (<ul>
+			<li>
+				<div>
+					<div>
+						<h5>Fresh Mil</h5>
+						<p>Lorem ipsum dolor sit amet,consectrtur adipising</p>
+						<div>
+							<h6>$120.00</h6>
+						</div>
+					</div><img src="" width="200" />
+				</div>
+			</li>
+		</ul>)
+
+
+}
+export default Products;
+
+
+
+
+o/p: output of ul pic in Proacademy_channel_output
+
+Adding Bootstap in React App
+============================
+
+=>nom install bootstrap
+
+
+
+Products.js
+-----------
+//use Pascal case i.e every first letter of the every word should be Capital Eg:ProductsDetails
+function Products(){
+	
+	return (<ul class="list-group shadow">
+    			<li className="list-group-item">
+      		<div className="media align-items-lg-center flex-column flex-lg-row p-3">
+        		<div className="media-body order-2 order-lg-1">
+          		<h5 className="mt-0 font-weight-bold mb-2">Fresh Milk</h5>
+          		<p className="font-italic text-muted mb-0 small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.</p>
+          		<div className="d-flex align-items-center justify-content-between mt-1">
+            	<h6 className="font-weight-bold my-2">$120.00</h6>
+          		</div>
+        	</div><img src="" alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2" />
+        	</div>
+    		</li>
+		</ul>)
+}
+export default Products;
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './app';
+import 'bootstrap/dist/css/bootstrap.css';
+import './index.css';
+
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+<App/>
+)
+
+
+App.js
+------
+
+import Products from './components/Products
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+		<Products></Products>
+		</div>
+		</div>);
+}
+
+export default App;
+
+
+index.css
+---------
+body {
+  background: #00b09b;
+  background: -webkit-linear-gradient(to right, #00b09b, #96c93d);
+  background: linear-gradient(to right, #00b09b, #96c93d);
+  min-height: 100vh;
+  padding-top:20px;
+}
+
+.text-gray {
+  color: #aaa;
+}
+
+
+
+o/p:output of bootrap pic in Proacademy_channel_output
+
+
+Embedding Expressions
+=====================
+
+The image is display in the body so i want to display the image for the right side 
+for that i am going to add bootstrap class. that is d-flex
+
+
+
+<div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex-">
+
+
+=>i want to add the two buttons
+
+<button className="btn btn-primary">-</button>
+<button className="btn btn-primary">+</button>
+
+=>in these two button i also added span element.
+
+<button className="btn btn-primary">-</button>
+<span>1</span>
+<button className="btn btn-primary">+</button>
+
+
+o/p:The elements are appearing b/w - and + elements so to remove that gap 
+
+i am going to add botrstap class justify-content-start
+
+<div className="d-flex align-items-center justify-content-start mt-1">
+
+o/p:Now there is no gap in b/w those elements.
+
+
+
+=>create a variable productCount and set it to 0 in Product.js
+
+instead of using hard coded value in span tag lets use the productCount value in span tag
+
+Product.js
+-----------
+
+let productCount=0;
+<span>{productCount}</span>
+
+=>o/p:0 is displayed in b/w - and +
+
+=>lets write function
+
+let productCount=0;
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : 'Zero';
+}
+
+
+<span>{dispalyFormattedProductCount()}>/span>
+
+o/p:Zero is b/w - and +
+
+if we modify productCount=10
+
+then the o/p will be 10 in b/w - and +
+
+
+=>return productCount > 0 ? productCount : 'Zero';
+
+here Zero is string 
+here we are returning string but it is also possible to returning JSX expression.
+
+instead of returning string we can write in jsx element h1
+
+Product.js
+-----------
+
+let productCount=0;
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+
+<span>{dispalyFormattedProductCount()}>/span>
+
+o/p:output of Embedding Expressions pic in Proacademy_channel_output
+
+
+Working with JSX Attribute
+==========================
+
+=>Attribute is ntg but a property which we use for an xml element.
+Now we know that both html and jsx are xmls 
+But there are some attributes which works and which behaves differently in jsx than in html.
+
+=>1.src attribute of an img tag 
+
+<img src="../images/fresh-milk.png" >
+
+o/p:The image is not display in web page
+bcse we cannot assign the local path like this to the source attribute.
+
+we need to call the require method for src attribuet.
+
+<img src={require("../images/fresh-milk.png")}>
+
+			(OR)
+
+let imageUrl=require("../images/fresh-milk.png");
+
+<img src={imageUrl}/>
+
+o/p:The image is rendered in webpage.
+
+=>If u are using some image from an external server in that case u dont need to do it like this
+in this case u can assign the image path directly to the src attribute.
+
+
+=>2.style attribute
+
+<span style="padding : 0px 20px;">{displayFormattedProductCount()}</span>
+
+=>o/p:the product is not being displayed in webpage.
+
+In the console we got an error like
+
+UnCaught Erro:The 'style' prop expects a mapping from style properties to values not a string
+
+i.e instead of assigning a string it expecting a object
+
+let style={
+
+	padding:'0px 20px',
+	fontSize:12
+}
+
+<span style={style}>{displayFormattedProductCount()}</span>
+
+o/p:a padding of 20px and fontSize has been added in the span tag.
+
+=>if u want to use the fontSize property like u use it in css so
+Eg:font-size in that case u will have to wrap it within quotes
+
+
+let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}
+
+
+
+=>If u want to use the style attribute on multiple elements and for each of those elements the style
+is going to be diff in that cae u can use inline styling
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+
+<span style={{padding:'0px 14px','font-size':13}}>{displayFormattedProductCount()}</span>
+
+
+o/p:it should still be working
+
+
+
+overall Products.js
+-------------------
+
+let productCount=0;
+
+let imageUrl=require("../images/fresh-milk.png");
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function Products(){
+	
+	return (<ul class="list-group shadow">
+    			<li className="list-group-item">
+      		<div className="media align-items-lg-center flex-column flex-lg-row p-3">
+        		<div className="media-body order-2 order-lg-1">
+          		<h5 className="mt-0 font-weight-bold mb-2">Fresh Milk</h5>
+          		<p className="font-italic text-muted mb-0 small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.</p>
+          		<div className="d-flex align-items-center justify-content-between mt-1">
+            	<h6 className="font-weight-bold my-2" style={{'margin-right':30}}>$120.00</h6>
+			<button className="btn btn-primary">-</button>
+			<span style={{padding:'0px 14px','font-size':13}>{dispalyFormattedProductCount()}>/span>
+			<button className="btn btn-primary">+</button>
+          		</div>
+        	</div><img src={imageUrl} alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2" />
+        	</div>
+    		</li>
+		</ul>)
+}
+export default Products;
+
+
+
+o/p:output of JSX attribute pic in Proacademy_channel_output
+
+
+Adding classes dynamically
+==========================
+
+How to add css classes dynamically to a jsx element?
+
+=>create a new span element
+
+Product.js
+----------
+
+<span className="badge bg-danger">Available</span>
+
+
+o/p:the text Available is displayed within the green box
+
+Instead of harded code data
+
+i am going to create a new variable isAvailable
+
+Product.js
+----------
+
+let isAvailable='Available';
+<span className="badge bg-danger">{isAvailable}</span>
+
+o/p:it should be working as expected.
+
+=>we want to add the css class dynamically based on whether the isAvailable variable
+if it is assigned with the string Available or not Available for that 
+lets create a new variable badgeClass and assign the badge first bcse this badge class
+is going to be availabe products also and not available products also.
+
+Product.js
+----------
+
+let badgeClass='badge';
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+<span className={badgeClass}>{isAvailable}</span>
+
+o/p:currently the product is available so the badge should be green.
+
+
+Product.js
+----------
+let isAvailable='Unavailable';
+
+let badgeClass='badge';
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+<span className={badgeClass}>{isAvailable}</span>
+
+
+o/p:currently the product is unavailable so the badge should be red.
+
+
+index.css
+---------
+body {
+  background: #00b09b;
+  background: -webkit-linear-gradient(to right, #00b09b, #96c93d);
+  background: linear-gradient(to right, #00b09b, #96c93d);
+  min-height: 100vh;
+  padding-top:20px;
+}
+
+.text-gray {
+  color: #aaa;
+}
+
+.badge-margin-left-240{
+	margin-left:240px;
+}
+
+
+
+
+Product.js
+----------
+let isAvailable='Unavailable';
+
+let badgeClass='badge-margin-left-240 badge';//theser two css classes are common whether the product is available or not.
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+<span className={badgeClass}>{isAvailable}</span>
+
+o/p:there is some margin b/w + button and the red badge
+
+
+Product.js
+----------
+let isAvailable='Available';
+
+let badgeClass='badge-margin-left-240 badge';//theser two css classes are common whether the product is available or not.
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+<span className={badgeClass}>{isAvailable}</span>
+
+o/p:there is some margin b/w + button and the green badge
+
+
+overall Products.js
+-------------------
+
+let productCount=0;
+
+let imageUrl=require("../images/fresh-milk.png");
+
+let isAvailable='Available';
+
+
+let badgeClass='badge-margin-left-240 badge';//theser two css classes are common whether the product is available or not.
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function Products(){
+	
+	return (<ul class="list-group shadow">
+    			<li className="list-group-item">
+      		<div className="media align-items-lg-center flex-column flex-lg-row p-3">
+        		<div className="media-body order-2 order-lg-1">
+          		<h5 className="mt-0 font-weight-bold mb-2">Fresh Milk</h5>
+          		<p className="font-italic text-muted mb-0 small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.</p>
+          		<div className="d-flex align-items-center justify-content-between mt-1">
+            	<h6 className="font-weight-bold my-2" style={{'margin-right':30}}>$120.00</h6>
+			<button className="btn btn-primary">-</button>
+			<span style={{padding:'0px 14px','font-size':13}>{dispalyFormattedProductCount()}>/span>
+			<button className="btn btn-primary">+</button>
+			//<span className="badge bg-danger">{isAvailable}</span>
+			<span className={badgeClass}>{isAvailable}</span>
+          		</div>
+        	</div><img src={imageUrl} alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2" />
+        	</div>
+    		</li>
+		</ul>)
+}
+export default Products;
+
+
+
+o/p:adding classes dynamically pic in Proacademy_channel_output
+
+---------------------
+overall code upto now
+----------------------
+
+index.js
+--------
+import ReactDOM from 'react-dom/client';
+
+import './index.css';
+import App from './App';
+import 'bootstrap/dist/css/bootstrap.css'
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+index.css
+---------
+body {
+  background: #00b09b;
+  background: -webkit-linear-gradient(to right, #00b09b, #96c93d);
+  background: linear-gradient(to right, #00b09b, #96c93d);
+  min-height: 100vh;
+  padding-top:20px;
+}
+
+.text-gray {
+  color: #aaa;
+}
+
+.badge-margin-left-240{
+	margin-left:240px;
+}
+
+
+App.js
+------
+import './app.css'
+import Products from './components/Products';
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+		<Products></Products>
+		</div>
+		</div>);
+}
+
+export default App;
+
+
+Products.js
+-----------
+import React from "react";
+let productCount=0;
+
+let imageUrl=require("../images/fresh-milk.jpg");
+
+let isAvailable='Available';
+
+
+let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+badgeClass += isAvailable === 'Available' ? 'bg-success' : 'bg-danger ';
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function Products(){
+	
+	return (<ul class="list-group shadow">
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">Fresh Milk</h5>
+          		        <p className="font-italic text-muted mb-0 small">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.</p>
+          		        <div className="d-flex align-items-center justify-content-start mt-1">
+            	            <h6 className="font-weight-bold my-2" style={{'margin-right':30}}>$120.00</h6>
+			                <button className="btn btn-primary">-</button>
+			                <span style={{padding:'0px 14px','font-size':13}}>{displayFormattedProductCount()}</span>
+			                <button className="btn btn-primary">+</button>
+			                {/* <span className="badge bg-danger">{isAvailable}</span> */}
+			                <span className={badgeClass}>{isAvailable}</span>
+          		        </div>
+        	        </div>
+                    <img src={imageUrl} alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		</ul>)
+}
+export default Products;
+
+
+Passing data via props
+======================
+
+=>we use props for passing data from one component to another component.
+=>we use props for passing data from one parent component to child component.
+
+
+=>Currently in this project we have only one product
+lets say we have a list of products and we want to display all those products in this application.
+
+App.js
+------
+<Products></Products>
+<Products></Products>
+<Products></Products>
+<Products></Products>
+
+
+=>o/p:The product has been repeated four times.
+=>In this way we can reuse the component.
+
+=>here it display the same products 4 times instead of this we want to display diff products.
+for that lets create a list of products 
+
+App.js
+------
+
+let products = [
+    {
+        pID: 1, 
+        pName: 'Fresh Milk', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: 'images/fresh-milk.png',
+        price: 12
+    },
+    {
+        pID: 2, 
+        pName: 'Cottage Cheese', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/cottage-cheese.png",
+        price: 10
+    },
+    {
+        pID: 3, 
+        pName: 'Brocoli', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/brocoli.png",
+        price: 15
+    },
+    {
+        pID: 4, 
+        pName: 'oranges', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/oranges.png",
+        price: 20
+    },
+    {
+        pID: 5, 
+        pName: 'Olive oil', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/olive-oil.png",
+        price: 14
+    }
+]
+
+
+
+
+=>Now i want to pass each of these products to the products component(<products/> and we want to display the details of that product.
+
+for that we can use the concept of props.
+
+
+App.js
+------
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+		<Products 
+        		id={products[0].pID}
+        		name={products[0].pName}
+        		description={products[0].desc}
+        		isAvailable={products[0].isAvailable}
+        		imageUrl={products[0].image}
+        		price={products[0].price}>
+       	</Products>
+    		<Products id={products[1].pID}></Products>
+    		<Products id={products[2].pID}></Products>
+    		<Products id={products[3].pID}></Products>
+		</div>
+		</div>);
+}
+
+
+
+
+
+Product.js
+----------
+
+function Products(props){
+	
+	return (<ul className="list-group shadow">
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <div className="d-flex align-items-center justify-content-start mt-1">
+            	            <h6 className="font-weight-bold my-2" style={{'margin-right':30}}>{props.price}</h6>
+			                <button className="btn btn-primary">-</button>
+			                <span style={{padding:'8px 14px','font-size':13}}>{displayFormattedProductCount()}</span>
+			                <button className="btn btn-primary">+</button>
+			                {/* <span className="badge bg-danger">{isAvailable}</span> */}
+			                <span className={badgeClass}>{isAvailable}</span>
+          		        </div>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		</ul>)
+}
+
+=>Move the Images folder from components to public folder bcse it doesnt loaded the image.
+=>whenever u want to use images in your react application  try to put it in the public folder so that it will be easily accessible
+and it will be loaded properly 
+
+
+
+
+overall App.js
+--------------
+import './app.css'
+import Products from './components/Products';
+
+let products = [
+  {
+      pID: 1, 
+      pName: 'Fresh Milk', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: 'images/fresh-milk.png',
+      price: 12
+  },
+  {
+      pID: 2, 
+      pName: 'Cottage Cheese', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/cottage-cheese.png",
+      price: 10
+  },
+  {
+      pID: 3, 
+      pName: 'Brocoli', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/brocoli.png",
+      price: 15
+  },
+  {
+      pID: 4, 
+      pName: 'oranges', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/oranges.png",
+      price: 20
+  },
+  {
+      pID: 5, 
+      pName: 'Olive oil', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/olive-oil.png",
+      price: 14
+  }
+]
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+		<Products 
+        id={products[0].pID}
+        name={products[0].pName}
+        description={products[0].desc}
+        isAvailable={products[0].isAvailable}
+        imageUrl={products[0].image}
+        price={products[0].price}>
+    </Products>
+    <Products 
+        id={products[1].pID}
+        name={products[1].pName}
+        description={products[1].desc}
+        isAvailable={products[1].isAvailable}
+        imageUrl={products[1].image}
+        price={products[1].price}>
+    </Products>
+    <Products 
+        id={products[2].pID}
+        name={products[2].pName}
+        description={products[2].desc}
+        isAvailable={products[2].isAvailable}
+        imageUrl={products[2].image}
+        price={products[2].price}>
+    </Products>
+    <Products 
+        id={products[3].pID}
+        name={products[3].pName}
+        description={products[3].desc}
+        isAvailable={products[3].isAvailable}
+        imageUrl={products[3].image}
+        price={products[3].price}>
+    </Products>
+    <Products 
+        id={products[4].pID}
+        name={products[4].pName}
+        description={products[4].desc}
+        isAvailable={products[4].isAvailable}
+        imageUrl={products[4].image}
+        price={products[4].price}>
+    </Products>
+    
+		</div>
+		</div>);
+}
+
+export default App;
+
+
+overall Product.js
+------------------
+import React from "react";
+let productCount=0;
+
+// let imageUrl=require("../images/fresh-milk.png");
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+
+
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function Products(props){
+	let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+	return (<ul className="list-group shadow">
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <div className="d-flex align-items-center justify-content-start mt-1">
+            	            <h6 className="font-weight-bold my-2" style={{'margin-right':30}}>{props.price}</h6>
+			                <button className="btn btn-primary">-</button>
+			                <span style={{padding:'8px 14px','font-size':13}}>{displayFormattedProductCount()}</span>
+			                <button className="btn btn-primary">+</button>
+			                {/* <span className="badge bg-danger">{isAvailable}</span> */}
+			                <span className={badgeClass}>{props.isAvailable ? 'Available ' :'Unavilable'}</span>
+          		        </div>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		</ul>)
+}
+export default Products;
+
+
+o/p:output of props (Product.js)  and output of props (Product.js) in Proacademy_channel_output folder
+
+
+
+Splitting Component 
+===================
+
+=>when working with react components in a react application u will notice that in any projects your components
+eventually become bigger and bigger as u add more and more logic  and jsx code in your components.
+=>components allows you to split your application into smaller building blocks.
+
+=>The products component is becoming bigger and bigger as we add more and more logic and jsx code in the products
+component so in order to keep this component small and manageable we are going to split this product component into
+multiple components.
+
+
+=>Every time the products component is going to return the ul element but instead of returning the ul element we want
+to return li element bcse this li element should be responsible for displaying the list of products.
+so i will cut the ul element in Products.js and paste it in App.js
+
+App.js
+-------
+ <ul className="list-group shadow"></ul>
+
+=>we have split the products component into two components first we have Products component and inside this Products 
+component we are using ProductDetails component and ProductDetails component is responsible for displaying the
+price of the product whether the product is availabe or not and add the delete buttons by doing this we have less
+jsx code in the Products component in this way it is more maintainable and for the ProuctDetails component also
+we have less jsx code which is more maintainable.
+
+overall Product.js
+------------------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+
+// let imageUrl=require("../images/fresh-milk.png");
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+function Products(props){
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} />
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+
+overall ProductDetails.js
+-------------------------
+let productCount=0;
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function ProductDetails(props) {
+    let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>
+        {props.price}
+      </h6>
+      <button className="btn btn-primary">-</button>
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      <button className="btn btn-primary">+</button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+    </div>
+  );
+}
+export default ProductDetails;
+
+overall App.js
+--------------
+import './app.css'
+import Products from './components/Products';
+
+let products = [
+  {
+      pID: 1, 
+      pName: 'Fresh Milk', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: 'images/fresh-milk.png',
+      price: 12
+  },
+  {
+      pID: 2, 
+      pName: 'Cottage Cheese', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/cottage-cheese.png",
+      price: 10
+  },
+  {
+      pID: 3, 
+      pName: 'Brocoli', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/brocoli.png",
+      price: 15
+  },
+  {
+      pID: 4, 
+      pName: 'oranges', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/oranges.png",
+      price: 20
+  },
+  {
+      pID: 5, 
+      pName: 'Olive oil', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/olive-oil.png",
+      price: 14
+  }
+]
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+		<Products 
+        id={products[0].pID}
+        name={products[0].pName}
+        description={products[0].desc}
+        isAvailable={products[0].isAvailable}
+        imageUrl={products[0].image}
+        price={products[0].price}>
+    </Products>
+    <Products 
+        id={products[1].pID}
+        name={products[1].pName}
+        description={products[1].desc}
+        isAvailable={products[1].isAvailable}
+        imageUrl={products[1].image}
+        price={products[1].price}>
+    </Products>
+    <Products 
+        id={products[2].pID}
+        name={products[2].pName}
+        description={products[2].desc}
+        isAvailable={products[2].isAvailable}
+        imageUrl={products[2].image}
+        price={products[2].price}>
+    </Products>
+    <Products 
+        id={products[3].pID}
+        name={products[3].pName}
+        description={products[3].desc}
+        isAvailable={products[3].isAvailable}
+        imageUrl={products[3].image}
+        price={products[3].price}>
+    </Products>
+    <Products 
+        id={products[4].pID}
+        name={products[4].pName}
+        description={products[4].desc}
+        isAvailable={products[4].isAvailable}
+        imageUrl={products[4].image}
+        price={products[4].price}>
+    </Products>
+    </ul>
+		</div>
+		</div>);
+}
+
+export default App;
+
+
+
+o/p:
+output of splitting component (App.js) and output of splitting component (Product.js)
+and output of splitting component (ProductDetails.js) in Proacademy_channel_output
+
+
+
+Understanding children props
+============================ 
+
+=>The props object has a spatial property called children and that children property gets assigned 
+with the value which we  write within the opening and closing component
+
+
+ProductDetails.js
+-----------------
+
+let productCount=0;
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function ProductDetails(props) {
+    let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>
+        {props.price}
+      </h6>
+      <button className="btn btn-primary">-</button>
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      <button className="btn btn-primary">+</button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+
+      {props.children}
+
+    </div>
+  );
+}
+export default ProductDetails;
+
+
+Product.js
+----------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+
+// let imageUrl=require("../images/fresh-milk.png");
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+function Products(props){
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} >
+							<p>This is a demo</p>
+				</ProductDetails>
+
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+
+o/p:the p element has been displayed for each of these products after the badge.
+
+=>remove that {props.children} and <p>This is a demo</p>
+
+Where can we use this concept ?
+-------------------------------
+
+If u notice that in ProductDetails.js component has two buttons,on both of these button elements 
+we are specifying the same bootsrap class the only thing which is different here is the value which
+we are using within the opening and closing button element.
+for the first button we are using the - sign
+for the second button we are using the + sign.
+so i will create a new component called as Button
+nOw i will grab the button element in ProductDetails.js 
+and paste it in Button.js and instead of using - sign we know every component is going to receive the props
+parameter and every props parameter every props object will have a children property so here i will use 
+the children property i.e {props.children}
+inside ProductDetails.js we import the Button component
+and instead of html button element we use custom button component(<Button>)
+
+Button.js
+---------
+function Button (props){
+    return  <button className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+ProductDetails.js
+-----------------
+import Button from "./Button";
+let productCount=0;
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function ProductDetails(props) {
+    let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>
+        {props.price}
+      </h6>
+
+      {/* <button className="btn btn-primary">-</button> */}
+      <Button>-</Button>
+
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+
+      {/* <button className="btn btn-primary">+</button> */}
+      <Button>+</Button>
+
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+      {/* {props.children} */}
+    </div>
+  );
+}
+export default ProductDetails;
+
+o/p:it should working as expected
+
+
+=>what will happen if u specify a children attribute on the Button element
+lets say u assign it with the value may be 222 so in this case whether the children property
+of the props object will be assigned with the value 222  or with this value - sign which we
+are specifying b/w opening and closing button element.
+in this case also it will use the value which we are specifying b/w the opening and closing 
+button element it is not going to use the 222 value 
+
+
+ProducDetails.js
+---------------
+ <Button children="222">-</Button>
+
+o/p:- is displayed in webpage.
+
+
+=>If we dont have any value in b/w the opening and closing button element in that case 
+222 value will be assigned to the children property of the props object
+
+ProducDetails.js
+---------------
+ <Button children="222"></Button>
+
+o/p:222 is displayed in webpage.
+
+
+
+overallProductDetails.js
+------------------------
+import Button from "./Button";
+let productCount=0;
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function ProductDetails(props) {
+    let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>
+        {props.price}
+      </h6>
+      {/* <button className="btn btn-primary">-</button> */}
+      <Button children="222"></Button>
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      {/* <button className="btn btn-primary">+</button> */}
+      <Button>+</Button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+      {/* {props.children} */}
+    </div>
+  );
+}
+export default ProductDetails;
+
+Overall Button.js
+-----------------
+function Button (props){
+    return  <button className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+Overall Product.js
+------------------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+
+// let imageUrl=require("../images/fresh-milk.png");
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+function Products(props){
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} >
+							{/* <p>This is a demo</p> */}
+						</ProductDetails>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+overall App.js
+--------------
+import './app.css'
+import Products from './components/Products';
+
+let products = [
+  {
+      pID: 1, 
+      pName: 'Fresh Milk', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: 'images/fresh-milk.png',
+      price: 12
+  },
+  {
+      pID: 2, 
+      pName: 'Cottage Cheese', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/cottage-cheese.png",
+      price: 10
+  },
+  {
+      pID: 3, 
+      pName: 'Brocoli', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/brocoli.png",
+      price: 15
+  },
+  {
+      pID: 4, 
+      pName: 'oranges', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: true,
+      image: "images/oranges.png",
+      price: 20
+  },
+  {
+      pID: 5, 
+      pName: 'Olive oil', 
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+      isAvailable: false,
+      image: "images/olive-oil.png",
+      price: 14
+  }
+]
+function App(){
+	
+	return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+		<Products 
+        id={products[0].pID}
+        name={products[0].pName}
+        description={products[0].desc}
+        isAvailable={products[0].isAvailable}
+        imageUrl={products[0].image}
+        price={products[0].price}>
+    </Products>
+    <Products 
+        id={products[1].pID}
+        name={products[1].pName}
+        description={products[1].desc}
+        isAvailable={products[1].isAvailable}
+        imageUrl={products[1].image}
+        price={products[1].price}>
+    </Products>
+    <Products 
+        id={products[2].pID}
+        name={products[2].pName}
+        description={products[2].desc}
+        isAvailable={products[2].isAvailable}
+        imageUrl={products[2].image}
+        price={products[2].price}>
+    </Products>
+    <Products 
+        id={products[3].pID}
+        name={products[3].pName}
+        description={products[3].desc}
+        isAvailable={products[3].isAvailable}
+        imageUrl={products[3].image}
+        price={products[3].price}>
+    </Products>
+    <Products 
+        id={products[4].pID}
+        name={products[4].pName}
+        description={products[4].desc}
+        isAvailable={products[4].isAvailable}
+        imageUrl={products[4].image}
+        price={products[4].price}>
+    </Products>
+    </ul>
+		</div>
+		</div>);
+}
+
+export default App;
+
+
+
+
+A Closer look at JSX Syntax
+============================
+
+Index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+import './index.css';
+import App from './App';
+import 'bootstrap/dist/css/bootstrap.css'
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+=>Here we are importing the react object from react package
+	
+	import React from 'react';
+
+Here we are also importing the ReactDOM object from react-dom/client
+
+	import ReactDOM from 'react-dom/client';
+
+using the ReactDOM object we are calling the createRoot method and using that 
+we are creating the root element inside the root element we are rendering our app component.
+
+	const root = ReactDOM.createRoot(document.getElementById('root'));
+	root.render(<App />);
+
+but where we are using the react object ?
+-----------------------------------------
+=> import React from 'react';
+
+we are not using the react object anywhere in the file so what we can do this is we can remove the 
+import statement and our appplication should still work.
+
+
+Index.js
+--------
+import ReactDOM from 'react-dom/client';
+
+import './index.css';
+import App from './App';
+import 'bootstrap/dist/css/bootstrap.css'
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+o/p: our application should still work
+
+=>But in the older version of react it is mandatory to import the react object 
+from the react package in all component files
+but in the latest versions of react that is not mandatory
+
+lets understand what is the use of react object
+----------------------------------------------
+=> when we are writing jsx expression and when this project will be compiled and this jsx expression 
+will be converted into javascript code and when it will be converted into javascript code at that time it will
+call a method called create element and this create element method is present inside the react object.
+so from the producDetails componet we are returning the jsx expression 
+
+ProductDetails.js
+-----------------
+return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>${props.price}</h6>
+      <Button children="222"></Button>
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      <Button>+</Button>
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+    </div>
+  );
+
+
+instead of returning jsx expression we can also return the javascript object.
+in simple terms we can create these elements using javascript  using the creat element method 
+of the react object.
+
+=>createElement will take 3 parameters
+1.which u want to create
+2.anonymous object in this anonymous object u can specify the attributes for the element as the property
+3.content which we have b/w opening and closing element(<div> <h6><Button><span> etc</div>
+
+return React.createElement('div',{className:'d-flex align-items-center justify-content-start mt-1'},
+	React.createElement('h6',{className:'font-weight-bold my-2',style:{marginRight: 30 }},"$" +props.price),
+	//Since Button is custom element so we need not to write it in single quotes & we importing the Button in this component already
+	React.createElement(Button,{},"-"),
+	React.createElement('span',{style:{padding:'8px 14px','font-size':13}},displayFormattedProductCount()),
+	React.createElement(Button,{},"+"),
+	React.createElement('span',{className:badgeClass},props.isAvailable ? 'Available' : 'Unavailable')
+	)}
+
+
+o/p:application should still working
+
+but this time instead of returning jsx expression we are returning the javascript code.
+
+Here we are returning one javascript object that is div element
+inside this div element we are creating h6,Button,span,Button,span 
+but at the end we are returning one object.
+In the previous lectures we have already learned that when we want to return more than 
+one element using the jsx expression we need to wrap it within some container element.
+thats bcse this createElement method only create one element at a time.
+
+
+
+Overall ProductDetails.js
+-------------------------
+import Button from "./Button";
+import React from "react";
+let productCount=0;
+function displayFormattedProductCount(){
+	return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+function ProductDetails(props) {
+    let badgeClass='badge-margin-left-240 badge ';//theser two css classes are common whether the product is available or not.
+	badgeClass += props.isAvailable ? 'bg-success' : 'bg-danger ';
+  // return (
+  //   <div className="d-flex align-items-center justify-content-start mt-1">
+  //     <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>
+  //       {props.price}
+  //     </h6>
+  //     {/* <button className="btn btn-primary">-</button> */}
+  //     <Button children="222"></Button>
+  //     <span style={{ padding: "8px 14px", "font-size": 13 }}>
+  //       {displayFormattedProductCount()}
+  //     </span>
+  //     {/* <button className="btn btn-primary">+</button> */}
+  //     <Button>+</Button>
+  //     {/* <span className="badge bg-danger">{isAvailable}</span> */}
+  //     <span className={badgeClass}>
+  //       {props.isAvailable ? "Available " : "Unavilable"}
+  //     </span>
+  //     {/* {props.children} */}
+  //   </div>
+  // );
+  
+return React.createElement('div',{className:'d-flex align-items-center justify-content-start mt-1'},
+React.createElement('h6',{className:'font-weight-bold my-2',style:{marginRight: 30 }},"$" +props.price),
+//Since Button is custom element so we need not to write it in single quotes & we importing the Button in this component already
+React.createElement(Button,{},"-"),
+React.createElement('span',{style:{padding:'8px 14px','font-size':13}},displayFormattedProductCount()),
+React.createElement(Button,{},"+"),
+React.createElement('span',{className:badgeClass},props.isAvailable ? 'Available' : 'Unavailable')
+)}
+
+export default ProductDetails;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+React Basics(udemy)
+============
+=> React is a js library for building user interface.
+
+What is a component?
+--------------------
+=> React is all about "components" bcse all user interfaces in the end
+are made up of components.
+=> component=html+css+js
+
+why components?
+----------------
+=> Reusability
+=> Seperation of concerns.
+=> Dont repeat urself.
+=> Dont do too many things one and the same place
+
+React Code Is Written In A "Declarative Way"!
+=============================================
+Declarative Approach:
+=> you will not tell React that a certain HTML element should be created and inserted in a specific place
+on the user interface as you would be doing it with Vanilla JavaScript,Instead this 
+you will always define the desired end state,the target state or possibly also different target states
+depending on different conditions and it's then React's job to figure out
+which elements on the actual webpage might need to be added or removed or updated.
+And you don't write these concrete DOM updating instructions on your own
+as you would be doing it with just JavaScript,instead with React and React components,
+you just define these end states and under which conditions which state should be used
+and then React will do all of the rest under the hood.
+
+Introducing JSX
+================
+=> JSX stands for JavaScript XML.
+=> HTML directly write in JavaScript.Here,Jsx converts the html code into js.
+
+Passing Data via props
+======================
+=> props means properties.
+=> it allows u to make ur component reusable,and it allows us to pass data
+from another component to this component.
+
+
+<App/>
+
+goalitem="Finish"
+
+<courseGoalItemtext={goalitem}/>
+<li>{props.text></li>
+
+The Concept of "Composition" ("children props")
+================================
+Sometimes however, you wanna have a component where you don't configure everything through props
+
+but where instead you're able to pass content between the opening and closing tags of that component.
+
+ we have both in ExpenseItem and Expenses.js and extract the styles they have in common,
+
+like rounded corners and a drop shadow, into a separate component.
+
+ we were able to extract some code duplication
+
+from inside our CSS files into this separate wrapper component(card.css).
+
+
+
+
+
+
+
+

@@ -1,0 +1,1153 @@
+Custom React Hooks(PROACADEMY )
+===================
+
+=> In this application we have two counters the first counter is incrementing the value by
+one every second and the second counter is decrementing the value by one every second.
+
+
+
+Increment.js
+------------
+
+Import React,{useState,useEffect} from "react";
+
+function Increment(){
+	let [counter,setCounter]=useState(0);
+
+	useEffect(()=>{
+		const interval=setInterval=>{
+			setCounter(counter=>counter+1);
+		},1000);
+	},[]);
+
+	return <div class="counter-value increment">{counter}</div>
+}
+
+export default Increment;
+
+
+Decrement.js
+------------
+
+Import React,{useState,useEffect} from "react";
+
+function Decrement(){
+	let [counter,setCounter]=useState(0);
+
+	useEffect(()=>{
+		const interval=setInterval=>{
+			setCounter(counter=>counter-s1);
+		},1000);
+	},[]);
+
+	return <div class="counter-value decrement">{counter}</div>
+}
+
+export default Decrement;
+
+App.js
+-------
+import Decrement from './Components/Decrement';
+import Increment from './components/Increment';
+
+function App(){
+	return(
+		<div class="main">
+			<Increment></Increment>
+			<Decrement></Decrement>
+		</div>
+	);
+}
+
+export default App;
+
+
+=>If we notice the logic which we are writing inside the decrement component
+it is almost similar to the logic which we are writing inside the increment 
+component.
+the only difference is in increment component we are incrementing the value of counter
+	setCounter(counter=>counter+s1);
+but in decrement component we are decrementing the value of counter.
+	setCounter(counter=>counter-s1);
+
+So here we have duplicate code and we want to avoid duplication of code in our app.
+for that normally we use a function.
+we have already learned that we cannot use react hooks inside a normal function
+we can use a react hook inside a component function or 
+we can use react hook inside a custom hook
+so when we want to avoid the duplication of code that is one scenario where 
+we can use custom react hooks.
+
+use-Counter.js
+--------------
+function Counter(){
+}
+
+here we want to create a custom react hook now how will tell react that here 
+we are creating a custom react hook for that we need to use this use before
+hook name.
+If u want to create a counter hook u need to call it useCounter.
+=> so your custom react hook must be prefixed with use
+
+use-Counter.js
+--------------
+import {useState,useEffect} from 'react';
+
+function useCounter(increment){
+	
+	let [counter,setCounter]=useState(0);
+
+	useEffect(()=>{
+		const interval=setInterval=>{
+		if(increment)
+			setCounter(counter=>counter+s1);
+		else
+			setCounter(counter=>counter-s1);
+		},1000);
+	},[]);
+
+	return counter;
+
+}
+
+export default useCounter;
+
+
+Increment.js
+------------
+
+Import React,{useState,useEffect} from "react";
+import useCounter from '../use-Counter';
+
+function Increment(){
+	
+	let counter=useCounter(true);
+
+	return <div class="counter-value increment">{counter}</div>
+}
+
+export default Increment;
+
+Decrement.js
+------------
+
+Import React,{useState,useEffect} from "react";
+import useCounter from '../use-Counter';
+
+function Decrement(){
+
+	let counter=useCounter(false);
+
+	return <div class="counter-value Deccrement">{counter}</div>
+}
+
+export default Decrement;
+
+
+o/p:=> Now we have two counters the first counter is incrementing the value by
+one every second and the second counter is decrementing the value by one every second.
+
+
+=> Here i am set the default value as true so if the user does not pass any parameter
+to the useCounter in that case the default value true will be used.
+
+use-Counter.js
+--------------
+import {useState,useEffect} from 'react';
+
+function useCounter(increment=true){
+	
+	let [counter,setCounter]=useState(0);
+
+	useEffect(()=>{
+		const interval=setInterval=>{
+		if(increment)
+			setCounter(counter=>counter+s1);
+		else
+			setCounter(counter=>counter-s1);
+		},1000);
+	},[]);
+
+	return counter;
+
+}
+
+export default useCounter;
+
+
+Increment.js
+------------
+
+Import React,{useState,useEffect} from "react";
+import useCounter from '../use-Counter';
+
+function Increment(){
+	
+	let counter=useCounter();
+
+	return <div class="counter-value increment">{counter}</div>
+}
+
+export default Increment;
+
+Decrement.js
+------------
+
+Import React,{useState,useEffect} from "react";
+import useCounter from '../use-Counter';
+
+function Decrement(){
+
+	let counter=useCounter(false);
+
+	return <div class="counter-value Deccrement">{counter}</div>
+}
+
+export default Decrement;
+
+o/p:=> Now we have two counters the first counter is incrementing the value by taking default value 
+true in one every second and the second counter is decrementing the value by one every second.
+
+
+Creating a Custom HTTP Hook
+===========================
+
+
+App.js
+------
+import React,{useRef,useState,useEffect} from 'react';
+import Task from './components/Task";
+
+function App(){
+	let taskRef=useRef();
+	let [allTasks,setAllTasks]=useState([]);
+	let [errorMessage,setErrorMessage]=useState(null);
+
+	useEffect(()=>{
+		fetchTask();
+	},[]);
+
+	function createTask(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		 method:'POST',
+		 body:JSON.stringify(tasksRef.current.value)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		fetchTask();
+	})
+
+	function fetchTask(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json')
+		.then((response)=>{
+		 if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		  }
+		  return response.json();
+		})
+		.then((data)=>{
+			let tasks=[];
+			for(let key in data){
+				tasks.push({id:key,value:data[key]});
+			}
+			setAllTasks(tasks);
+			console.log(tasks);
+		})
+		.catch((error)=>{
+			.setErrorMessage(error.message);
+		});
+	}
+
+
+	function onDeleteTask(task){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		method:"DELETE"
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		}
+		fetchTask();
+	})
+	.catch((error)=>{
+		setErrorMessage(error.message);
+	});
+    }
+
+	return(
+		<div>
+			<div clasdName="main">
+				<input type="text" ref={taskRef}/>
+				<button className="btn-btn-create" onClick={createTask}>Create</button>
+			</div>
+			{!errorMessage && <Task tasks={allTasks} onDeleteTask={onDeleteTask}></Task>}
+			{errorMessage && <div className='task-card'><h3>{errorMessage}</h3></div>}
+			</div>
+		);
+	}
+
+export default App;
+
+
+=>if u notice in all these three functions the logic is almost same bcse in all these three functions 
+we are sending an http request to the server using this fetch api and then we are handling the response
+the promise returned by this fetch api using this then and catch and the logic written in createTask()
+then and catch is almost same in fetchTask() and onDeleteTask().
+=> Here we have some duplicate codes 
+=>Now i want to create a generic react hook which can be used to send a request to the server that
+request can be get request a post request a put request a delete request etc and that react hook 
+should be responsible for handling both the resolve promise and the rejected promise
+
+
+
+=>inside the sendHttpRequest we want to write the logic for sending the http request to the server.
+and then handling the response
+=>for the copy the code inside createTask() in App.js and paste in sendHttpRequest() in use-http.js
+
+
+use-http.js
+-----------
+import {useState} from 'react';s
+function useHttp(){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		 method:'POST',
+		 body:JSON.stringify(tasksRef.current.value)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		fetchTask();
+	});
+
+	}
+	//it returns an error msg and sendHttpRequest
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+=>Now we are hard coding the url,method type,body but these values might differ so for that we have to 
+specify the parameters (url,metho,body)s
+
+
+use-http.js
+-----------
+import {useState} from 'react';s
+function useHttp(url,method,body){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(){
+		fetch(url,{
+		 method:methods,
+		 body:JSON.stringify(body)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		fetchTask();
+	});
+
+	}
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+
+=> Now we are using the fetch api to send a request to the url to the endpoint and
+this fetch api is going to return as a promise  if that promise is resolved then
+then method will be called inside this then method we are checking if the response is ok or not.
+if the response is not ok in that case we are throwing the error manually and the error will be
+ handled by catch method but if the response if ok in that case here we are calling the
+fetchTask() function but  we dont have the fetchTask function inside this file.
+=> so here what we want is when we have the response we want to hand over that response 
+to a function in the app component bcse it is this app component where we want to 
+use the response data.
+=>for this i am going to send another parameter i will call it may be action.
+and this action should be assigned with a function and once we have the response we
+want to call that function and to that function we want to pass the response data
+=> so i create a variable data and i assign the response.json().this response.json()
+is going to return us the body of the response and we are assigning it to the
+data variable.
+=> and lets pass the data to the action function.
+=> here i have created a custom use http hook.
+use-http.js 
+-----------
+import {useState} from 'react';s
+function useHttp(url,method,body,action){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(){
+		fetch(url,{
+		 method:methods,
+		 body:JSON.stringify(body)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		//fetchTask();
+		let data=response.json();
+		actions(data);
+	});
+
+	}
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+
+Using the Custom HTTP Hook
+==========================
+
+use-http.js 
+-----------
+import {useState} from 'react';s
+function useHttp(url,method,body,action){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(){
+		fetch(url,{
+		 method:methods,
+		 body:JSON.stringify(body)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		//fetchTask();
+		let data=response.json();
+		actions(data);
+	});
+
+	}
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+=> Now we can use the custom useHttp hook in our app component.
+
+=> so first i want to use the useHttp hook to send a get request to the
+server in order to fetch all the tasks from the server db.
+=> so in the App component lets call useHttp hook
+
+useHttp();
+
+=> to this useHttp hook lets pass some arguments so the first argument
+which we need to pass the url from where we want to fetch the data.
+and specify the method type so here the method is going to be get.
+then we need to specify the body since we are sending a get request
+with the get request we dont send any body so here i will set it as null.
+
+useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+=>we also need to specify the method which should be called when we get
+the response back from the server.
+=> for the action parameter in use-http.js we need to specify a function
+in App.js so here i am going to create a function before using the 
+useHttp hook.
+
+function getAllTasks(data){
+	
+}
+
+
+=>useHttp is going to return an array 
+
+let [errorGet,sendGetRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+
+=>when we will call this sendRequest since we are passing the url the method as get to the useHttp in use-http.js
+the sendHttpRequest is going to send a get request to the url and when it receives the response it is going to
+going to pass that response to the getAllTask function
+
+function getAllTasks(data){
+	console.log(data);
+}
+
+=> we will get this data after only we call the sendRequest function.
+=> we want to call the sendRequest function when the page intially loads
+
+useEffect(()=>{
+	sendGetRequest();
+},[]);
+
+
+=> let[errorMessage,setErrorMessage]=useState(null);
+
+function getAllTasks(data){
+	console.log(data);
+	setErrorMessage(errorGet);
+}
+
+		
+
+overall App.js
+--------------
+import React,{useRef,useState,useEffect} from 'react';
+import Task from './components/Task";
+
+function App(){
+	let taskRef=useRef();
+	let [allTasks,setAllTasks]=useState([]);
+	let [errorMessage,setErrorMessage]=useState(null);
+
+	let [errorGet,sendGetRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+	function getAllTasks(data){
+	console.log(data);
+	setErrorMessage(errorGet);
+	}
+
+	useEffect(()=>{
+		sendGetRequest();
+	},[]);
+
+	
+	function createTask(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		 method:'POST',
+		 body:JSON.stringify(tasksRef.current.value)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		fetchTask();
+	})
+
+	function fetchTask(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json')
+		.then((response)=>{
+		 if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		  }
+		  return response.json();
+		})
+		.then((data)=>{
+			let tasks=[];
+			for(let key in data){
+				tasks.push({id:key,value:data[key]});
+			}
+			setAllTasks(tasks);
+			console.log(tasks);
+		})
+		.catch((error)=>{
+			.setErrorMessage(error.message);
+		});
+	}
+
+
+	function onDeleteTask(task){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		method:"DELETE"
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		}
+		fetchTask();
+	})
+	.catch((error)=>{
+		setErrorMessage(error.message);
+	});
+    }
+
+	return(
+		<div>
+			<div clasdName="main">
+				<input type="text" ref={taskRef}/>
+				<button className="btn-btn-create" onClick={createTask}>Create</button>
+			</div>
+			{!errorMessage && <Task tasks={allTasks} onDeleteTask={onDeleteTask}></Task>}
+			{errorMessage && <div className='task-card'><h3>{errorMessage}</h3></div>}
+			</div>
+		);
+	}
+
+export default App;
+
+
+=>o/p:the data is not sgetting in console 
+bcse here we are sending a get request and with the get request we do not need to send 
+any body.for the body frpm the App.js we have passed null value to the JSON.stringfy
+to convert into json so here we are converting the null value into json format thats why 
+we are not getting any data in console.
+
+=>In this case i want to stringfy the body i want to convert into json format otherwise i simply
+want to set the body with null
+
+
+ body:body ? JSON.stringify(body):null
+
+use-http.js 
+-----------
+import {useState} from 'react';s
+function useHttp(url,method,body,action){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(){
+		fetch(url,{
+		 method:methods,
+		 //body:JSON.stringify(body)
+		 body:body ? JSON.stringify(body):null
+
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		//fetchTask();
+		let data=response.json();
+		actions(data);
+	});
+
+	}
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+
+o/p:Now a promise has been logged in the console.and this promise is pending promise
+bcse 
+let data=response.json();
+actions(data);
+
+from here i am returning the data and we have assigned response.json and this
+response.json is returns a promise and we are logged the promise in console but this
+promise is not resolved yet once the promise will be resolved on that promise we can use
+then method to handle the resolve data.
+
+
+function getAllTasks(data){
+	data.then((tasks)=>{
+		console.log(tasks);
+	})
+	setErrorMessage(errorGet);
+}
+
+=>the task object has been logged here in console.
+=>Now instead of display the data in console we want to display the data in  web page.
+
+for that 
+
+
+
+function getAllTasks(data){
+	data.then((tasks)=>{
+		let taskList=[];
+		for(let key in tasks){
+			taskList.push({id:key,value:tasks[key]});
+	}
+	setAllTasks(taskList);
+	//console.log(tasks);
+	})
+	setErrorMessage(error);
+}
+
+=> In App.js delete the fetchTask function
+=>since we have deleted the fetchTask function we have to comment that
+function in onDeleteTask() and createTask()
+
+overall App.js
+--------------
+
+import React,{useRef,useState,useEffect} from 'react';
+import Task from './components/Task";
+
+function App(){
+	let taskRef=useRef();
+	let [allTasks,setAllTasks]=useState([]);
+	let [errorMessage,setErrorMessage]=useState(null);
+
+	let [errorGet,sendGetRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+	function getAllTasks(data){
+	data.then((tasks)=>{
+		let taskList=[];
+		for(let key in tasks){
+			taskList.push({id:key,value:tasks[key]});
+	}
+	setAllTasks(taskList);
+	//console.log(tasks);
+	})
+	setErrorMessage(errorGet);
+	}
+
+
+	useEffect(()=>{
+		sendGetRequest();
+	},[]);
+
+	function createTask(){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		 method:'POST',
+		 body:JSON.stringify(tasksRef.current.value)
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		//fetchTask();
+	})
+
+	function onDeleteTask(task){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		method:"DELETE"
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		}
+		//fetchTask();
+	})
+	.catch((error)=>{
+		setErrorMessage(error.message);
+	});
+    }
+
+	return(
+		<div>
+			<div clasdName="main">
+				<input type="text" ref={taskRef}/>
+				<button className="btn-btn-create" onClick={createTask}>Create</button>
+			</div>
+			{!errorMessage && <Task tasks={allTasks} onDeleteTask={onDeleteTask}></Task>}
+			{errorMessage && <div className='task-card'><h3>{errorMessage}</h3></div>}
+			</div>
+		);
+	}
+
+export default App;
+
+=>o/p:Now using the useHttp hook we are able to send an htpp request to the server
+we are able to get all the tasks from the database and 
+we are able to display it in the web page.
+
+
+=>Now we can use the useHttp hook to send a post request.
+we also need to specify the function which we want to execute when we have the response along with POST,taskRef.current.value.
+
+let [errorPost,sendPOSTRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+
+in this case the createTask is going to receive the data 
+
+
+function createTask(data){
+	
+}
+
+=>
+
+useEffect(()=>{
+	sendGetRequest();
+},[]);
+
+=>
+function createTask(data){
+	sendPostRequest();
+}
+
+
+=>the sendPostRequest() will send a post request to the server to create a new task 
+and once the task is created in the db we also want to fetch the task automatically
+after the task is created so for that lets also call  sendGetRequest()
+
+=>
+function createTask(data){
+	sendPostRequest();
+	sendGetRequest();
+}
+
+
+=>o/p:ntg is displayed in web page and lets check in console
+in console we have an error that error says cannot read properties 
+of undefined(reading 'value') that means it is trying to read the value
+property on undefined.
+taskref.current is returning undefined
+when the below line will be  executed  inside the app component function
+
+let [errorPost,sendPOSTRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+
+
+by that time the input element is not yet created. thats why we have an error
+like taskRef.current as undefined
+
+<input type="text" ref={taskRef}/>
+
+=> And also even if the current had some value on that when we use the value
+property initially it will be empty string.
+
+
+let [errorPost,sendPOSTRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+
+=> when we are calling this useHttp here  
+to this useHttp we are passing the body as empty string and we do not want that
+we want to pass the value which the user has entered in the input element as the body for the post request 
+we dont want to send an empty string
+so this is not the right place to pass the body of the request
+so here we need to modify the useHttp hook a bit in use-http.js so that
+it can also handle the post and the delete request
+
+
+Modifying Custom hook to handle Post Request
+============================================
+
+=> The task.current is going to return the undefined error 
+when we are trying to access the value
+so how can we resolve the problem.
+
+=>When we click on the create button we are calling the createTask function
+so when the user enters smtg in the i/p element when he enters the task detail 
+and when he clicks on the create button by that time we will have some value 
+in the i/p element right so one way to solve the problem is by sending the http 
+post request inside the create task function so basically inside this function
+but we cannot use the useHttp hook inside the function bcse this is normal function.
+this is neither a component function nor it is a custom react hook.
+
+function createTask(data){
+	sendPostRequest();
+	sendGetRequest();
+}
+
+
+and we have learned that we can only use a react hook inside a component function
+or inside a custom react hook and this useHttp is a react hook so we can either use 
+it directly inside the component function or inside a custom react hook 
+we cannot go ahead  and use it inside the create task function.
+so what should we do now well the only sol
+which i can think of right now is to modify the useHttp hook
+so here instead of expecting these parameters for the useHttp hook  in use-http.js
+we can  expect these parameters for the sendHttpRequest function
+
+use-http.js 
+-----------
+import {useState} from 'react';s
+function useHttp(){
+	let [errorMessage,setErrorMessage]=useState(null);
+	function sendHttpRequest(url,method,body,action){
+		fetch(url,{
+		 method:methods,
+		 //body:JSON.stringify(body)
+		 body:body ? JSON.stringify(body):null
+
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..please try again later");
+		}
+		
+		//fetchTask();
+		let data=response.json();
+		actions(data);
+	});
+
+	}
+	return [errorMessage,sendHttpRequest];
+
+}
+
+export default useHttp;
+
+=>Now the useHttp in App.js is not expecting any parameters
+so whenever we are using the sendGetRequest there we need to pass
+these parameters so copy the parameters and we are sending this
+
+let [errorGet,sendGetRequest]=useHttp(); in App.js
+
+parameters in useEffect in App.js
+
+useEffect(()=>{
+	sendGetRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null,getAllTasks);
+},[]);
+
+
+
+=>And whenever we are calling the send post request there also copy the arguments 
+
+let [errorPost,sendPOSTRequest]=useHttp();
+
+and pass those arguments to sendPostRequest(); 
+
+function createTask(data){
+	sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+	sendGetRequest();
+}
+
+keep in mind the sendPostRequest is pointing to the sendHttpRequest function in use-http.js 
+let me comment the senGetReuest() for now
+
+
+function createTask(data){
+	sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+	//sendGetRequest();
+}
+
+=>Now when we are calling the sendPostRequest there for the action parameter we are passing the create task function
+and we are also calling the sendPostRequest inside the createTask() function so here it will create an infinite loop 
+so instead of passing the create task function lets pass another function here and lets simply  call it onCreateTask
+
+
+sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,onCreateTask);
+
+=>Now lets create the onCreateTask function and it is going to receive the response data so lets call it data and
+inside this function i dont want to do anything since we are sending the post request with the response data 
+we dont want to do anything when we  are sending the get Request in that case with the response data we want to
+display it in the web page.bcse in that case with the response data we are getting all the tasks from the server
+but here in the case of post request we are creating a new task in the db.
+so lets do one thing 
+data is going to contain a promise and when that promise is resolved we are going to handle it using the then method
+to this then method lets pass a callback function and this callback function is going to receive the actual
+response data lets call it may be d.and log that data.
+
+function onCreateTask(data){
+	data.then((d)=>{
+		console.log(d);
+	
+	});
+}
+
+now the createTask is not going to receive any data so remove that
+
+function createTask(){
+	sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+	//sendGetRequest();
+}
+
+
+=>keep in mind the createTask function will be called when the create button will be clicked
+bcse we are calling the create task function as  the click event handler.
+
+
+<button className="btn-btn-create" onClick={createTask}>Create</button>
+
+
+o/p:In the console the response we are getting the id of the task which has been created in the db.
+
+=> when u send a post request to the server in the response u get the id of the item which has been created
+in the db server and we dont want to do anything with that id so thats why i dont want it to do anything with the 
+repsonse which we are getting inside the data parameter
+
+function onCreateTask(data){
+	data.then((d)=>{
+		console.log(d);
+	
+	});
+}
+
+
+overall App.js
+--------------
+
+import React,{useRef,useState,useEffect} from 'react';
+import Task from './components/Task";
+
+function App(){
+	let taskRef=useRef();
+	let [allTasks,setAllTasks]=useState([]);
+	let [errorMessage,setErrorMessage]=useState(null);
+
+	let [errorGet,sendGetRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+	function getAllTasks(data){
+	data.then((tasks)=>{
+		let taskList=[];
+		for(let key in tasks){
+			taskList.push({id:key,value:tasks[key]});
+	}
+	setAllTasks(taskList);
+	//console.log(tasks);
+	})
+	setErrorMessage(errorGet);
+	}
+
+
+	useEffect(()=>{
+	sendGetRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null,getAllTasks);
+	},[]);
+
+	
+
+	//create a new task
+	function createTask(){
+	sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+	//sendGetRequest();
+	}
+
+	
+	function onCreateTask(data){
+	//DO NTG
+	data.then((d)=>{
+		console.log(d);
+	
+	});
+	s}
+
+	function onDeleteTask(task){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		method:"DELETE"
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		}
+		//fetchTask();
+	})
+	.catch((error)=>{
+		setErrorMessage(error.message);
+	});
+    }
+
+	return(
+		<div>
+			<div clasdName="main">
+				<input type="text" ref={taskRef}/>
+				<button className="btn-btn-create" onClick={createTask}>Create</button>
+			</div>
+			{!errorMessage && <Task tasks={allTasks} onDeleteTask={onDeleteTask}></Task>}
+			{errorMessage && <div className='task-card'><h3>{errorMessage}</h3></div>}
+			</div>
+		);
+	}
+
+export default App;
+
+
+=>Now when i send  a Post request to the server and we have the response and also we want to send
+the get request again to fetch all the tasks from db server and display it in the web page automatically 
+currently what we need to do is once we create a task we need to reload the page in order to see all the
+tasks in the web page.but we want to fetch all the tasks from the db as soon as a new task is created in the db 
+server.
+
+for that lets create onFetchTasks function and lets send a get rqst so cut the sendGetRequest() from useEffetc();
+
+
+function onFetchTasks(){
+}
+
+
+function onFetchTasks(){
+	sendGetRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null,getAllTasks);
+}
+
+=>FROM the useEffect() lets call onFetchTask()
+
+useEffect(()=>{
+		onFetchTask()
+	
+},[]);
+
+=>inside the onCreateTask function also we want to call the onFetchTasks() function
+
+
+function onCreateTask(data){
+	//DO NTG
+	data.then((d)=>{
+		console.log(d);
+	onFetchTasks();
+	
+});
+}
+
+=>o/p:The tasks has been created in db and automatically fetched from db server.
+
+overall App.js
+--------------
+
+import React,{useRef,useState,useEffect} from 'react';
+import Task from './components/Task";
+
+function App(){
+	let taskRef=useRef();
+	let [allTasks,setAllTasks]=useState([]);
+	let [errorMessage,setErrorMessage]=useState(null);
+
+	let [errorGet,sendGetRequest]=useHttp('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null);
+
+	function getAllTasks(data){
+	data.then((tasks)=>{
+		let taskList=[];
+		for(let key in tasks){
+			taskList.push({id:key,value:tasks[key]});
+	}
+	setAllTasks(taskList);
+	//console.log(tasks);
+	})
+	setErrorMessage(errorGet);
+	}
+
+
+	useEffect(()=>{
+		onFetchTask()
+	
+	},[]);
+
+	
+
+	//create a new task
+	function createTask(){
+	sendPostRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'POST',taskRef.current.value,createTask);
+	//sendGetRequest();
+	}
+
+	
+	function onCreateTask(data){
+	//DO NTG
+	data.then((d)=>{
+		console.log(d);
+	onFetchTasks();
+	
+	});
+	}
+
+	
+	function onFetchTasks(){
+		sendGetRequest('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json,'GET',null,getAllTasks);
+	}
+
+	function onDeleteTask(task){
+		fetch('https://mock-329a2-default-rtdb.firebaseio.com/tasks.json',{
+		method:"DELETE"
+	})
+	.then((response)=>{
+		if(!response.ok){
+			throw new Error("smtg went wrong..pls try again later");
+		}
+		//fetchTask();
+	})
+	.catch((error)=>{
+		setErrorMessage(error.message);
+	});
+    }
+
+	return(
+		<div>
+			<div clasdName="main">
+				<input type="text" ref={taskRef}/>
+				<button className="btn-btn-create" onClick={createTask}>Create</button>
+			</div>
+			{!errorMessage && <Task tasks={allTasks} onDeleteTask={onDeleteTask}></Task>}
+			{errorMessage && <div className='task-card'><h3>{errorMessage}</h3></div>}
+			</div>
+		);
+	}
+
+export default App;

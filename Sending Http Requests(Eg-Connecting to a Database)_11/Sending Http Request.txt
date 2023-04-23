@@ -1,0 +1,1172 @@
+
+Setting Up Firebase Database
+====================
+=> Browser should never interact with the database directly that means when we use a client-side lang
+like javascript or a library like react since they are executed in the browser we should never write codes 
+in javascript or react to directly communciate with the database bcse users can see database credentials in
+developer console.
+
+Then how should we interact with the database
+==============================
+=> We can create a backend application running on a server and this backend app can communicate
+with the database since the backend is running on a server user will not have access to this backend code.
+
+
+=>We are using existing backend solution provided by google which is called as firebase.
+=> It provides entire backend solution with apis to work with firebase database.
+
+1.firebase.google.com
+2.Login with Google credentials
+3.create a project
+4.provide project name and click on continue 
+5.unselect the Enable Google Analytics for this project.
+6.click on the create project
+7.Now project is created then click on continue
+6.Left side Build-->Realtime Database-->Create Database-->next
+start in locked mode :user will need to authenticate
+start in test mode :doesnt need to authenticate
+7. for now we use start in test mode -> Enable
+
+https://mock-329a2-default-rtdb.firebaseio.com/
+
+This url is a endpoint which we are going to use to work  with the database.
+
+
+ Sending a Post Request
+================
+=> Firebase db is a nosql db that means we dont have tables instead we have collections.
+=> In that collection we can store documents is basically a JSON object
+
+=>Whenevr user enters smtg in the fields we want to capture the values for that we can use 
+useRef react hook.
+=>on each of the input elements i am going to add the ref attribute before that we create some variables.
+
+UserForm.js
+--------------
+let fnameRef=useRef();
+let lnameRef=useRef();
+let emailRef=useRef();
+let pswdRef=useRef();
+let countryRef=useRef();
+let cityRef=useRef();
+let dateRef=useRef();
+let genderRef=useRef();
+
+
+ <input type="text" placeholder="First name" ref={fnameRef}/>
+ <input type="text" placeholder="Last name" ref={lnameRef} />
+<input type="email" placeholder="Email" ref={emailRef}/>
+same as other input fields also......
+
+=> when the button will be clicked this form will be submitted and when this form will be submitted 
+on this form we can listen to on submit evnt.
+<form onSubmit={onCreateUser}>
+
+when the form is submitted the onCreateUser function will be called inside this function we are going to
+create a user object and inside the object we have specify the properties.
+
+function onCreateUser(){
+let user={
+        //it is going to return us the value which the user has entered in the i/p field
+        firstName:fnameRef.current.value,
+        lastName:lnameRef.current.value,
+        email:emailRef.current.value,
+        password:pswdRef.current.value,
+        country:countryRef.current.value,
+        city:cityRef.current.value,
+        dob:dateRef.current.value,
+        gender:genderRef.current.value
+    }
+console.log(user);
+}
+
+here the values are not displayed bcse when the user clicked on the submit button the page gets reloaded.
+for that we need to prevent this default behaviour.
+
+function onCreateUser(event){
+event.preventDefault();
+let user={
+        //it is going to return us the value which the user has entered in the i/p field
+        firstName:fnameRef.current.value,
+        lastName:lnameRef.current.value,
+        email:emailRef.current.value,
+        password:pswdRef.current.value,
+        country:countryRef.current.value,
+        city:cityRef.current.value,
+        dob:dateRef.current.value,
+        gender:genderRef.current.value
+    }
+console.log(user);
+}
+=> Now the data is displayed in developer console.
+
+=>We have create an object now we want to store this user object in firebase db.
+=>for that we are going to send the post request and with that post request we are going to
+send the user object in  the body.
+=>for this we have to write a function in App component and it receives the user object.
+
+function onCreateUser(user){
+
+}
+
+=>In order to send a post rqst we have two ways
+1.fetch ApI provided by browser
+=> It expects a end point to which it needs to send the post rqst as it first argument.
+function onCreateUser(user){
+	//users --> collection
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+}
+
+=>second argument is optional
+Eg:method:'POST'
+
+function onCreateUser(user){
+	//users --> collection
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+	method:'POST'
+}
+
+=> with this post rqst we also need to send some data for that we need another property
+which is body
+=>Firebased db expects the data in JSON format
+body:JSON.stringfy() //it convert js object  into JSON format.
+
+function onCreateUser(user){
+	//users --> collection
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+	method:'POST',
+	//it converts user object into JSON format.
+	body:JSON.stringfy(user)
+}
+
+=>along with this we can also specify other properties 
+
+Eg:headers:{
+	'content-Type':'application/json'//which type of data we are sending here we are sending json data
+}
+we dont need to specify header bcse the default content type is always application/json
+
+
+=> Now fetch API is going to send a post request because here we have specified the method as POST
+and once the post rqst is successful we are going to receive a response now this response will not come
+immediately it might take some time.so here we need to wait for that response for that this fetch API is
+going to return a promise on that promise we can use the then method and this then method expects
+callback function as its argument.This callback function is going to receive the reponse 
+
+.then((reponse)=>{
+		console.log(reponse);
+	})
+
+when do we call this onCreateUser method in App component  we want to call this method  whenever the create
+user button is clicked.that means whenever the form is submitted for that we need pass  onCreateUser from
+App componet to UserForm component .
+
+{showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser} }</UserForm>
+
+with this name(onCreateUser) a property will be created on  the props object.
+
+function onCreateUser(event){
+event.preventDefault();
+let user={
+        //it is going to return us the value which the user has entered in the i/p field
+        firstName:fnameRef.current.value,
+        lastName:lnameRef.current.value,
+        email:emailRef.current.value,
+        password:pswdRef.current.value,
+        country:countryRef.current.value,
+        city:cityRef.current.value,
+        dob:dateRef.current.value,
+        gender:genderRef.current.value
+    }
+//console.log(user);
+props.onCreateUser(user);
+}
+
+=>Now the data is stored in Firebase db and display the reponse in developer console.
+
+o/p: in Firebase
+users--|
+-NMgdEs-cectWz4uCyfK---->unique id which is automatically generated by firebase.
+city:"Delhi"
+country:"India"
+dob:"2023-01-05"
+email:"niki@456"
+firstName:"nikki"
+lastName:"sake"
+password:"123"
+
+2.axios (third party library)
+=>npm install --save axios
+
+import axios from 'axios';
+
+function onCreateUser(user){
+	axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+	}
+}
+=> The data is stored in firebase db and display the data in developer console.
+
+=>axios also return the promise
+
+Sending a Get Request 
+===============
+=> from the users collection we want to fetch all these users and we want to display in our react application.
+=> Now lets create a fectchUsers function
+
+function fetchUser(){
+
+}
+=> create an arraywhich is going to store all the users which we are going to fetch from the db for that 
+i am going to use useState.
+=> Intially to this userState i am going to assign an empty array
+
+  let [users,setUsers]=useState([]);
+
+=> To send a get request i am going to use the fetch api and to this fetch api the first argument which
+we need to pass is the url.
+fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+
+=> pass a second optional argument which is going to be an object and inside this object we can set
+some properties.
+Eg:method..
+
+method:'GET';
+
+here we want to send a get request so the method will be get
+since we are sending a get request in case of a get request we are going to fetch some data from the server
+here we are not going to send any data with the request so here we dont need to specify the body.
+bcse in case of a get request the body is going to be empty.
+
+=> if u want to make a get request using the fetch api we dont have to explicitly specify the method:'GET'.
+
+
+function fetchUsers(){
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+}
+
+=> We know this fetchapi is return promise 
+
+function fetchUsers(){
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+	.then((reponse)=>{
+		return response.json();//returning user object
+	})
+	.then((data)=>{
+		console.log(data);
+	}
+}
+
+ <button className='btn btn-normal'onClick={fetchUsers}>Get Users</button>
+
+=> whenever user click on the Get Users the data is displayed on the developer console.
+
+=> Instead of logging that data we want to push it to the users array..in order to do this
+we are using for in  loop.
+=> we are assigning the id also bcse when we want to update or deleting the user we need id
+NMgdEs-cectWz4uCyfK
+
+function fetchUsers(){
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+	.then((reponse)=>{
+		return response.json();//returning user object
+	})
+	.then((data)=>{
+		let userData=[];
+		for(let key in data){
+			userData.push(...{data[key],id:key})
+		}
+		//console.log(data);
+		console.log(userData);
+	})
+}
+
+=> 
+function fetchUsers(){
+	fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+	.then((reponse)=>{
+		return response.json();//returning user object
+	})
+	.then((data)=>{
+		let userData=[];
+		for(let key in data){
+			userData.push(...{data[key],id:key})
+		}
+		//console.log(data);
+		//console.log(userData);
+		setUsers(userData);
+
+	})
+}
+
+=> we want to display the user details for that we need pass  the users array in UserDetails
+
+<UserDetails  users={users} ></UserDetails>
+
+=> On the UserDetails component we are going to receive a props  on that props we will have a users property.
+
+import React from "react";
+import './UserDetails.css';
+
+function UserDetails(props){
+
+    return <div className="user-details"> 
+        <table className="users-table">
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Date Of Birth</th>
+            <th>Gender</th>
+            <th>Country</th>
+            <th>City</th>
+            <th></th>
+          </tr>
+          {props.users.map((user)=>{
+            return (
+              <tr>
+              <td>{user.firstName+" "+user.lastName}</td>
+              <td>{user.email}</td>
+              <td>{user.dob}</td>
+              <td>{user.gender}</td>
+              <td>{user.country}</td>
+              <td>{user.city}</td>
+              <td>
+                  <button className="btn btn-primary">Edit</button>
+                  <button className="btn btn-danger">Delete </button>
+              </td>
+            </tr>
+            )
+
+          })}
+         
+        </table>
+    </div>
+}
+
+export default UserDetails;
+
+=> whenever user click on the Get Users the data is displayed on the webpage.
+
+2nd way of sending a get Request
+-----------------------------------
+
+axios
+-----
+ function fetchUsers(){
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+    .then((response)=>{
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+  
+    })
+  }
+
+
+How to show loading spinner
+==================
+
+=> How to show a loading spinner while the data is loading from the backend
+=> create a useState we know this useState returns  an array
+=> Intially we are not loading any data from the backend thats why we have set it to the false.
+Now we want to set this loading state to true when the user  clicks on the Get Users button.
+
+let [loading,setLoading==useState(false);
+
+=> before the get request is sent we  start showinng the loading spinner and  when a get request is sent
+ and once we receive the  response from the server we stop showing the loading spinner.
+
+App.js
+-------
+let [loading,setLoading==useState(false);
+ function fetchUsers(){
+    setLoading(true);
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+    .then((response)=>{
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+     setLoading(false);
+  
+    })
+  }
+
+=> when the loading state is false  then only UserDetails will be displayed.
+
+ {!loading && <UserDetails  users={users} ></UserDetails>}
+
+=> if the loading state is true that means the data is still loading in that case
+UserDetails componnet will not shown.
+
+ {loading && <p>Loading.....</p>}
+
+=> Beore getting the data when we click on Get Users it will display the Loading...
+=> Instead of showing a  text  i want to show a loading spinner.
+=> for that we need to create a new component called Loader.js and Loader.css
+
+Loader.js
+----------
+import React from "react";
+import './Loader.css'
+
+function Loader(){
+    return <div className="modal">
+            <div className="loader"></div>
+        </div>
+}
+
+export default Loader;
+
+Loader.css
+-----------
+.modal{
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.loader {
+    margin: 10% 45%;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #2980B9;
+    border-right: 16px solid #2ECC71;
+    border-bottom: 16px solid #e62020;
+    border-left: 16px solid #f5ba1a;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+ 
+
+=> Instead of getting a text here we will get a spinner
+
+import Loader from'./componnets/Loader';
+ {loading && <p>{Loader}</p>}
+
+=> Now we will see a loading image when i clicked on Get Users button before 
+
+Overall App.js
+-------------
+import React, {useState} from 'react';
+import UserForm from './Components/UserForm';
+import './App.css';
+import UserDetails from './Components/UserDetails';
+import axios from 'axios';
+import Loader from './Components/Loader';
+
+function App() {
+  let[showForm, setShowForm] = useState(false);
+  let [users,setUsers]=useState([]);
+
+
+  let [loading,setLoading]=useState(false);//intial we are not loading any data from the backend
+
+  function addUserHandler(){
+    setShowForm(true);
+  }
+
+  function closeForm(){
+    setShowForm(false)
+  }
+
+  function onCreateUser(user){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+	})
+  }
+
+  function fetchUsers(){
+    setLoading(true);
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+    .then((response)=>{
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+  
+    })
+  }
+  return (
+      <div>
+        <div className='page-header'>
+          <button className='btn btn-success' onClick={addUserHandler}>Add User</button>
+          <button className='btn btn-normal'onClick={fetchUsers}>Get Users</button>
+        </div>
+       {!loading && <UserDetails  users={users}></UserDetails>}
+
+       {loading && <Loader/>}
+
+        {showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser}></UserForm>}
+      </div>
+  );
+}
+
+export default App;
+
+
+Fetching data on page load
+-----------------------------
+=> when we load the page for the first time it is not showing any data
+=> it will show the users when click on the Get  Users button.
+
+=> we want to display all the users which we have  in the database  in the page whenever
+the page loads for the first time
+=> to we achieve this we can use useEffcect hook
+
+App.js
+------
+  useEffect(()=>{
+    fetchUsers();
+  },[])
+
+=> this function will be executed only for the intial rendering
+
+=> when the form is submitted the data is saved in the database and automatically load the data
+
+App.js
+-------
+function onCreateUser(user){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+   		 fetchUsers();
+	})
+  }
+
+=> after the user is created in the database i also want to close this form.
+
+App.js
+-------
+function onCreateUser(user){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+   		 fetchUsers();
+   		 setShowForm(false);
+	})
+  }
+
+HTTP error handling
+=============
+=> when sending http requests to the server things can go wrong you may encounter errors.
+
+Eg:when you are sending an http request to the server and if u do not have a network connection
+there u might encounter errors.
+Eg:when you are sending an http request to the server and  the resource which u are looking for 
+does not exist on that server there again u will get an  error the 404 error.
+
+
+=> In the below ex we are sending a request to users.xml which doesnt exist so we dont have any 
+response data..so here we are handling that error we get the alert window its shows the error
+msg 
+function fetchUsers(){
+    setLoading(true);
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.xml')
+    .then((response)=>{
+      console.log(response);
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+    })
+    .catch((error)=>{
+      alert(error.message);
+      setLoading(false);
+    })
+  }
+=> It  showing msg in the alert window
+
+=> Instead of showing msg in the alert window we want to show it in the web page.
+=> First thing we need create a new state.
+
+let[errorMessage,setErrorMessage]=useState(null);
+
+=> before sending the get request we might want to clear the previous error messages.
+
+setErrorMessage(null);
+
+function fetchUsers(){
+    setLoading(true);
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.xml')
+    .then((response)=>{
+      console.log(response);
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message)
+      setLoading(false);
+    })
+  }
+
+=>  {!loading && !errorMessage && <UserDetails  users={users} ></UserDetails>}
+=> {errorMessage && <h3 style={{textAlign:'center'}}>{error.message}</h3>}
+
+=> o/p:we are sending a request to users.xml which doesnt exist so we dont have any 
+response data..so here we are handling that error we get the alert window its shows the error
+msg 
+
+=> when we are working with promises a promise can be either resolved or rejected the
+resolved promises is handled by then method 
+
+   .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+    })
+
+ and rejected promises handled by catch method.
+
+  .catch((error)=>{
+      setErrorMessage(error.message)
+      setLoading(false);
+    })
+
+=> if we are using aync await in that case we cannot use the catch method.in that case you will have
+to use  try catch 
+
+
+
+whole code App.js
+--------------------
+import React, {useState,useEffect} from 'react';
+import UserForm from './Components/UserForm';
+import './App.css';
+import UserDetails from './Components/UserDetails';
+import axios from 'axios';
+import Loader from './Components/Loader';
+
+function App() {
+  let[showForm, setShowForm] = useState(false);
+  let [users,setUsers]=useState([]);
+  let [loading,setLoading]=useState(false);//intial we are not loading any data from the backend
+  let [errorMessage,setErrorMessage]=useState(null);
+
+  useEffect(()=>{
+    fetchUsers();
+  },[])
+
+  function addUserHandler(){
+    setShowForm(true);
+  }
+
+  function closeForm(){
+    setShowForm(false)
+  }
+
+  function onCreateUser(user){
+    // fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json',{
+    //   method:'POST',
+    //   body:JSON.stringify(user),
+    //   headers:{
+    //     'content-Type':'application/json'
+    //   }
+    // })
+    // .then((resp)=>{
+    //   console.log(resp)
+    // })
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+    fetchUsers();
+    setShowForm(false);
+	})
+  }
+
+  function fetchUsers(){
+    // fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+    // .then((response)=>{
+    //   return response.json();
+    // })
+    // .then((data)=>{
+    //   let userData=[];
+    //   for(let key in data){
+    //     userData.push({...data[key],id:key})
+    //   }
+    //   //console.log(userData);
+    //   setUsers(userData);
+  
+    // })
+   
+    setLoading(true);
+    setErrorMessage(null);
+    axios.get('https://mock-329a2-default-rtdb.firebaseio.com/users.xml')
+    .then((response)=>{
+      console.log(response);
+      return response.data;
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message);
+      setLoading(false);
+    })
+  }
+  return (
+      <div>
+        <div className='page-header'>
+          <button className='btn btn-success' onClick={addUserHandler}>Add User</button>
+          <button className='btn btn-normal'onClick={fetchUsers}>Get Users</button>
+        </div>
+       {!loading && !errorMessage && <UserDetails  users={users}></UserDetails>}
+       {errorMessage && <h3 style={{textAlign:'center'}}>{errorMessage}</h3>}
+       {loading && <Loader/>}
+        {showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser}></UserForm>}
+      </div>
+  );
+}
+
+export default App;
+
+=> here we are using the axios object ,this axios object throws a real error whenever some error has
+happened while sending the http request.
+=> But when we are using the fetch api , the fetch api does not treat error codes as real errors.
+=> fetch api will not throw a technical error if we get back an error status code in the response 
+in order to handle errors when we are using fetch api we will have to throw an error manually
+
+App.js
+------
+function fetchUsers(){
+    setLoading(true);
+    setErrorMessage(null);
+    fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.xml')
+    .then((response)=>{
+      if(!response.ok){
+        throw new Error('something went wrong!');
+      }
+      return response.json();
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message);
+      setLoading(false);
+    })
+  }
+
+
+=> o/p:we are sending a request to users.xml which doesnt exist so we dont have any 
+response data..so here we are handling that error we get the error
+msg  like something went wrong!
+
+Populating User Edit Form
+=================
+=> Create new useState
+
+App.js
+-------
+let[editMode,setEditMode]=useState(false);
+
+UserDetails.js
+--------------
+
+  function onEditUserClicked(event,user){
+    props.onEditUser(user);
+  }
+
+ <button className="btn btn-primary" onClick={(event)=>{onEditUserClicked(event,user)}}>Edit</button>
+
+App.js
+-------
+let[editMode,setEditMode]=useState(false);
+
+ function onEditUser(user){
+     console.log("onEditUser called!");
+    console.log(user);
+}
+
+{!loading && !errorMessage && <UserDetails  users={users} onEditUser={onEditUser}></UserDetails>}
+
+=> the user object is display in the developer console...so to store that object we need to create a useState
+
+ let[userToedit,setUser]=useState(null);
+
+function onEditUser(user){
+    // console.log("onEditUser called!");
+    setEditMode(true);
+    setUser(user);
+//when the edit button is clicked we also want to show the form
+    setShowForm(true);
+    console.log(user);
+  }
+
+=>o/p:when i click the edit button the form is open but the button says create user so here instead of 
+create user i want to show update user.
+
+App.js
+-------
+  {showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser} editMode={editMode} user={userToedit}></UserForm>}
+
+userForm.js
+-----------
+ <button className='add-user-button'>{props.editMode ? 'update User' : 'Create user'}</button>
+
+=>o/p: Now we get update User button when we click on edit button but we have a bug when we click the 
+Add user the here also we are seeing update user thats bcse the edit mode state is still true.so when we click on
+the Add user button before we doing anything i want to set the edit mode to false.
+
+function addUserHandler(){
+    setEditMode(false);
+  }
+
+=> o/p:when we click on the Add user button we are seeing the create user button and when we click
+on the Get Users button we are seeing the Update User button.
+
+
+=> now we also want to populate this form with the details
+
+ {showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser} editMode={editMode} user={userToedit}></UserForm>}
+
+=>Add the new attribute called  default value for every every field.
+=> if the editMode is true then it populate the filed with value of every field otherwise wa want to populate with empty string.
+
+ <form onSubmit={onCreateUser}>
+    <div>
+    <input type="text" placeholder="First name" ref={fnameRef} defaultValue={props.editMode ? props.user.firstName : ''}/>
+    <input type="text" placeholder="Last name" ref={lnameRef} defaultValue={props.editMode ? props.user.lastName : ''}/>
+    </div>
+   <div>
+   <input type="email" placeholder="Email" ref={emailRef} defaultValue={props.editMode ? props.user.email : ''} />
+    </div>
+   <div>
+    <input type="password" placeholder="Password"  ref={pswdRef} defaultValue={props.editMode ? props.user.password : ''}/>
+     <input type="password" placeholder="Confirm Password" defaultValue={props.editMode ? props.user.password : ''} />
+    </div>
+  <div>
+   <select name="country" ref={countryRef} defaultValue={props.editMode ? props.user.country : ''}>
+       <option value="India">India</option>
+      <option value="Germany">Germany</option>
+     <option value="USA">USA</option>
+     <option value="UK">UK</option>
+     </select>
+  <select name="city" ref={cityRef} defaultValue={props.editMode ? props.user.city : ''}>
+    <option value="Delhi">Delhi</option>
+    <option value="Berlin">Berlin</option>
+    <option value="New York">New York</option>
+      <option value="London">London</option>
+    </select>
+    </div>
+     <div>
+     <input type="date" placeholder="Date of Birth" ref={dateRef} defaultValue={props.editMode ? props.user.dob : ''} />
+     <select name="gender" ref={genderRef} defaultValue={props.editMode ? props.user.gender : ''}>
+       <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Unknown">Unknown</option>
+      </select>
+       </div>
+      <button className='add-user-button'>{props.editMode ? 'update User' : 'Create user'}</button>
+       </form>
+
+=> o/p:when i click on the edit button for one user  then it populate with the field value 
+when i click on the add user then it poupulate with the  empty values.
+
+
+ Sending HTTP PUT Request 
+===================
+=> Now we are going to implement the edit functionality that means when i am going to edit the 
+details the details should be stored in the db server.
+
+=> The update user button and create user button are same button,only the value of this button 
+is changing based on the editMode state.so if the edit mode state is true then the update user
+text will be displayed inside this button but if the edit mode is false in that case the create user
+text will be displayed in the button.
+=> When we click on createuser button , in th app componnet we are calling the onCreateUser
+function as i mentioned the create user and update user button are same
+Now we need to write the logic to update the user in the db server in the same method(onCreateUser).
+
+App.js
+-----
+ function onCreateUser(user){
+    if(!editMode){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+	console.log(response.data);
+    	fetchUsers();
+   	 setShowForm(false);
+	})
+}
+  else{
+    console.log(user);
+    console.log(userToedit);
+  }
+}
+
+=> the user object the new values are displayed
+console.log(user);
+
+ but we dont see those changes in the userToedit state
+ console.log(userToedit);
+
+and another difference is in the userToedit state you will also see 
+and id but in the user object which we are receiving as a parameter there
+we dont have the id property.
+
+
+=>when i am passing below url it is going to return us all the users but here we 
+dont want all the users we want a particular user
+
+https://mock-329a2-default-rtdb.firebaseio.com/users.json
+
+=>if i want to access the particular user then use below url 
+
+'https://mock-329a2-default-rtdb.firebaseio.com/users/'+userToedit.id+'.json'
+
+ function onCreateUser(user){
+    if(!editMode){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response.data);
+    fetchUsers();
+    setShowForm(false);
+	})
+}
+  else{
+    console.log(user);
+    console.log(userToedit);
+    axios.put('https://mock-329a2-default-rtdb.firebaseio.com/users/'+userToedit.id+'.json',user)
+    .then((response)=>{
+      console.log(response);
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message);
+    })
+  }
+}
+
+o/p:Now when i click the edit button the details are displayed and i can edit the details then when
+i click the Get User button the edit details will be displayed on web page.
+
+=> Now when i click on the update user button the form should close automatically and the 
+update details will be displayed automatically.
+
+App.js
+-------
+ fetchUsers();
+  setShowForm(false);
+
+Whole App.js
+--------------
+
+import React, {useState,useEffect} from 'react';
+import UserForm from './Components/UserForm';
+import './App.css';
+import UserDetails from './Components/UserDetails';
+import axios from 'axios';
+import Loader from './Components/Loader';
+
+function App() {
+  let[showForm, setShowForm] = useState(false);
+  let [users,setUsers]=useState([]);
+  let [loading,setLoading]=useState(false);//intial we are not loading any data from the backend
+  let [errorMessage,setErrorMessage]=useState(null);
+  let [editMode,setEditMode]=useState(false);
+  let[userToedit,setUser]=useState(null);
+
+  useEffect(()=>{
+    fetchUsers();
+  },[])
+
+  function addUserHandler(){
+    setEditMode(false);
+    setShowForm(true);
+  }
+
+  function closeForm(){
+    setShowForm(false)
+  }
+
+  function onCreateUser(user){
+    if(!editMode){
+    axios.post('https://mock-329a2-default-rtdb.firebaseio.com/users.json',user)
+	.then((response)=>{
+		console.log(response);
+    fetchUsers();
+    setShowForm(false);
+	})
+}
+  else{
+    console.log(user);
+    console.log(userToedit);
+    axios.put('https://mock-329a2-default-rtdb.firebaseio.com/users/'+userToedit.id+'.json',user)
+    .then((response)=>{
+      console.log(response);
+      fetchUsers();
+      setShowForm(false);
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message);
+    })
+  }
+  }
+  function fetchUsers(){
+    setLoading(true);
+    setErrorMessage(null);
+    fetch('https://mock-329a2-default-rtdb.firebaseio.com/users.json')
+    .then((response)=>{
+      if(!response.ok){
+        throw new Error('something went wrong!');
+      }
+      return response.json();
+    })
+    .then((data)=>{
+      let userData=[];
+      for(let key in data){
+        userData.push({...data[key],id:key})
+      }
+      //console.log(userData);
+      setUsers(userData);
+      setLoading(false);
+  
+    })
+    .catch((error)=>{
+      setErrorMessage(error.message);
+      setLoading(false);
+    })
+  }
+  function onEditUser(user){
+    // console.log("onEditUser called!");
+    setEditMode(true);
+    setUser(user);
+    setShowForm(true);
+    console.log(user);
+  }
+
+  return (
+      <div>
+        <div className='page-header'>
+          <button className='btn btn-success' onClick={addUserHandler}>Add User</button>
+          <button className='btn btn-normal'onClick={fetchUsers}>Get Users</button>
+        </div>
+       {!loading && !errorMessage && <UserDetails  users={users} onEditUser={onEditUser}></UserDetails>}
+       {errorMessage && <h3 style={{textAlign:'center'}}>{errorMessage}</h3>}
+       {loading && <Loader/>}
+        {showForm && <UserForm closeForm={closeForm} onCreateUser={onCreateUser} editMode={editMode} user={userToedit}></UserForm>}
+      </div>
+  );
+}
+
+export default App;
+
+
+Sending HTTP DELETE Request
+-------------------------------
+
+UserDetails.js
+--------------
+
+  function onDeleteUserClicked(event,user){
+    props.onDeletedUser(user);
+  }
+  <button className="btn btn-danger" onClick={(event)=>{onDeleteUserClicked(event,user)}}>Delete </button>
+
+App.js
+------
+function onDeleteUser(user){
+    console.log(user);
+  }
+
+  {!loading && !errorMessage && <UserDetails  users={users} onDelteUser={onDeleteUser} onEditUser={onEditUser}></UserDetails>}
+
+o/p:When i click on the delete button the corresponding object will be displayed on 
+the console.here this object also has the id property.
+
+=>using the id property we are going to send a delete request to the server and we want to 
+delete that record where the id matches this string values.
+=>before deleting the record i also want to get a confirmation from the
+user whether he really wants to delete the record or not.
+
+  let del=window.confirm("Do you really want to delete the record of " +user.firstName+ " "+user.lastName);
+
+App.js
+------
+  function onDeleteUser(user){
+    let del=window.confirm("Do you really want to delete the record of " +user.firstName+ " "+user.lastName);
+    if(del){
+      axios.delete('https://mock-329a2-default-rtdb.firebaseio.com/users/'+user.id+'.json',user)
+      .then((response)=>{
+        console.log(response);
+        fetchUsers();
+      })
+      .catch((error)=>{
+        setErrorMessage(error.message);
+      })
+    }
+    console.log(user);
+  }
+
+
+
+
+
+
+
+
+

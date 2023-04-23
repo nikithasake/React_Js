@@ -1,0 +1,2119 @@
+Understanding side effects in React
+===================================
+=> Side Effect are everything else that might be happening in your applications which is not related
+to UI rendering.
+Eg:sending an http request to the server when we send an http request to the server we are not rendering anything
+in the ui.Now react should re-render the ui like it does when the state changes.
+Eg:Storing data in browser storage.
+This also should not re-render the ui.
+Eg:when we set timers or intervals in our code.
+
+These are some tasks which we also do when creating a react applicaion but these tasks are not related to rendering
+smtg in the ui atleast not directly of course when we send an http request to the server and when we get the response
+we might want to render the response into the ui but sending the request itself and handling the potential errors
+that is not smtg related to rendering smtg in the ui.so these types of task must happen outside of the normal
+component evaluation so we know that whenever the state inside a component changes it re-evaluates that component
+and with that all the logic in that component function is re-executed but we might want to have some tasks inside
+a component function which should only be executed whenever smtg changes and these types of tasks
+we call as side effects.
+
+To work with side effects we have a hook in react is called as  useEffect.
+
+
+
+App.js
+------
+import logo from './logo.svg';
+import './App.css';
+import { useState } from 'react';
+
+function App() {
+
+  console.log("App component rendered")
+  let [resourceType,setResourceType]=useState('Home');
+
+  return (
+    <div className="App">
+      <button onClick={()=>{setResourceType('Home')}}>HOME</button>
+      <button onClick={()=>{setResourceType('About')}}>ABOUT</button>
+      <button onClick={()=>{setResourceType('Contact')}}>CONTACT</button>
+      <h3>{resourceType}</h3>
+    </div>
+  );
+}
+
+export default App;
+
+o/p:if i click on about button then App component rendered
+if i click on Contact button then App component rendered
+if i click on the contact button again u can see App component rendered.
+even though the value for resourceType is not changing in that case the App component
+getting re-rendered web page
+
+console
+-------
+App component rendered
+App component rendered
+
+App component rendered
+App component rendered
+
+App component rendered
+App component rendered
+
+
+To avoid this problem we can use useEffect react hook.
+
+syntax: useEffext(() => {},[dependencies]);
+
+The useEffect()Hook is called with two arguments with two parameters.
+
+The first argument is a callback function
+
+second argument we specify the list of dependencies using []
+
+The callback function will be called whenever the dependency  which we specify
+inside the array changes.
+
+
+App.js
+------
+import logo from './logo.svg';
+import './App.css';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
+
+function App() {
+
+  console.log("App component rendered")
+  let [resourceType,setResourceType]=useState('Home');
+  useEffect(()=>{
+    console.log(resourceType);
+  },[resourceType]);
+
+  return (
+    <div className="App">
+      <button onClick={()=>{setResourceType('Home')}}>HOME</button>
+      <button onClick={()=>{setResourceType('About')}}>ABOUT</button>
+      <button onClick={()=>{setResourceType('Contact')}}>CONTACT</button>
+      <h3>{resourceType}</h3>
+    </div>
+  );
+}
+
+export default App;
+
+
+o/p:Intially app component has been rendered so app component rendered msg has been logged here and
+ also the value of the resourceType has been logged here.(Home)
+if i click on About button  then rendered msg has been logged here and
+ also the value of the resourceType has been logged here.(About)
+if i click on Contact button  then rendered msg has been logged here and
+ also the value of the resourceType has been logged here.(Contact)
+if i click on About button again then it rendered msg has been logged here only.
+bcse the value has not changed the callback function which we have passed as the first 
+argument to the useEffect this  has not been executed.Even thought the app component
+has been re-rendered.
+
+The useEffect function will only get executed whenever the value of dependency which we specify inside the
+array changes.
+
+
+console
+-------
+App component rendered
+App component rendered
+Home
+Home
+
+App component rendered
+App component rendered
+About
+
+App component rendered
+App component rendered
+Contact
+
+App component rendered
+App component rendered
+
+=>When u want to execute a piece of code whenever the value of a dependency  change in that case you
+can use  the useEffect react hook.
+
+Eg:
+ useEffect(()=>{
+    console.log(resourceType);
+  },[]);
+
+=>Since we are passing an empty array this callback function will be executed only during the intial rendering.
+
+=>we can specify the multiple dependencies separated by comma.
+
+
+
+useEffect hook in React
+======================
+
+
+
+App.js
+-------
+import React, { useState } from 'react';
+
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    setIsLoggedIn(true);
+  };
+
+  const logoutHandler = () => {
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <React.Fragment>
+      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </React.Fragment>
+  );
+}
+
+export default App;
+
+
+o/p:Enter the email and pswd and it display the home webpage  but
+
+we lose data when the react app starts or reload , it would be nice to store the previous data somewhere 
+where it persist that data and when we start the app again we  can check if the data was
+persisted and if the data is there we log the user automatically  so that user 
+doesnt re-enter the details and thats where we can use the useEffect hook ...
+so when the app restarts or rerenders what we want is want to check if in the local storage 
+we have that key value pair and if that key value is present in the local storage and 
+if its value is 1 in that case we automatically want to log in the user 
+
+Now i want to store the data in the browser storage the most cases the storage would be either
+cookies or local storage.
+For our application lets use local storage
+
+
+
+=>use the localstorage object this object is a global object present in the browser.
+on this object i can call setItem method
+to this method we need to pass two arguments
+the first argument should be string this string should be the key(isLoggedIn) or identifier.
+second argument will be the value(1).
+
+
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    localStorage.setItem('isLoggedIn', '1');
+    setIsLoggedIn(true);
+  };
+ o/p:The key(isLoggedIn) and  value(1)  are stored in localstorage
+
+Now what we want to do is 
+so when the app restarts or rerenders what we want is want to check if in the local storage 
+we have that key value pair and if that key value is present in the local storage and 
+if its value is 1 in that case we automatically want to log in the user
+
+  useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+
+    if (storedUserLoggedInInformation === '1') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+overall App.js
+-------
+import React, { useState, useEffect } from 'react';
+
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');//read the value of key and store it in variable
+
+    if (storedUserLoggedInInformation === '1') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    localStorage.setItem('isLoggedIn', '1');
+    setIsLoggedIn(true);
+  };
+
+  const logoutHandler = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <React.Fragment>
+      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </React.Fragment>
+  );
+}
+
+export default App;
+
+
+o/p:Enter the email and pswd and it display the home webpage and when i reload the page
+then also we get the same home page.
+
+
+
+                   
+useEffect hook and Dependencies
+=================================
+
+
+import React, { useState } from 'react';
+
+import Card from '../UI/Card/Card';
+import classes from './Login.module.css';
+import Button from '../UI/Button/Button';
+
+const Login = (props) => {
+  const [enteredEmail, setEnteredEmail] = useState('');
+  const [emailIsValid, setEmailIsValid] = useState();
+  const [enteredPassword, setEnteredPassword] = useState('');
+  const [passwordIsValid, setPasswordIsValid] = useState();
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  const emailChangeHandler = (event) => {
+    setEnteredEmail(event.target.value);
+
+    setFormIsValid(
+      event.target.value.includes('@') && enteredPassword.trim().length > 6
+    );
+  };
+
+  const passwordChangeHandler = (event) => {
+    setEnteredPassword(event.target.value);
+
+    setFormIsValid(
+      event.target.value.trim().length > 6 && enteredEmail.includes('@')
+    );
+  };
+
+  const validateEmailHandler = () => {
+    setEmailIsValid(enteredEmail.includes('@'));
+  };
+
+  const validatePasswordHandler = () => {
+    setPasswordIsValid(enteredPassword.trim().length > 6);
+  };
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+    props.onLogin(enteredEmail, enteredPassword);
+  };
+
+  return (
+    <Card className={classes.login}>
+      <form onSubmit={submitHandler}>
+        <div
+          className={`${classes.control} ${
+            emailIsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="email">E-Mail</label>
+          <input
+            type="email"
+            id="email"
+            value={enteredEmail}
+            onChange={emailChangeHandler}
+            onBlur={validateEmailHandler}
+          />
+        </div>
+        <div
+          className={`${classes.control} ${
+            passwordIsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            value={enteredPassword}
+            onChange={passwordChangeHandler}
+            onBlur={validatePasswordHandler}
+          />
+        </div>
+        <div className={classes.actions}>
+          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+            Login
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+export default Login;
+
+=> the emailChangeHandler will be called for every each keystroke.in the same way when we enter smtg in the pwsd
+field this passwordChangeHandler function will be called for every each keystroke.
+when i enter smtg in the field(Email) and when i click outside the blur event will happen.
+so in that case validateEmailHandler function will be called.
+when i enter smtg in the field(password) and when i click outside the blur event will happen.
+so in that case validatePasswordHandler function will be called.
+Now inside the validateEmailHandler we are checking if the entered email includes @ symbol.
+if it includes an at symbol then this(enteredEmail.includes('@')) will return true.then emailIsValid is set to be true.
+In the same way inside the validatePasswordHandler we are checking if the entered password has a length of greater than 6
+if this expression returns true then passwordIsValid will be set to true.otherwise it will be set to false.then
+inside the emailChangeHandler function we are setting the value of the entered Email  with the value which we have entered 
+in the email field.and then we are also setting the formIsValid for that what we are checking is we are checking if the
+input field if it contains the @ symbol  and pswd length has greater than 6 in that case the formIsValid is set to true.
+otherwise it will be set to false.and when the formIsValid is set to  true then only the login button will be enabled.
+we are setting formIsValis state both in emailChangeHandler and passwordChangeHandler.
+so the logic will be executed for every keystroke which is made inside the emailChangeHandler.
+In the same way the logic will also get executed for every keystroke which is made inside the passwordChangeHandler.
+this could affect the performance of the application
+here what we can do is we can use the useEffect hook.
+
+Login.js
+---------
+
+useEffect(() => {
+    //this below logic will get executed when the entered email value changes and
+	also everytime the entered password value changes.and also when the
+	setFormIsValid function changes for this useEffect we have three dependencies
+	setFormIsvalid,enteredEmail,enteredPassword.
+	Most of the time setFormIsvalid dependencies never going to change so we can
+	remove that.
+	
+    setFormIsValid(
+      enteredEmail.includes('@') && enteredPassword.trim().length > 6
+    );
+  }, [enteredEmail, enteredPassword]);
+
+
+=>o/p:It will same as before but now we used useEffect.
+
+=>We have already learned that we use useEffect for handling the side effects.
+then what is the side effect here in this example.
+Every time we are entering smtg in the email text box or password text box.
+we are assigning that value to a variable 
+in this case we are assigning that value to the enteredEmail and enteredPassword.
+Here also the ui is not changing but we are doing smtg we are assigning the value 
+entered in the ui to a state.and thats why this is a side effect.
+
+
+useEffect cleanup function 
+==========================
+=>from the callback function of useEffect we can also return a value and this value
+must be a function and this function can be used to do some cleanup work.
+so we call this function as cleanup function.
+
+=>useEffect will be executed for each keystroke which we make inside the email
+field or the password field.its not a problem but the logic which we write inside
+the callback function sometimes that might cause a problem.thats bcse for every keystroke
+in the emailfield and password field.
+the entered email and the entered  password state will change
+and for each change the login component it will be re-rendered in the web page
+in the ui.and this is smtg u might not want to every keystroke.
+the solution here could be that we can collect a certain amount of keystroke
+or we can wait for a certain time duration when some keystroke are already made
+and then we can execute our logic.
+We can allow user to type smtg in the email and password field but we are not going
+to change the state for each keystroke.once the user has stopped typing 
+we will wait for 50 milliseconds and then we will run the logic which we have inside
+the callback function.so this is a technique which is called as debouncing.
+
+=>for that we can use setTimeout js function and it takes two parameters
+first parameter is callback function
+second parameter is time interval.
+
+ useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('Checking form validity!');
+      setFormIsValid(
+        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+      );
+    }, 500);
+  }, [enteredEmail, enteredPassword]);
+
+ 
+For each keystroke a timer will be set which will be executed after 500 milliseconds
+
+Here the setTimeout() returns an integer value and that value is unique for
+each timer so we can assign that value to a variable
+ so lets create a variable called as identifier.
+
+Email:ab
+when i type smtg on email field lets say a  a timer will be created now what i want is
+as soon as i type smtg lets say b I want to clear the previous timer and 
+i want to create a new timer for the value b again
+i type smtg lets say c I want to clear the previous timer(b) and 
+i want to create a new timer for the value c
+
+and therefore only the last timer will complete and as long as the user keeps on
+typing we always clear all the other timers.and therefore we only have one timer
+that completes and that completed after 500 milliseconds.
+To implement this we can use cleanup function of useEffect.
+
+
+Login.js
+---------
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('Checking form validity!');
+      setFormIsValid(
+        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+      );
+    }, 500);
+
+	//the below logic i.e cleanup function will be executed before any logic
+	which we write inside the useEffect callback function except for the first time.
+	
+    return () => {
+      console.log('CLEANUP');
+     
+    };
+  }, [enteredEmail, enteredPassword]);
+
+=>For the first time useEffect function will be called and it execute the code which
+we write inside the useEffect and it has not executed the clean  up function.
+but for next time onwards the clean up code will be executed first and then only
+the code which we write inside useEffect callback function will be executed.
+
+o/p:
+Checking form validity!
+
+//after type smtg lets say a in email field
+CLEANUP
+Checking form validity!
+
+
+//after type smtg lets say b in email field
+CLEANUP
+Checking form validity!
+
+
+Login.js
+---------
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('Checking form validity!');
+      setFormIsValid(
+        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+      );
+    }, 500);
+
+    return () => {
+      console.log('CLEANUP');
+
+
+	 clearTimeout(identifier);//clear the timer
+     
+    };
+  }, [enteredEmail, enteredPassword]);
+
+
+
+o/p:
+
+//type smtg lets say test@test.com in email field
+CLEANUP
+Checking form validity!
+CLEANUP
+Checking form validity!
+CLEANUP
+Checking form validity!.....
+
+For every keystroke the checking form validity is not being logged 
+this logic is executed when the user pauses typing and 500 milliseconds
+after that the msg( checking form validity) is being logged.
+
+lets do for pwd field
+
+if i keep on type smtg here
+
+o/p:CLEANUP 
+
+ u will notice that ntg has been logged here(checking form validity )
+
+=>Instead of validating the user Input if we would have been sending an http
+request we would have sent only one request instead of multiple request
+for each keystroke.
+
+
+
+useReducer hook in React
+=========================
+UseReducer can be used to manage complex states where multiple relates
+states can be updated together.
+
+const[state,dispatchFn]=useReducer(reducerFn,initialState,initFn);
+
+Demo.js
+-------
+function Demo(){
+  
+    return <div className="container">
+        <button> - </button>
+        <span>0</span>
+        <button> + </button>
+  </div>
+}
+
+export default Demo;
+
+Demo.css
+--------
+.container{
+    margin: 20px 50px;
+  }
+  button{
+    height: 40px;
+    width: 40px;
+    font-size: 25px;
+  } 
+  span{
+    padding: 0 10px;
+    font-size: 25px;
+  }
+
+App.js
+-------
+<Demo></Demo>
+
+o/p:In the web page we have two buttons with - and + 
+in b/w these two buttons we are displaying a value.
+currently we are displaying a hard coded value.
+instead of displaying this hard coded value lets create a state
+
+
+
+Demo.js
+-------
+
+function reducer(){
+
+}
+
+function Demo(){
+ //when we are managing complex states instead of passing a single value(0)
+  we always pass an object.(count:0)
+ //count:0 is inital value
+ let[state, dispatcher] = useReducer(reducer, {count: 0});
+  
+    return <div className="container">
+        <button> - </button>
+        <span>{state.count}</span>
+        <button> + </button>
+  </div>
+}
+
+export default Demo;
+
+o/p:In the web page we have two buttons with - and + 
+in b/w these two buttons we are displaying a value.
+
+
+Demo.js
+-------
+//the reducer funtion is respsonsinle for updating the state but here we are not updating the state
+within the reducer function and when we are not updating the state the state will be assigned with
+the value undefined and on that undefined we are trying to access the count property.thats why we caught 
+an error like cannot read properties of undefined reading 'count'.
+To resolve the error we can return a new object.
+
+function reducer(){
+	console.log("reducer function called..");
+}
+
+function Demo(){
+
+ function decrementHandler(){
+        //whenever we call dispatcher function internally it is going to call the reducer function.
+        dispatcher('decrement')
+    }
+
+    function incrementHandler(){
+        dispatcher('increment')
+    }
+
+ //when we are managing complex states instead of passing a single value(0)
+  we always pass an object.(count:0)
+ //count:0 is inital value
+ let[state, dispatcher] = useReducer(reducer, {count: 0});
+  
+    return <div className="container">
+        <button onClick={decrementHandler}> - </button>
+        <span>{state.count}</span>
+        <button onClick={incrementHandler}> + </button>
+  </div>
+}
+
+export default Demo;
+
+o/p:In the web page we have two buttons with - and + 
+in b/w these two buttons we are displaying a value.
+
+whenever user click on + button Reducer function called has been logged. and we got an error
+
+
+Demo.js
+-------
+
+function reducer(){
+	console.log("reducer function called..");
+	return {count:11}
+}
+
+function Demo(){
+
+ function decrementHandler(){
+        //whenever we call dispatcher function internally it is going to call the reducer function.
+        dispatcher('decrement')
+    }
+
+    function incrementHandler(){
+        dispatcher('increment')
+    }
+
+ //when we are managing complex states instead of passing a single value(0)
+  we always pass an object.(count:0)
+ //count:0 is inital value
+ let[state, dispatcher] = useReducer(reducer, {count: 0});
+  
+    return <div className="container">
+        <button onClick={decrementHandler}> - </button>
+        <span>{state.count}</span>
+        <button onClick={incrementHandler}> + </button>
+  </div>
+}
+
+export default Demo;
+
+o/p:In the web page we have two buttons with - and + 
+in b/w these two buttons we are displaying a value.
+
+whenever user click on + button Reducer function called has been logged. it display the value 11.and the error is clear
+
+remove the code which we write inside the reducer() bcse it is jst to understand how the reducer function gets called.
+
+
+
+=>The reducer function also takes two arguments
+the first argument will be the current state .the current state will be assigned with the current value of the state
+the first argument will be the action .the action will be assigned with the value which we pass an argument to the
+dispatcher function
+
+current we are not passing any argument to the dispatcher function
+in this case the action will be assigned with the value undefined.
+but it is also possible to pass an argument to the dispatcher function
+so when are calling the decrement handler lets pass an argument may be 'decrement'
+when we are callling the increment handler lets pass an argument may be 'increment'
+when the user click on + button the increment will be assigned to the action parameter.
+when the user click on - button the decrement will be assigned to the action parameter
+Based on the value of action parameter we want to increment or decrement the value of the count property.
+
+Demo.js
+------
+import './Demo.css';
+import { useReducer } from 'react';
+
+function reducer(currState, action){
+    switch(action){
+        case 'increment':
+		//want to increment the previuous value of the count property by 1
+		so we have the previous state within the currState parameter
+            return {count: currState.count + 1};
+        case 'decrement':
+            return {count: currState.count - 1};
+        default:
+            return currState;
+    }
+}
+
+function Demo(){
+   
+
+
+    function decrementHandler(){
+        dispatcher('decrement')
+    }
+
+    function incrementHandler(){
+        dispatcher('increment')
+    }
+
+    return <div className="container">
+        <button onClick={decrementHandler}> - </button>
+        <span>{state.count}</span>
+        <button onClick={incrementHandler}> + </button>
+  </div>
+}
+
+export default Demo;
+
+
+
+useReducer hook practical example
+=================================
+
+  // const [enteredEmail, setEnteredEmail] = useState('');
+  // const [emailIsValid, setEmailIsValid] = useState();
+  const [enteredPassword, setEnteredPassword] = useState('');
+  const [passwordIsValid, setPasswordIsValid] = useState();
+  const [formIsValid, setFormIsValid] = useState(false);
+
+ let[emailState, emailDispatcher] = useReducer(emailReducer, {value: '', isValid: undefined}); 
+
+lets comment the useEffect() 
+
+change enteredEmail to emailState
+---------------------------------
+  const validateEmailHandler = (event) => {
+	//setEmailIsvalid(enteredEmail.includes('@'));
+    setEmailIsValid(emailState.value.include('@'));
+  }
+
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+    props.onLogin(emailState.value,enteredPassword);
+}
+
+<Input 
+      ref={emailRef}
+      type="email" 
+      id="email" 
+      value={emailState.value} 
+      isValid={emailState.isValid}
+      onChangeHandler={emailChangeHandler} 
+      onBlurHandler={validateEmailHandler}> E-mail
+ </Input>
+
+create emailReducer function
+----------------------------
+
+function emailReducer(state, action){
+  switch(action.type){
+    case 'EMAIL_INPUT':
+      return {value: action.val, isValid: action.val.include('@')};//it is valid for every keystroke so use undefined
+  }
+}
+
+
+function emailReducer(state, action){
+  switch(action.type){
+    case 'EMAIL_INPUT':
+      return {value: action.val, isValid: undefined}
+    case 'EMAIL_VALID':
+      return {value: state.value, isValid: state.value.includes('@')}//u can use also action.value instead of state.value
+  }
+}
+
+ const emailChangeHandler = (event) => {
+    //setEnteredEmail(event.target.value);
+    //val is user entered text in email field.
+    emailDispatcher({val: event.target.value, type: 'EMAIL_INPUT'})//these values are assigned to action parameter.
+  };
+
+
+
+return(
+
+<div className={'${classes.control}${emailState.isValid===false ? classes.invalid:''}'}
+)
+
+//we want to validate the email field only when  blur event happens.
+ const validateEmailHandler = () => {
+    //setEmailIsValid(emailState.value.includes('@'));
+    emailDispatcher({val: emailState.value, type: 'EMAIL_VALID'})
+  };
+
+o/p:Here we are combining enteredEmail and emailIsValid into one state using useReducer.
+
+
+Using useReducer with useEffect 
+===============================
+
+
+  // const [enteredEmail, setEnteredEmail] = useState('');
+  // const [emailIsValid, setEmailIsValid] = useState();
+  //const [enteredPassword, setEnteredPassword] = useState('');
+  const [passwordIsValid, setPasswordIsValid] = useState();
+  const [formIsValid, setFormIsValid] = useState(false);
+
+ //we can assign either undefined or null
+ let[passwordState, pswdDispatcher] = useReducer(passwordReducer, {value: '', isValid: null})
+
+  const validatePasswordHandler = () => {
+    //setPasswordIsValid(passwordState.value.trim().length > 6);
+    pswdDispatcher({val: passwordState.value, type: 'PSWD_VALID'});
+  };
+
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+    props.onLogin(emailState.value,passwordState);
+}
+
+
+ <Input 
+      ref={pswdRef}
+      type="password" 
+      id="pswd" 
+      value={passwordState.value} 
+      isValid={passwordState.isValid}
+      onChangeHandler={passwordChangeHandler} 
+      onBlurHandler={validatePasswordHandler}> Password
+ </Input>
+
+
+<div className={'${classes.control}${passwordState.isValid===false ? classes.invalid:''}'}
+
+function passwordReducer(state, action){
+  switch(action.type){
+    case 'PSWD_INPUT':
+      return {value: action.val, isValid: undefined};
+    case 'PSWD_VALID':
+      return {value: state.value, isValid: state.value.trim().length > 6}
+  }
+}
+
+  const passwordChangeHandler = (event) => {
+    //setEnteredPassword(event.target.value);
+    pswdDispatcher({val: event.target.value, type: 'PSWD_INPUT'})
+  };
+
+
+  const validatePasswordHandler = () => {
+    //setPasswordIsValid(passwordState.value.trim().length > 6);
+    pswdDispatcher({val: passwordState.value, type: 'PSWD_VALID'});
+  };
+
+
+=>it is also possible to combine the emailState and passwordState 
+
+o/p:enter email and pswd and lets click on outside then it will validate the password field.
+but the login button is not enabled.
+
+why ?
+bcse we are enabled the login button when the formIsvalid is set to true
+initial it is false 
+we are not updating the formIsvalid state anywhere in the code.
+we can  do this by using useEffect.
+
+
+ useEffect(() => {
+    let value = setTimeout(() => {
+      console.log('validating form input...')
+      setFormIsValid(
+	 //enteredEmail.includes('@') && enteredPassword.value.trim().length > 6
+        emailState.value.includes('@') && passwordState.value.trim().length > 6
+      );
+    }, 500);
+
+    return () => {
+      console.log('Cleanup function executed');
+      clearTimeout(value);
+    }
+    
+  }, [emailState.isValid, passwordState.isValid]);//whenever the email and pswd is valid the only useEffect will be called.
+
+
+=>now thelogin button is enabled.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+overall Login.js
+----------------
+import React, { useState, useEffect, useReducer, useContext, useRef} from 'react';
+
+import Card from '../UI/Card/Card';
+import classes from './Login.module.css';
+import Button from '../UI/Button/Button';
+import AuthContext from '../Context/AuthContext';
+import Input from '../Input/input';
+
+function emailReducer(state, action){
+  switch(action.type){
+    case 'EMAIL_INPUT':
+      return {value: action.val, isValid: undefined};
+    case 'EMAIL_VALID':
+      return {value: state.value, isValid: state.value.includes('@')}
+  }
+}
+
+function passwordReducer(state, action){
+  switch(action.type){
+    case 'PSWD_INPUT':
+      return {value: action.val, isValid: undefined};
+    case 'PSWD_VALID':
+      return {value: state.value, isValid: state.value.trim().length > 6}
+  }
+}
+
+
+
+const Login = (props) => {
+  // const [enteredEmail, setEnteredEmail] = useState('');
+  // const [emailIsValid, setEmailIsValid] = useState();
+  const [enteredPassword, setEnteredPassword] = useState('');
+  const [passwordIsValid, setPasswordIsValid] = useState();
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  let[emailState, emailDispatcher] = useReducer(emailReducer, {value: '', isValid: undefined});
+  let[passwordState, pswdDispatcher] = useReducer(passwordReducer, {value: '', isValid: null})
+
+  let emailRef = useRef();
+  let pswdRef = useRef();
+
+
+  useEffect(() => {
+    let value = setTimeout(() => {
+      console.log('validating form input...')
+      setFormIsValid(
+        emailState.value.includes('@') && passwordState.value.trim().length > 6
+      );
+    }, 500);
+
+    return () => {
+      console.log('Cleanup function executed');
+      clearTimeout(value);
+    }
+    
+  }, [emailState.isValid, passwordState.isValid]);
+
+  const emailChangeHandler = (event) => {
+    //setEnteredEmail(event.target.value);
+    emailDispatcher({val: event.target.value, type: 'EMAIL_INPUT'})
+  };
+
+  const passwordChangeHandler = (event) => {
+    //setEnteredPassword(event.target.value);
+    pswdDispatcher({val: event.target.value, type: 'PSWD_INPUT'})
+  };
+
+  const validateEmailHandler = () => {
+    //setEmailIsValid(emailState.value.includes('@'));
+    emailDispatcher({val: emailState.value, type: 'EMAIL_VALID'})
+  };
+
+  const validatePasswordHandler = () => {
+    //setPasswordIsValid(passwordState.value.trim().length > 6);
+    pswdDispatcher({val: passwordState.value, type: 'PSWD_VALID'});
+  };
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+     props.onLogin(emailState.value,passwordState);    
+  };
+
+  return (
+    return (
+    <Card className={classes.login}>
+      <form onSubmit={submitHandler}>
+        <div
+          className={`${classes.control} ${
+            emailState.IsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="email">E-Mail</label>
+          <input
+            type="email"
+            id="email"
+            value={emailState.value}
+            onChange={emailChangeHandler}
+            onBlur={validateEmailHandler}
+          />
+        </div>
+        <div
+          className={`${classes.control} ${
+            passwordState.IsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            value={passwordState.value}
+            onChange={passwordChangeHandler}
+            onBlur={validatePasswordHandler}
+          />
+        </div>
+        <div className={classes.actions}>
+          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+            Login
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+export default Login;
+
+
+overall App.js
+--------------
+import React, { useState, useEffect } from 'react';
+
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+
+    if (storedUserLoggedInInformation === '1') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    localStorage.setItem('isLoggedIn', '1');
+    setIsLoggedIn(true);
+  };
+
+  const logoutHandler = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <React.Fragment>
+      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </React.Fragment>
+  );
+}
+
+export default App;
+
+UseState vs useReducer
+======================
+=>useReducer can be used to manage complex state where multiple related states can be updated together.
+
+
+=> useState is great for independent pieces of state data
+=> useReducer can be consider for state management when dealing
+with related data or state.
+
+=>useState is better when dealing with simple state updates.
+=>useReducer is better option when u have more complex state updates or different cases or actions.
+
+Eg:if u dont have a lot of cases based on which u want to update the state and also when u dont have an
+object as the state value u can without any doubt use useState.
+Eg:we worked with login form input state in our react application there we had entered email and emailvalid
+as two diff  states but these two states were related to email field so we combined them into a single 
+state using useReducer.
+
+
+React Context & useContext hook 
+=================================
+
+we use react context to manage state globally.
+
+
+=>In order to make the isLoggedIn state available in the child components of the app component we are passing it 
+as a props.bcse the state will be available locally it will only be available inside the component inside which
+we have declared it but with the help of React context we can make state available globally.and in that case
+we dont have to pass a state as a props to the child components in order to use that state in the child 
+component.
+
+=>Here we are creating the AuthContext
+AuthContext.js
+--------------
+let AuthContext = React.createContext(
+    {
+        isLoggedIn: false, //property
+    });
+
+export default AuthContext;
+
+
+=>Here we are providing the AuthContext.
+App.js
+------
+ return (
+	//provider is a property of AuthContext 
+	//on this AuthContext.Provider we have to specify the props.
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn(false from Login.js),
+      }}
+    >
+      //<MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+	<MainHeader onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </AuthContext.Provider>
+  );
+}
+
+=>Now the isLoggedIn object will be available in  MainHeader componet and its child components
+in the same way the isLoggedIn object will be available in Login and Home component and their child components
+
+MainHeader.js
+-------------
+//<Navigation IsLoggedIn={props.isAuthenticated} onLogout={props.onLogout} />
+<Navigation  onLogout={props.onLogout} />
+
+=>on this props object we dont have any property called isLoggedIn thats bcse here when we are calling
+the navigation component we have not specified any attribute called isLoggedIn.
+=>In App.js we have provide the AuthContext and in Navigation.js we want to consume that AuthContext.
+
+so create useContext
+
+let context = useContext(AuthContext);=>it return an object(IsLoggedIn) so we have to store that data in context variable
+
+Navigation.js
+-------------
+import React, {useContext} from 'react';
+import AuthContext from '../Context/AuthContext';
+
+import classes from './Navigation.module.css';
+
+const Navigation = (props) => {
+
+  let context = useContext(AuthContext);
+
+  return (
+    <nav className={classes.nav}>
+      <ul>
+        {context.isLoggedIn && (
+          <li>
+            <a href="/">Users</a>
+          </li>
+        )}
+        {context.isLoggedIn && (
+          <li>
+            <a href="/">Admin</a>
+          </li>
+        )}
+        {context.isLoggedIn && (
+          <li>
+            <button onClick={props.onLogout}>Logout</button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
+export default Navigation;
+
+o/p:it should working as expected.
+
+
+
+Using React Context vs props
+============================
+=>when u are forwarding a state or an event handler function from one component
+to its child components then using React Context is a better option.
+
+
+App.js
+------
+  const logoutHandler = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
+
+ return (
+	//provider is a property of AuthContext 
+	//on this AuthContext.Provider we have to specify the props.
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn(false from Login.js),
+	  onLogout:logoutHandler,
+      }}
+    >
+      //<MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+	<MainHeader onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
+    </AuthContext.Provider>
+  );
+}
+
+MainHeader.js
+-------------
+//<Navigation onLogout={props.onLogout} />
+<Navigation />
+
+
+
+Navigation.js
+-------------
+import React, {useContext} from 'react';
+import AuthContext from '../Context/AuthContext';
+
+import classes from './Navigation.module.css';
+
+const Navigation = (props) => {
+
+  let context = useContext(AuthContext);
+
+  return (
+    <nav className={classes.nav}>
+      <ul>
+        {context.isLoggedIn && (
+          <li>
+            <a href="/">Users</a>
+          </li>
+        )}
+        {context.isLoggedIn && (
+          <li>
+            <a href="/">Admin</a>
+          </li>
+        )}
+        {context.isLoggedIn && (
+          <li>
+
+            <button onClick={context.onLogout}>Logout</button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
+export default Navigation;
+
+
+=>In intellisense it will not showing the onLogout property bcse we have create the 
+onLogout property in AuthContext.Provider but in the AuthContext there we have 
+not specify that property.
+
+AuthContext.js
+--------------
+let AuthContext = React.createContext(
+    {
+        isLoggedIn: false, //property
+	  onLogout:undefined
+    });
+
+export default AuthContext;
+
+
+=>when u are passing a state or an event handler function to the child component where
+it is directly used inside that child component and not forwarded to its child components
+in that case using props is better.
+
+Eg:In the App component we are passing the loginHandler using props to the Login Component
+In login Component if u notice that we are using the props directly inside the Login component
+
+<!isLoggedIn && <Login={loginHandler}/>
+
+props.onLogin(emailState.value,passwordState.value);
+
+
+Custom context provider component 
+=================================
+The logging in and logging out user it should not be responsibility of App component
+
+so for authenticating the user we can create a seperate context mgmt
+
+AuthContext.js
+--------------
+let AuthContext = React.createContext(
+    {
+        isLoggedIn: false, //property
+	  onLogout:undefined,
+	  onLogin:undefined,
+	
+    });
+
+export function AuthContextProvider(props){
+
+    let[isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        let isLoggedInValue = localStorage.getItem('isLoggedIn');
+
+        if(isLoggedInValue === '1'){
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+    function loginHandler(){
+        localStorage.setItem('isLoggedIn', '1')
+        setIsLoggedIn(true);
+    }
+
+    function logoutHandler(){
+        localStorage.removeItem('isLoggedIn');
+        setIsLoggedIn(false);
+    }
+
+    return <AuthContext.Provider value={{isLoggedIn: isLoggedIn, onLogout: logoutHandler, onLogin: loginHandler}}>
+        {props.children}
+    </AuthContext.Provider>
+}
+
+export default AuthContext;
+
+App.js
+------
+
+import React, { useContext } from 'react';
+
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+import Demo from './components/ReducerDemo/Demo';
+import AuthContext from './components/Context/AuthContext';
+
+function App() {
+  let ctx = useContext(AuthContext)
+  return (
+ 	<AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn(false from Login.js),
+	  onLogout:logoutHandler,
+
+      }}
+      <>
+        <MainHeader />
+        <main>
+          {!ctx.isLoggedIn && <Login onLogin={loginHandler} />}
+          {ctx.isLoggedIn && <Home onLogout={logoutHandler/>}
+        </main>
+      </>
+  );
+}
+
+export default App;
+
+for onLogin
+-----------
+
+App.js
+------
+
+import React, { useContext } from 'react';
+
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+import Demo from './components/ReducerDemo/Demo';
+import AuthContext from './components/Context/AuthContext';
+
+function App() {
+  let ctx = useContext(AuthContext)
+  return (
+      <>
+        <MainHeader />
+        <main>
+          {!ctx.isLoggedIn && <Login onLogin={loginHandler} />}
+          {ctx.isLoggedIn && <Home />}
+        </main>
+      </>
+  );
+}
+
+index.js
+---------
+root.render(<AuthContextProvider><App/></AuthContextProvider>)
+
+export default App;
+Login.js
+--------
+ let authctx = useContext(AuthContext)
+
+const submitHandler = (event) => {
+    event.preventDefault();
+      authctx.onLogin(emailState.value, passwordState.value);
+    
+  };
+
+
+
+Limitations of useContext
+=========================
+=> When we use Context in a component,it might make that component non-reusable.
+
+Button.js
+---------
+
+import React from 'react';
+
+
+import classes from './Button.module.css';
+
+const Button = (props) => {
+  return (
+    <button
+      type={props.type || 'button'}
+      className={`${classes.button} ${props.className}`}
+      onClick={props.onLogout}
+      disabled={props.disabled}
+    >
+      {props.children}
+    </button>
+  );
+};
+
+export default Button;
+
+=>Instead of using props lets use AuthContext 
+
+Button.js
+---------
+
+import React, {useContext} from 'react';
+import AuthContext from '../../Context/AuthContext';
+
+import classes from './Button.module.css';
+
+const Button = (props) => {
+  let ctx = useContext(AuthContext)
+  return (
+    <button
+      type={props.type || 'button'}
+      className={`${classes.button} ${props.className}`}
+      onClick={ctx.onLogout}
+      disabled={props.disabled}
+    >
+      {props.children}
+    </button>
+  );
+};
+
+export default Button;
+
+=>Whereever we will use the button element and whenever a click event will happen on that
+button it will always be used to logout a user we cannot use this button element to do 
+anything else when the button is clicked.
+
+
+=> React Context is not optimized for high frequency changes.that means 
+if u state changes every second or  multiple times per second
+
+what if i have a app-wide or component-wide state that changes more frequently where i would want to useContext for that
+in such cases we have other battle tools in react.This tool is called redux.
+
+=> We can use other tools like Redux for managing app wide state for frequently changing states.
+
+
+
+useImperativeHandle hook & forwardRef
+=====================================
+
+Login.js
+--------
+//<Button type="submit" className={classes.btn} disabled={!formIsValid}>
+
+<Button type="submit" className={classes.btn}>
+
+now the login button is always enabled 
+
+=>If the form is valid then we will call onLogin
+if the email state is not valid we have to focus on first invalid field
+if the pswd state is not valid we have to focus on second invalid field
+for this we have to use useRef
+
+
+ let emailRef = useRef();
+ let pswdRef = useRef();
+
+const submitHandler = (event) => {
+    event.preventDefault();
+    if(formIsValid){
+      authctx.onLogin(emailState.value, passwordState.value);
+    } else if(!emailState.isValid){
+        emailRef.current.focus();
+    } else {
+        pswdRef.current.focus();
+    }
+  };
+
+return (
+    <Card className={classes.login}>
+      <form onSubmit={submitHandler}>
+        <Input 
+
+          ref={emailRef}
+
+          type="email" 
+          id="email" 
+          value={emailState.value} 
+          isValid={emailState.isValid}
+          onChangeHandler={emailChangeHandler} 
+          onBlurHandler={validateEmailHandler}> E-mail
+        </Input>
+        <Input 
+
+          ref={pswdRef}
+
+          type="password" 
+          id="pswd" 
+          value={passwordState.value} 
+          isValid={passwordState.isValid}
+          onChangeHandler={passwordChangeHandler} 
+          onBlurHandler={validatePasswordHandler}> Password
+        </Input>
+        <div className={classes.actions}>
+          <Button type="submit" className={classes.btn}>
+            Login
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+o/p:if i click on login button the email field has been focused
+and if i entered valid  email field then the password filed has been focused
+
+
+we are able to use focus method on Html input elments.
+
+Html input elements in the dom will have a focuse method
+
+but what if instead of using the html input element we use a custom input component.?
+-------------------------------------------------------------------------------------
+cut the email and pswd jsx data from Login.js
+
+Input.js
+--------
+import React from 'react';
+
+const Input=(props)=>{
+
+	 return (
+        <div
+          className={`${classes.control} ${
+            props.IsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="email">{props.children}</label>
+          <input
+            type={props.type}
+            id={props.id}
+            value={props.value}
+            onChange={props.onChangeHandler}
+            onBlur={props.onBlurHandler}
+          />
+        </div>
+  );
+};
+
+export default Input;
+
+
+
+Login.js
+--------
+
+return (
+    <Card className={classes.login}>
+      <form onSubmit={submitHandler}>
+        
+	<Input type="email" id="email"
+	 value={emailState.value} 
+	onChangeHandler={emailChangeHanlder}
+	 onBlurHandler={validateEmailHandler}
+	isValid={emailStare.isValid}>E-mail
+	</Input> 
+
+	<Input type="password" id="pswd"
+	 value={passwordState.value}
+	 onChangeHandler={passwordChangeHandler}
+	 onBlurHandler={validatePasswordHandler}
+	 isValid={passwordState.isValid}> Password
+	</Input>
+	   
+        <div className={classes.actions}>
+          <Button type="submit" className={classes.btn}>
+            Login
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+=>cut the css style from Login.module.css to input.module.css
+input.module.css
+---------------
+
+  .control {
+    margin: 1rem 0;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+  }
+  
+  .control label,
+  .control input {
+    display: block;
+  }
+  
+  .control label {
+    font-weight: bold;
+    flex: 1;
+    color: #464646;
+    margin-bottom: 0.5rem;
+  }
+  
+  .control input {
+    flex: 3;
+    font: inherit;
+    padding: 0.35rem 0.35rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .control input:focus {
+    outline: none;
+    border-color: #2E86C1;
+    background: #EBF5FB;
+  }
+  
+  .control.invalid input {
+    border-color: red;
+    background: #fbdada;
+  }
+
+  @media (min-width: 768px) {
+    .control {
+      align-items: center;
+      flex-direction: row;
+    }
+  }
+
+o/p:it display the email and pswd fileds with Login but when i click on
+Login button ntg is happening
+but our requirement is when we click on the login button the first invalid
+input is focused.bcse we are using the our custom input element
+
+so we can achieve this again We can add the ref props in input element
+
+
+
+Login.js
+--------
+
+return (
+    <Card className={classes.login}>
+      <form onSubmit={submitHandler}>
+        
+	<Input type="email" id="email" ref={emailRef}
+	 value={emailState.value} 
+	onChangeHandler={emailChangeHanlder}
+	 onBlurHandler={validateEmailHandler}
+	isValid={emailStare.isValid}>E-mail
+	</Input> 
+
+	<Input type="password" id="pswd" ref={pswdRef}
+	 value={passwordState.value}
+	 onChangeHandler={passwordChangeHandler}
+	 onBlurHandler={validatePasswordHandler}
+	 isValid={passwordState.isValid}> Password
+	</Input>
+	   
+        <div className={classes.actions}>
+          <Button type="submit" className={classes.btn}>
+            Login
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+
+o/p:it display the email and pswd fileds with Login but when i click on
+Login button ntg is happening
+
+we got an warning 
+function components cannot be given refs simply say
+we cannot use ref props on custom input elements
+
+but we can make this work by using forward Refs
+
+=>we can pass the function 
+
+(props)=>{
+
+	 return (
+        <div
+          className={`${classes.control} ${
+            props.IsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="email">{props.children}</label>
+          <input
+            type={props.type}
+            id={props.id}
+            value={props.value}
+            onChange={props.onChangeHandler}
+            onBlur={props.onBlurHandler}
+          />
+        </div>
+  );
+
+
+as an argument to another function which is React.forwardRef
+
+
+Input.js
+--------
+
+Input.js
+--------
+import React from 'react';
+
+const Input=React.forwardRef(props)=>{
+
+	 return (
+        <div
+          className={`${classes.control} ${
+            props.IsValid === false ? classes.invalid : ''
+          }`}
+        >
+          <label htmlFor="email">{props.children}</label>
+          <input
+            type={props.type}
+            id={props.id}
+            value={props.value}
+            onChange={props.onChangeHandler}
+            onBlur={props.onBlurHandler}
+          />
+        </div>
+  );
+};
+
+export default Input;
+
+=>but this input element does not have focus method so we can create a focus method in input.js
+
+whenever customFocus() will be called it will focus the input element.and in the login component
+instead of calling emailRef.current.focus() we want to call emailRef.current.customFocus(like syntax)
+so for that we can make use of useImperativeHandle hook
+
+it takes two arguments
+first argument is ref props.
+first argument is callback function it should return an object.
+here we want to the customFocus outside of the input component lets specify a property name
+lets say focus or onfocus
+
+
+
+Input.js
+--------
+import React, {useRef, useImperativeHandle} from 'react';
+import classes from './input.module.css';
+
+const Input = React.forwardRef((props, ref) => {
+    useImperativeHandle(ref, () => {
+        return {focus: customFocus}//use focus or onfocus
+    })
+    const inputRef = useRef();
+
+    function customFocus(){
+        inputRef.current.focus()
+    }
+
+    return <div
+                className={`${classes.control} ${
+                props.isValid === false ? classes.invalid : ''
+                }`}
+            >
+                <label htmlFor="email">{props.children}</label>
+                <input
+                ref={inputRef}
+                type={props.type}
+                id={props.id}
+                value={props.value}
+                onChange={props.onChangeHandler}
+                onBlur={props.onBlurHandler}
+                />
+            </div>
+})
+
+export default Input;
+
+
+const submitHandler = (event) => {
+    event.preventDefault();
+    if(formIsValid){
+      authctx.onLogin(emailState.value, passwordState.value);
+    } else if(!emailState.isValid){
+        emailRef.current.onfocus();//use focus or onfocus
+    } else {
+        pswdRef.current.onfocus();//use focus or onfocus
+    }
+  };
+
+
+o/p:if i click on login button the email field has been focuseds
+and if i entered valid  email field then the password filed has been focused
+
+
+=>use imperative handle hook and forward ref u can expose functionalities of a 
+react component to its parent component.
+
+
+=>In our ex we are simply exposing a function using onfocus property but if we want 
+we can also expose some data
+
+
+Rules of Hooks
+==========
+=> you must Only call React Hooks in React Functions
+	-> React component functions or Custom Hooks
+=> React hook must be called in Top level of function component.
+	-> Dont call them in nested functions
+	-> Dont call them in any block stmts.
+
+		if(true){
+			useState()
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+What is an  Effect or Side Effect?
+====================
+
+React-Main Job:Render UI & React to User Input ,tp re-render the UI when its needed.
+
+Side Effect are everything else that might be happening in your applications which is not related
+to UI rendering.
+
+We know whenever the state inside a component changes it re-evaluates that component
+and with that all the logic in that component function is re-executed  but we might want to have some 
+tasks  inside a function which should only be executed whenever smtg changes.and these types of
+tasks we call as side effects.
+
+To work with side effects we have a hook in react is called a  useEffect.
+
+Eg:sending a Http Request or storing smth in browser storage or working with timer functions.
+
+syntax: useEffext(() => {...},[dependencies]);
+
+The useEffect()Hook is called with two arguments with two parameters.
+
+The first argument is a function that should be executed after every component evaluation
+
+if the specified dependencies changed. And the specified dependencies are the second argument that you pass in.
+
+That's an array full of dependencies and you will see how these dependencies look like
+
+throughout this module.
+
+When u want to execute a piece of code whenever the value of a dependency  change in that case you
+can use  the useEffect react hook.
+
+we lose data when the react app starts it would be nice to store the previous data somewhere 
+where it persist that data and when we start the app again we  can check if the data was
+persisted and if the data is there we log the user automatically  so that user 
+doesnt re-enter the details and thats where we can use the useEffect hook ...
+so when the app restarts or rerenders what we want is want to check if in the local storage 
+we have that key value pair and if that key value is present in the local storage and 
+if its value is 1 in that case we automatically want to log in the user 
+
+Using the useEffect Cleanup function
+=======================
+for example, send an HTTP request to some backend where you check
+
+if a username is already in use. You don't wanna do that with every keystroke.
+
+Because if you do,that means you're going to be sending a lot of requests.
+
+Instead, something you might want to do is that you collect a certain amount of keystrokes,
+
+or you simply wait for a pause of a certain time duration after a keystroke.
+
+And only if the pause is long enough, you go ahead and do your thing.
+
+So for example, here, whilst the user is actively typing,I might not wanna check if it's a valid email address.
+
+I care about when the user stops typing.
+
+The callback function of useEffect can return a value and that value must be a function and this 
+function is called as cleanup function.
+
+And as long as the user keeps on typing, we always clear all other timers.
+
+And therefore, we only have one timer that completes, and that completes after 500 milliseconds,
+
+which is the delay the user has to issue a new keystroke to clear this timer.
+
+Now that might sound complex to implement,but useEffect makes that very easy actually.
+
+So the cleanup function runs before every new side effect function execution
+
+UseReducer()
+=========
+UseReducer can be used to manage complex states where multiple relates
+states can be updated together.
+
+const[state,dispatchFn=useReducer(reducerFn,initialState,initFn);
+
+UseState vs useReducer
+===============
+=> useState is great for independent pieces of state data
+=> useReducer can be considere for state management when dealing
+with related data or state.
+
+useContext
+========
+we have this React Context Concept,which allows us to manage State
+
+kind of behind the scenes in React,such that we actually are able to directly change it
+
+from any component in our Appand directly pass it to any component in our App
+
+without building such a prop chain.
+
+Limitations of useContext
+=================
+
+=> When we use Context in a component,it might make that component non-reusable.
+=> React Context is not optimized for high frequency changes.
+=> We can use other tools like Reudx for managing app wide state for frequently changing states.
+
+Rules of Hooks
+==========
+=> Only call React Hooks in React Functions
+	-> React component functions or Custom Hooks
+=> Only call React Hooks at the Top level
+	-> Dont call them in nested functions
+	->Dont call them in any block stmts.

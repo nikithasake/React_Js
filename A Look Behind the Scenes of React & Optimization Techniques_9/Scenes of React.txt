@@ -1,0 +1,503 @@
+
+Understanding the Virtual DOM
+======================
+ => when  we run in react application it is not rendering directly in  the browsers DOM.
+react knows ntg about the browser or real dom.
+react knows how to work with components but  its doesnt care whether those components contains html 
+elements or custom elements that doesnt matter to react.
+
+
+=> React is responsible for managing the components data and state and it re-evaluates a component
+whenever a state changes.
+=> React also compares and checks the difference b/w the previous state and current state and 
+passes the info to React DOM.
+=> React is not responsible for rendering smtg in browsers DOM.
+	-> React hands over all the informations abou what has changed and what should be visible 
+	on the screen to the react dom
+	-> react dom is your interface to your web.
+	->react dom is responsible for working with the real dom which is ntg but the browsers dom.
+	-> react dom is responsible for bringing smtg onto the screen which  the user is able to see so
+	whenever  props,state or context changes component that uses these concepts are updated by 
+	react and react checks whether this component is rendering smtg new is thats the case then
+	react will let react dom know about these changes so that reactdom will be able to bring 
+	these changes onto the screen
+
+Demo.js
+
+function Demo(){
+	let[count,setCount]=useState(0);
+	
+	return <div>
+		<button onClick={setCount(--count}>-</button>
+		<span>{count}</span>
+		<button onClick={setCount(++count)>+</button>
+	</div>
+}
+
+	
+Why we need Virtual Dom why cant directly communicate with Real Dom?
+------------------------------------------------------------------------------------
+lets suppose the react can directly communicate with the real dom so in that case 
+if the state changes for example for the above demo component(Demo.js) lets say
+the use has clicked on the plus button(+) the the value of count variable increment by 1.
+so count state has changed and we have learned that whenever the state changes react
+re-evaluates the dom that means the component function will be re-evaluated.
+when this component function will be re-evaluated these elements(div,button,span,button)
+are recreated that means in the real dom these elements will be re-rendered with updated value 1.
+here only the value has changed but  since the component state has changed all these elements have be 
+re-rendered.this task is quite costly performance wise.so what react does is instead of 
+directly communicating with real Dom.it created a virtual dom in the memory.let say
+when this application will be rendered for the first time in the memory  a virtual dom tree structure
+will be created and same dom will be rendered in the real dom...now lets say the use clicked on
+the plus button the state changed and the value of the count variable has incremented to 1.
+so again when the state inside a component has changed the component function will be re-evaluated
+and virtual dom will be re-rendered..in this virtual dom we will have the updated value..
+now there is a difference b/w the virtual dom and real dom so react dom will check the difference
+b/w the virtual dom and real dom and wherever there will be a difference that part in the
+real dom will be updated.so in this case the difference is value node only the value node is
+updated in real dom.the complete dom object will not be re-rendered.only that part in
+the dom tree will be re-rendered which has changed.bcse of this react app are very fast
+
+=> Re-evaluating the component does not mean re-rendering the dom.
+
+How React Really works
+===============
+=> whenever props,state or context changes the component will Re-evaluated and re-executed..
+
+=> Changes to the real DOM are only made for differences b/w evaluations.
+
+ =>if a component is re-executed all its child components will also be re-executed and re-evaluated.
+
+closer look at child component  Re-Evaluation
+==============================
+=> Whenever a component is re-executed all its child components will also get re-executed.
+
+all the child component functions are re-executed even though ntg has changed thats a lot of
+ongoing function execution with that virtual DOM and Real Dom comparision,which certainly caused 
+performance
+
+Preventing Unnecessary Re-Evaluations with React.memo()
+======================================
+
+=> using React.memo() we can avoid the executing the child components when
+the props or state  or context does not change
+
+export default React.memo(DemoOutput);
+
+=> React.memo()  will only work with functional components
+for class based components React.memo() is not work.
+
+=> React.memo() this method tells react for the component which it is getting as its
+argument(ex:DemoOutput) react should look at the props this component gets 
+and check the  value of those props and compare it to the previous value of those 
+props that means if  the new props value is different from the previous props value 
+then only the component should be re-executed and re-evaluated...
+if the parent component changed but prop value did not changed
+the component execution will be skipped here we optimizing the react code to
+avoid unnecessary re-rendering.
+
+
+
+ return (
+    <div className="app">
+      <DemoOutput show={false}/>
+      <Button onClick={toggleParagraphHandler}>Toggle Paragraph</Button>//Button is custom button
+    </div>
+  );
+=> but for when we apply React.memo() for function(eg:Button) it doesnt work even though 
+click function doesnt change why??
+ 	bcse the functions are treated as objects in Javascript..
+
+with every time the App function runs,the toggleParagraphHandler will be recreated..
+
+and this function(toggleParagraphHandler) object is passed to the onClick prop.
+
+Now, therefore, Button in the end compares props.onClick to props.previous.onClick....
+
+two objects, even if they have the same content,are never equal in JavaScript when compared like this.
+
+And, therefore, React.memo finds out that the value changed  because of how JavaScript works.
+
+
+=> In case of value type the value will always remains same even though the value(eg:10)
+will be recreated in the memory but the value will remain same.
+=> In  case of value type we are passing the value 
+=> In case of reference type the value will not remain same even though the value are same(eg:{10,20})
+here we are passing the memory address.
+
+react.memo is not working as expected when the props  value is of reference type...
+
+Preventing Function Re-Creation with usecallback()
+==================================
+
+we saw react.memo is not working as expected when the props  value is of reference type...
+
+by using usecallback() Hook we can make the react.memo work for reference type also
+
+The function will be only created once and it will be stored somewhere in the reacts internal memory.
+since the function will be created only once  its reference will not change that means the function 
+will be available at the same memory location.
+
+useCallback second argument should be an array of dependencies
+
+But in the below example the setShowParagraph does not change so we 
+dont need to add dependency
+
+function App() {
+
+  const [showparagraph,setShowParagraph]=useState(false);
+
+  console.log("App running");
+
+  const toggleParagraphHandler=useCallback(()=>{
+      setShowParagraph((prevShowParagraph)=>!prevShowParagraph);
+  },[]);
+
+  return (
+    <div className="app">
+      <h1>Hi there!</h1>
+      <DemoOutput show={false}/>
+      <Button onClick={toggleParagraphHandler}>Toggle Paragraph</Button>
+    </div>
+  );
+}
+
+export default App;
+
+why do i need to pass the dependencies array bcse the function definition is not
+going to change anyway.so why we have this dependencies array at the
+first place???
+
+when we are using callback and to that we have passed the function and already we have
+learned that this function will be saved somewhere in the reacts  internal memory..
+and this function will not get recreated whenever the state in the parent component 
+changes so  when the function will be saved  in the reacts  internal memory at that 
+time value of allowToggle will be saved..
+so the allowToggle value will be stored as false even though we have clicked on Allow Toggle
+button..So to solve this problem we have to pass the dependencies to the useCallback()
+
+
+function App() {
+
+  const [showparagraph,setShowParagraph]=useState(false);
+  const [allowToggle,setAllowToggle]=useState(false);
+
+  console.log("App running");
+
+  const toggleParagraphHandler=useCallback(()=>{
+    if(allowToggle){
+    setShowParagraph((prevShowParagraph)=>!prevShowParagraph);
+    }
+  },[]);
+
+  const allowToggleHandler=()=>{
+    setAllowToggle(true);
+  }
+
+  return (
+    <div className="app">
+      <h1>Hi there!</h1>
+      <DemoOutput show={showparagraph}/>
+    {/* {showparagraph && <p>This is new Paragraph</p>} */}
+    <Button onClick={allowToggleHandler}>AllowToggle</Button>
+    <Button onClick={toggleParagraphHandler}>Toggle Paragraph</Button>
+    </div>
+  );
+
+
+useCallback() and its dependencies
+=======================
+
+useCallback allows you to save a function so that you can reuse it.
+
+
+function App() {
+
+  const [showparagraph,setShowParagraph]=useState(false);
+  const [allowToggle,setAllowToggle]=useState(false);
+
+  console.log("App running");
+
+  const toggleParagraphHandler=useCallback(()=>{
+    if(allowToggle){
+    setShowParagraph((prevShowParagraph)=>!prevShowParagraph);
+    }
+  },[allowToggle]);//added depencies
+
+  const allowToggleHandler=()=>{
+    setAllowToggle(true);
+  }
+
+  return (
+    <div className="app">
+      <h1>Hi there!</h1>
+      <DemoOutput show={showparagraph}/>
+    {/* {showparagraph && <p>This is new Paragraph</p>} */}
+    <Button onClick={allowToggleHandler}>AllowToggle</Button>
+    <Button onClick={toggleParagraphHandler}>Toggle Paragraph</Button>
+    </div>
+  );
+
+here whenever the allowToggle value changed the function will be
+recreated..if the value of allowToggle doesnt change then function
+will not  get recreated
+
+state scheduling & Batching
+==================
+
+ => Both component and state is managed by react.. one of the ways we manage state
+in react is by using useState() hook.
+=> using useState() hook we create a new state in a component so behind the scenes
+react create the state variable and it ties it to the component inside which we have
+created the state so in the below example behind the scenes react will tie this count state
+and the activate state to the component now whenever the state changes the component
+inside which we have created that state component will be re-evaluated.in this example
+the value of count and activate state change then  it will re-evaluate the Demo component. 
+that means
+ const [count,setCount]=useState(0);
+  const [activate,setActivate]=useState(false);
+above two lines are re-executed
+but for some reasons the state variables(count,activate) will always get latest value
+it doesnot get re-initialized 
+simple reason behind that is 
+useState and state variable is managed by react.
+React keeps track of to which component that state belongs to 
+in this example these two states(count,variable) belongs to the demo component
+now whenever the state changes it will re-executed the component function
+so for subsequent component executions when useState is being called no new state
+is being created so whenever the demo component will be re-executed 
+const [count,setCount]=useState(0);
+  const [activate,setActivate]=useState(false);
+the above two lines are not going to create a new state
+instead react recognizes that it already has these two states for this demo component
+and react will simply update these two states.it will not recreate the states.
+so react knows that the component function has been re-executed bcse of some
+state change and therefore it does not re-intialize the state it simply
+updates the state with the new value.
+
+it is same for useReducer() hook also..
+
+function Demo() {
+  const [count,setCount]=useState(0);
+  const [activate,setActivate]=useState(false);
+
+  const incrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count+1)
+  },[activate]);
+
+  const decrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count-1)
+  },[activate]);
+
+  const activateHandler=()=>{
+    setActivate(true);
+  }
+
+  return (
+    <div className="app">
+    <Button onClick={decrementHandler}>-</Button>
+  <span>{count}</span>
+    <Button onClick={incrementHandler}>+</Button>
+   <Button onClick={activateHandler}>Activate</Button>
+    </div>
+  );
+}
+
+
+it is same for useReducer() hook also..
+
+now we have an idea about how react manages the state..
+
+
+How react handles state updates?
+
+in this example we create two states the count state and activate state
+the initial state for this count variable is 0.and false for activate variable
+whenever the user click on the plus or minus button it is going to change the count state.
+so this count state state will be updated using the setCount state updating function.
+every time we click on - or + button it is going to set a new value for the count variable
+by incrementing or decrementing it.
+so intial value of the count is 0 now whenever  use click on + button the new  value of the count variable will be 1.
+what happens here is
+inital value which is zero in this case that will not replaced instantly with the new value one jst bce setCount 
+was executed instead calling  a state updating function like setCount schedules  a state update with the new data.
+in this eg setCount will schedule a state update with the value 1 for the count state.
+so when we are using this setCount method to update  the value of the count variable the setCount will not 
+get executed immediately instead react will schedule  a new state update with the latest value 
+now in this eg the latest value will be 1 bcse we have clicked on + button.
+the state change is schedules and react is aware of it and it plans on processing it but not just yet.
+whenever i click the + or - buttom to me as a user the change will appear instantly and we 
+can see the new value as soom as we clik on the + or - button.but thats not actual case
+internally react should use a state update and once that schedules state update is
+processed then only the new value will be rendered in the web page.
+
+lets say a lot of other performance intensive tasks are ongoing at the same moment.
+for eg:if i click on the + button a state change will be scheduled for the new value 1
+and again click on + button then the new  state change value will be schedules with the new value 2
+so react guarentees that the first scheduled state is processed first and then only the next state is processed 
+the order is taken into consideration when processing the schedules updates
+but it is not necessarily executed immediately
+eventually though thsese scheduled states will be processed and the state will be update with the latest value
+and once thats done react will re-evaluates the component now bcse of that scheduling where u might have 
+multiple non-processed state changes at the same time  bcse of that it is recommended that u use 
+the function  form of updating your state if u depend ur previous  state snapshot where we pass a callback function
+to the state updating function(setCount).
+
+  const incrementHandler=useCallback(()=>{
+    if(activate)
+      setCount((count)={count+1)});//count is previous snapshot//callback
+  },[activate]);
+
+ using callback for state update is a safe way and for every change where you depend on the previous snapshot 
+you get the latest snapshot
+
+same for useEffect
+
+useEffect(()=>{
+	console.log(count)
+},[count])
+
+
+=> we have a function which we are calling  on a button click and in there we have two state updating functions 
+for ex:when we are clicking on activate button we are calling the activate handler function and inside this we are
+settting setActivate state to true..
+
+function Demo() {
+  const [count,setCount]=useState(0);
+  const [activate,setActivate]=useState(false);
+
+  const incrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count+1)
+  },[activate]);
+
+  const decrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count-1)
+  },[activate]);
+
+  const activateHandler=()=>{
+    setActivate(true);
+  }
+
+  return (
+    <div className="app">
+    <Button onClick={decrementHandler}>-</Button>
+  <span>{count}</span>
+    <Button onClick={incrementHandler}>+</Button>
+   <Button onClick={activateHandler}>Activate</Button>
+    </div>
+  );
+}
+
+=>inside this function lets say we also call another state updating function lets say
+setCount state updating funtion..i want to set the count to zero whenever we clicked on Activate button
+we want to reset the count variable to 0.so inside this function we are calling two state updating function
+now ?
+will second state updating function will ever be executed bcse whenever we call a state updating function
+it re-executes the component..
+eg when we clicked on Activate button it is going to call the setActivate function and we have learned that whenever
+we update the state it re-executes the component function so when the setActivate will be called it will
+re-execute the demo component so in that case the setCount will ever  be called or not?
+ the componnet function will be re-executed only when the scheduled state change is processed and not
+when the state updating function is called ..so when setActivate function will be called a state update function
+will be scheduled  for that state...so here the setActivate is not going to update the value of the activate variable immediately
+when the scheduled state update is processed then only demo componnet will be re-executed 
+it will not re-executed when we are calling the state updating function.
+since the demo component will be re-evaluated when the scheduled state is processed 
+when we are calling the  setActivate it will schedules a state update and after that it will call the setCount
+ here also a new state update will be scheduled thats why both of these updating functions will be executed.
+
+  const activateHandler=()=>{
+    setActivate(true);
+   setCount(0);
+  }
+
+
+now ?
+since we have two state updating functions does that mean that the component will be executed  twice
+Ans:No
+if u have two state updates in the same synchronous code snippet one after the other in such case
+react will batch those state updates together
+in the above ex 
+  setActivate(true);
+   setCount(0); 
+the above two state updates will be  batch together 
+
+
+Optimizing with useMemo()
+===================
+
+=> In case of reference type the value will not remain same even though the value are same(eg:{10,20})
+here we are passing the memory address.
+
+we can resolve this issue will for that jst like useCallback we have another hook called useMemo().
+
+Demo.js
+---------
+function Demo() {
+  const [count,setCount]=useState(0);
+  const [activate,setActivate]=useState(false);
+
+  const incrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count+1)
+  },[activate]);
+
+  const decrementHandler=useCallback(()=>{
+    if(activate)
+      setCount(count-1)
+  },[activate]);
+
+  const activateHandler=()=>{
+    setActivate(true);
+  }
+
+let  list=useMemo(()=>{
+	return [100,200]
+},[]);
+  return (
+    <div className="app">
+    <Button onClick={decrementHandler}>-</Button>
+  <span>{list}</span>
+    <Button onClick={incrementHandler}>+</Button>
+   <Button onClick={activateHandler}>Activate</Button>
+    </div>
+  );
+}
+
+
+Span.js
+--------
+import React from 'react';
+
+function span(props){
+	console.log("span running");
+	return <span>{props.children[0]}</span>
+}
+
+export default React.memo(Span);
+
+Here the reference of the array will never changed bcse what the useMemo() is do is
+ it will create the reacts internal memory and whenever the demo component will be
+re-executed.it is not going to recreate the array again instead it will reference this
+array from the reacts internal memory.
+
+
+useCallback vs useMemo
+=================
+=> useCallback returns referential equality b/w renders for functions.
+=> It returns the function when the dependencies change
+
+=> useMemo() returns referential equality b/w renders for functions.
+=> It calls the function when the value changes and return result.
+
+
+
+
+
+
+
+

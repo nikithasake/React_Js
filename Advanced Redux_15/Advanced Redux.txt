@@ -1,0 +1,1230 @@
+Advanced Redux
+===============
+
+=>Reducers must be pure,side-effect free,synchronous functions
+	
+	Input(ols state+Action)-------->Output(New State)
+
+Where should side-effects and async tasks be executed?
+				   |
+				   |
+	------------------------------------------------------------											
+	|                                                           |
+	|                                                           |
+	|                                                           |
+Inside the components(eg:useEffect())                 Inside the action creators
+
+=>we write our own action creator functions,so we dont use the automcatically 
+generated ones redux toolkit gives us but instead we write our own action
+creators and it turns out that for those action creators.redux has a solution
+that allows us to perform side effects and run asynchronous tasks as part of this action creators
+without changing the reducer function because that function must stay side effect free.
+
+Refresher/Practice:part 1/2
+===========================
+
+=> Download the project from course
+=> npm install
+
+if we want to work with redux toolkit we should install react-redux
+
+=> npm install @reduxjs/toolkit
+=> npm install react-redux
+
+
+ui-Slice.js
+------------
+import { createSlice } from "@reduxjs/toolkit";
+
+const uiSlice=createSlice({
+    name:'ui',
+    initialState:{cartIsVisible:false},
+    reducers:{
+        toggle(state){
+            state.cartIsVisible=!state.cartIsVisible;
+        }
+    }
+})
+
+export const uiActions=uiSlice.actions;
+export default uiSlice;
+
+index.js
+--------
+import { configureStore } from "@reduxjs/toolkit";
+import uiSlice from "./ui-slice";
+
+const store=configureStore({
+    reducer:{ui:uiSlice.reducer}
+});
+
+export default store;
+
+index.js
+---------
+import ReactDOM from 'react-dom/client';
+
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+import store from './store';
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+);
+
+CartButton.js
+-------------
+import { useDispatch } from 'react-redux';
+import { uiActions } from '../../store/ui-slice';
+import classes from './CartButton.module.css';
+
+const CartButton = (props) => {
+
+  const dispatch=useDispatch();
+
+  const toggleHandler=()=>{
+    dispatch(uiActions.toggle());//action create method--automatically created
+  }
+  return (
+    <button className={classes.button} onClick={toggleHandler}>
+    </button>
+  );
+};
+
+export default CartButton;
+
+
+App.js
+------
+import { useSelector } from 'react-redux';
+import Cart from './components/Cart/Cart';
+import Layout from './components/Layout/Layout';
+import Products from './components/Shop/Products';
+
+function App() {
+  const showCart=useSelector(state=>state.ui.cartIsVisible);
+
+  return (
+    <Layout>
+      {showCart && <Cart />}
+      <Products />
+    </Layout>
+  );
+}
+
+export default App;
+
+o/p:ui-slice1.js and ui-slice2.js pic in 01_Refresher or Practise part1
+
+
+
+Refresher/Practice:part 2/2
+===========================
+
+cart-slice.js
+-------------
+import { createSlice } from "@reduxjs/toolkit";
+
+const cartSlice=createSlice({
+    name:'cart',
+    initialState:{
+        items:[],
+        totalQuantity:0,
+    },
+    reducers:{
+        addItemToCart(state,action){
+            const newItem=action.payload;
+            console.log("new Item:"+newItem);
+
+	//check whether the new item is in already existing item
+            const existingItem=state.items.find(item=>item.id === newItem.id);
+            console.log("existingItem:"+existingItem);
+            state.totalQuantity++;
+            console.log(state.totalQuantity);
+     //if new item is not in existing item 
+            if(!existingItem){
+                state.items.push({
+                    id:newItem.id,
+                    price:newItem.price,
+                    quantity:1,
+                    totalPrice:newItem.price,
+                    name:newItem.title
+                });
+
+	//if new item is in already existing item
+            }else{
+                existingItem.quantity++;
+                console.log("existingItem.quantity"+existingItem.quantity);
+                existingItem.totalPrice=existingItem.totalPrice+newItem.price;
+                console.log("existingItem.totalPrice"+existingItem.totalPrice);
+            }
+        },
+        removeItemCFromCart(state,action){
+            const id=action.payload;
+
+     //How many items are present in the array
+            const existingItem=state.items.find(item=>item.id === id);
+            console.log("existingItem in remove"+existingItem)
+            state.totalQuantity--;
+
+		//if it is one then remove the array entirely
+		//we keep all the items where the ids do not match the id
+            if(existingItem.quantity === 1){
+                state.items= state.items.filter(item=>item.id !== id);
+                console.log("qua 1"+state.items)
+            }else{
+                existingItem.quantity--;
+                //existingItem.totalPrice=existingItem.totalPrice-existingItem.price;
+            }
+        }
+    }
+})
+
+export const cartActions=cartSlice.actions;
+export default cartSlice;
+
+=>it is bad if we use Reduxbcse push() manipulates the existing array in the existimg state
+and thats a must not do,but with Redux Toolkit we dont have that problem
+bcse Redux Toolkit internally ensures that this will not manipulate the existing state
+but that it instead transforms this into an operation which updates the state
+in an immutable way.so we can use push() here when working with Redux Toolkit.
+
+index.js
+---------import { configureStore } from "@reduxjs/toolkit";
+import cartSlice from "./cart-slice";
+import uiSlice from "./ui-slice";
+
+const store=configureStore({
+    reducer:{ui:uiSlice.reducer,cart:cartSlice.reducer}
+});
+
+export default store;
+
+Product.js
+----------
+import ProductItem from './ProductItem';
+import classes from './Products.module.css';
+
+const DUMMY_PRODUCTS=[
+  {
+    id:'p1',
+    price:6,
+    title:'My first book',
+    description:'The first book I ever wrote'
+  },
+  {
+    id:'p2',
+    price:5,
+    title:'My second book',
+    description:'The second book I ever wrote'
+  }
+]
+const Products = (props) => {
+  return (
+    <section className={classes.products}>
+      <h2>Buy your favorite products</h2>
+      <ul>
+        {DUMMY_PRODUCTS.map((product)=>(
+        <ProductItem
+          key={product.id}
+          id={product.id}
+          title={product.title}
+          price={product.price}
+          description={product.description}
+        />))}
+      </ul>
+    </section>
+  );
+};
+
+export default Products;
+
+ProductItem.js
+---------------
+  import { useDispatch } from 'react-redux';
+import { cartActions } from '../../store/cart-slice';
+import Card from '../UI/Card';
+import classes from './ProductItem.module.css';
+
+const ProductItem = (props) => {
+  const { title, price, description,id } = props;
+  const dispatch=useDispatch();
+
+  const addToCartHandler=()=>{
+    dispatch(cartActions.addItemToCart({
+      id,
+      title,
+      price,
+    }));
+  }
+  return (
+    <li className={classes.item}>
+      <Card>
+        <header>
+          <h3>{title}</h3>
+          <div className={classes.price}>${price.toFixed(2)}</div>
+        </header>
+        <p>{description}</p>
+        <div className={classes.actions}>
+          <button onClick={addToCartHandler}>Add to Cart</button>
+        </div>
+      </Card>
+    </li>
+  );
+};
+export default ProductItem;
+
+CartButton.js
+-------------
+  import { useDispatch, useSelector } from 'react-redux';
+import { uiActions } from '../../store/ui-slice';
+import classes from './CartButton.module.css';
+
+const CartButton = (props) => {
+  const cartQuantity=useSelector(state=>state.cart.totalQuantity);
+  const dispatch=useDispatch();
+
+  const toggleHandler=()=>{
+    dispatch(uiActions.toggle());//action create method--automatically created
+  }
+  return (
+    <button className={classes.button} onClick={toggleHandler}>
+      <span>My Cart</span>
+      <span className={classes.badge}>{cartQuantity}</span>
+    </button>
+  );};
+export default CartButton;
+
+cart-slice.js
+-------------
+import { createSlice } from "@reduxjs/toolkit";
+
+const cartSlice=createSlice({
+    name:'cart',
+    initialState:{
+        items:[],
+        totalQuantity:0,
+    },
+    reducers:{
+        addItemToCart(state,action){
+            const newItem=action.payload;
+            console.log("new Item:"+newItem);
+            const existingItem=state.items.find(item=>item.id === newItem.id);
+            console.log("existingItem:"+existingItem);
+
+            state.totalQuantity++;
+            console.log(state.totalQuantity);
+            if(!existingItem){
+                state.items.push({
+                    id:newItem.id,
+                    price:newItem.price,
+                    quantity:1,
+                    totalPrice:newItem.price,
+                    name:newItem.title
+                });
+            }else{
+                existingItem.quantity++;
+                console.log("existingItem.quantity"+existingItem.quantity);
+                existingItem.totalPrice=existingItem.totalPrice+newItem.price;
+                console.log("existingItem.totalPrice"+existingItem.totalPrice);
+            }
+        },
+        removeItemCFromCart(state,action){
+            const id=action.payload;
+            const existingItem=state.items.find(item=>item.id === id);
+            console.log("existingItem in remove"+existingItem)
+            state.totalQuantity--;
+            if(existingItem.quantity === 1){
+                state.items= state.items.filter(item=>item.id !== id);
+                console.log("qua 1"+state.items)
+            }else{
+                existingItem.quantity--;
+                //existingItem.totalPrice=existingItem.totalPrice-existingItem.price;
+            }
+        }
+    }
+})
+
+export const cartActions=cartSlice.actions;
+export default cartSlice;
+
+Cart.js
+-------
+import { useSelector } from 'react-redux';
+
+import Card from '../UI/Card';
+import classes from './Cart.module.css';
+import CartItem from './CartItem';
+
+const Cart = (props) => {
+  const cartItems = useSelector((state) => state.cart.items);
+
+  return (
+    <Card className={classes.cart}>
+      <h2>Your Shopping Cart</h2>
+      <ul>
+        {cartItems.map((item) => (
+          <CartItem
+            key={item.id}
+            item={{
+              id: item.id,
+              title: item.name,
+              quantity: item.quantity,
+              total: item.totalPrice,
+              price: item.price,
+            }}
+          />
+        ))}
+      </ul>
+    </Card>
+  );
+};
+
+export default Cart;
+
+cartItem.js
+-----------
+import { useDispatch } from 'react-redux';
+import { cartActions } from '../../store/cart-slice';
+import classes from './CartItem.module.css';
+const CartItem = (props) => {
+  const { title, quantity, total, price,id } = props.item;
+
+  const dispatch=useDispatch();
+  const removeItemHandler=()=>{
+    dispatch(cartActions.removeItemCFromCart(id))
+  }
+  const addItemHandler=()=>{
+    dispatch(cartActions.addItemToCart({
+      id,title,price
+    }))
+  }
+  return (
+    <li className={classes.item}>
+      <header>
+        <h3>{title}</h3>
+        <div className={classes.price}>
+          ${total.toFixed(2)}{' '}
+          <span className={classes.itemprice}>
+            (${price.toFixed(2)}/item)</span>
+        </div>
+      </header>
+      <div className={classes.details}>
+        <div className={classes.quantity}>
+          x <span>{quantity}</span>
+        </div>
+        <div className={classes.actions}>
+          <button onClick={removeItemHandler}>-</button>
+          <button onClick={addItemHandler}>+</button>
+        </div>
+      </div>
+    </li>
+  );
+};
+
+export default CartItem;
+
+
+
+o/p:All o/ps are in  Refresher/Practice:part 2
+
+I can add the items by click on the Add to cart button and + button
+
+
+Redux & Async Code
+==================
+=> If we add something to the cart, if we edit our cart,once i reload all that data is lost.
+bcse currently we are not storing that cart anywhere.
+
+So we can resolve that problem by using Firebase backend.
+=> Dont perform a side effect(http rqst) inside of your reducers in cart-slice.js.No matter if its synchronous or asynchronous.
+
+then Where should side-effects and async tasks be executed?
+				   |
+				   |
+	------------------------------------------------------------											
+	|                                                           |
+	|                                                           |
+	|                                                           |
+Inside the components(eg:useEffect())                 Inside the action creators
+
+
+Where to put our logic
+=======================
+
+Inside the components
++++++++++++++++++++++
+
+ProductItem.js
+--------------
+ const addToCartHandler = () => {
+
+    const newTotalQuantity = cart.totalQuantity + 1;
+    const updatedItems = cart.items.slice(); // create copy via slice to avoid mutating original state
+    const existingItem = updatedItems.find((item) => item.id === id);
+    if (existingItem) {
+      const updatedItem = { ...existingItem }; // new object + copy existing properties to avoid state mutation
+      updatedItem.quantity++;
+      updatedItem.totalPrice = updatedItem.totalPrice + price;
+      const existingItemIndex = updatedItems.findIndex(
+        (item) => item.id === id
+      );
+      updatedItems[existingItemIndex] = updatedItem;
+    } else {
+      updatedItems.push({
+        id: id,
+        price: price,
+        quantity: 1,
+        totalPrice: price,
+        name: title,
+      });
+    }
+    const newCart = {
+      totalQuantity: newTotalQuantity,
+      items: updatedItems,
+    };
+
+    dispatch(cartActions.replaceCart(newCart));
+  };
+
+cart-slice.js
+------------
+  replaceCart(state,action) {
+            state.totalQuantity = action.payload.totalQuantity;
+            state.items = action.payload.items;
+          },
+
+o/p:The output should be same as before.
+
+Data transformation in the component but not in the reducers pic in  Where to put our logic.
+
+Problem using this method
+--------------------------
+=>code duplication bcsw we need to write the same code in CartItem.js which we have written the code
+ inside the  productItem.js
+=>We dont do the transformation in our reducers.
+
+				Where should our logic go?
+						|
+						|
+			---------------------------------------
+			|                                     |
+		      |                                     |
+			|						  |
+Synchronous,side-effect free code(i.e              Async code or code with side-effects
+data transformations)						  |						  
+			|                                     |
+		     \|/                                   \|/
+
+		prefer Reducers                 Prefer Action Creators or Components
+
+  Avoid Action Creators or Components              Never use Reducers
+
+
+Using useEffect with Redux
+==========================
+
+=>comment the above code  in ProductItem.js
+
+ProductItem.js
+---------------
+  import { useDispatch } from 'react-redux';
+import { cartActions } from '../../store/cart-slice';
+import Card from '../UI/Card';
+import classes from './ProductItem.module.css';
+
+const ProductItem = (props) => {
+  const { title, price, description,id } = props;
+  const dispatch=useDispatch();
+
+  const addToCartHandler=()=>{
+    dispatch(cartActions.addItemToCart({
+      id,
+      title,
+      price,
+    }));
+  }
+  return (
+    <li className={classes.item}>
+      <Card>
+        <header>
+          <h3>{title}</h3>
+          <div className={classes.price}>${price.toFixed(2)}</div>
+        </header>
+        <p>{description}</p>
+        <div className={classes.actions}>
+          <button onClick={addToCartHandler}>Add to Cart</button>
+        </div>
+      </Card>
+    </li>
+  );
+};
+export default ProductItem;
+
+App.js
+------
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import Cart from './components/Cart/Cart';
+import Layout from './components/Layout/Layout';
+import Products from './components/Shop/Products';
+
+function App() {
+  const showCart=useSelector(state=>state.ui.cartIsVisible);
+
+  const cart=useSelector(state=>state.cart);
+
+  //post-->new data will not be added and it will override the existing data.
+  //override the existing data with the incoming data.
+  useEffect(()=>{
+    fetch('https://redux-4288d-default-rtdb.firebaseio.com/cart.json',{
+      method:'PUT',
+      body:JSON.stringify(cart),
+    });
+  },[cart]);
+  return (
+    <Layout>
+      {showCart&& <Cart />}
+      <Products />
+    </Layout>
+  );
+}
+
+export default App;
+
+
+
+o/p:using useEffect with Redux pic 
+
+
+A problem with useEffect()
+=========================
+It will execute when our app starts.
+
+Why is this an issue?
+
+It's a problem because this will send the initial (i.e. empty) cart
+ to our backend and overwrite any data stored there.
+
+
+Handling Http States & Feedback with Redux
+==========================================
+
+Notification.js
+--------------
+import classes from './Notification.module.css';
+
+const Notification = (props) => {
+  let specialClasses = '';
+
+  if (props.status === 'error') {
+    specialClasses = classes.error;
+  }
+  if (props.status === 'success') {
+    specialClasses = classes.success;
+  }
+
+  const cssClasses = `${classes.notification} ${specialClasses}`;
+
+  return (
+    <section className={cssClasses}>
+      <h2>{props.title}</h2>
+      <p>{props.message}</p>
+    </section>
+  );
+};
+
+export default Notification;
+
+Notification.module.css
+-----------------------
+.notification {
+    width: 100%;
+    height: 3rem;
+    background-color: #1a8ed1;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 10%;
+    align-items: center;
+    color: white;
+  }
+  
+  .notification h2,
+  .notification p {
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  .error {
+    background-color: #690000;
+  }
+  
+  .success {
+    background-color: #1ad1b9;
+  }
+
+ui-slice.js
+-----------
+import { createSlice } from "@reduxjs/toolkit";
+
+const uiSlice=createSlice({
+    name:'ui',
+    initialState:{cartIsVisible:false,notification:null},
+    reducers:{
+        toggle(state){
+            state.cartIsVisible=!state.cartIsVisible;
+        },
+        showNotification(state,action){
+            state.notification={
+                status:action.payload.status,
+                title:action.payload.title,
+                message:action.payload.message,
+            };
+        }
+    }
+})
+
+export const uiActions=uiSlice.actions;
+export default uiSlice;
+
+App.js
+------
+import { Fragment, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Cart from './components/Cart/Cart';
+import Layout from './components/Layout/Layout';
+import Products from './components/Shop/Products';
+import { uiActions } from './store/ui-slice';
+import Notification from './components/UI/Notification';
+
+let isInitial=true;
+
+function App() {
+  const showCart=useSelector(state=>state.ui.cartIsVisible);
+  const cart=useSelector(state=>state.cart);
+   const dispatch=useDispatch();
+
+   const notification=useSelector(state=>state.ui.notification);
+
+  //post-->new data will not be added and it will override the existing data.
+  //override the existing data with the incoming data.
+  useEffect(()=>{
+    const sendCartData=async()=>{
+      dispatch(uiActions.showNotification({
+        status:'pending',
+        title:'sending...',
+        message:'sending cart data!',
+      })
+      );
+    const response=await fetch(
+    'https://redux-4288d-default-rtdb.firebaseio.com/cart.json',
+    {
+      method:'PUT',
+      body:JSON.stringify(cart),
+    }
+    );
+    if(!response.ok){
+      throw new Error('sending cart data failed');
+    }
+
+    const responseData=await response.json();
+
+    dispatch(uiActions.showNotification({
+      status:'success',
+      title:'Success..',
+      message:'sending cart data successfully!',
+    })
+    );
+  };
+
+//at first we did not get any notification 
+
+  if(isInitial){
+    isInitial=false;
+    return;
+  }
+    sendCartData().catch(error=>{
+      dispatch(uiActions.showNotification({
+        status:'error',
+        title:'Error!',
+        message:'sending cart data failed!',
+      })
+      );
+    });
+  },[cart]);
+  return (
+    <Fragment>
+      {notification && <Notification status={notification.status}
+       title={notification.title} 
+       message={notification.message}
+       />}
+    <Layout>
+      {showCart&& <Cart />}
+      <Products />
+    </Layout>
+    </Fragment>
+  );
+}
+
+export default App;
+
+
+
+
+o/p:Handling Http States before doing anything in the webbrowser
+Handling Http States before after click on add to cart button.png
+
+at first we did not get any notification 
+after click on Add to cart button it will display the notification
+
+Using an Action create Thunk
+============================
+
+=>Alternative way of putting all that side effect logic into
+our component.
+
+ Where should side-effects and async tasks be executed?
+				   |
+				   |
+	------------------------------------------------------------											
+	|                                                           |
+	|                                                           |
+	|                                                           |
+Inside the components(eg:useEffect())                 Inside the action creators
+
+=>we have seen only one way and we havent done with the action creators.
+=>We can also write our own action creators and we can write then to create so-called thunks.
+
+What is a "Thunk"?
+-----------------
+=>A function that delays an action until later,until smtg else finished.
+					|
+					|
+An action creator function that does NOT return the action itself but another
+function which eventually returns the action.
+
+so that we can run some other code before we then dispatch the actual action object.
+that we did want to create.
+
+cart-slice.js
+-------------
+import { createSlice } from "@reduxjs/toolkit";
+import { uiActions } from "./ui-slice";
+
+const cartSlice=createSlice({
+    name:'cart',
+    initialState:{
+        items:[],
+        totalQuantity:0,
+    },
+    reducers:{
+        replaceCart(state,action) {
+            state.totalQuantity = action.payload.totalQuantity;
+            state.items = action.payload.items;
+          },
+        addItemToCart(state,action){
+            const newItem=action.payload;
+            console.log("new Item:"+newItem);
+            const existingItem=state.items.find(item=>item.id === newItem.id);
+            console.log("existingItem:"+existingItem);
+            state.totalQuantity++;
+            console.log(state.totalQuantity);
+            if(!existingItem){
+                state.items.push({
+                    id:newItem.id,
+                    price:newItem.price,
+                    quantity:1,
+                    totalPrice:newItem.price,
+                    name:newItem.title
+                });
+            }else{
+                existingItem.quantity++;
+                console.log("existingItem.quantity"+existingItem.quantity);
+                existingItem.totalPrice=existingItem.totalPrice+newItem.price;
+                console.log("existingItem.totalPrice"+existingItem.totalPrice);
+            }
+        },
+        removeItemCFromCart(state,action){
+            const id=action.payload;
+            const existingItem=state.items.find(item=>item.id === id);
+            console.log("existingItem in remove"+existingItem)
+            state.totalQuantity--;
+            if(existingItem.quantity === 1){
+                state.items= state.items.filter(item=>item.id !== id);
+                console.log("qua 1"+state.items)
+            }else{
+                existingItem.quantity--;
+                //existingItem.totalPrice=existingItem.totalPrice-existingItem.price;
+            }
+        }
+    }
+});
+
+//create action creator
+
+export const sendCartData=(cart)=>{
+    return async(dispatch)=>{
+    dispatch(
+      uiActions.showNotification({
+      status:'pending',
+      title:'sending...',
+      message:'sending cart data!',
+    })
+   );
+
+   const sendRequest=async()=>{
+    const response=await fetch(
+        'https://redux-4288d-default-rtdb.firebaseio.com/cart.json',
+        {
+          method:'PUT',
+          body:JSON.stringify(cart),
+        }
+        );
+        if(!response.ok){
+          throw new Error('sending cart data failed');
+        }
+    };
+   try{
+    await sendRequest();
+      
+    dispatch(
+        uiActions.showNotification({
+        status:'success',
+        title:'Success..',
+        message:'sending cart data successfully!',
+      })
+      );
+   }
+   catch(error){
+    dispatch(uiActions.showNotification({
+        status:'error',
+        title:'Error!',
+        message:'sending cart data failed!',
+      })
+      );
+   }
+   };
+};
+export const cartActions=cartSlice.actions;
+export default cartSlice;
+
+App.js
+------
+import { Fragment, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Cart from './components/Cart/Cart';
+import Layout from './components/Layout/Layout';
+import Products from './components/Shop/Products';
+import { uiActions } from './store/ui-slice';
+import Notification from './components/UI/Notification';
+import { sendCartData } from './store/cart-slice';
+
+let isInitial=true;
+
+function App() {
+  const showCart=useSelector(state=>state.ui.cartIsVisible);
+  const cart=useSelector(state=>state.cart);
+   const dispatch=useDispatch();
+
+   const notification=useSelector(state=>state.ui.notification);
+
+  //post-->new data will not be added and it will override the existing data.
+  //override the existing data with the incoming data.
+  useEffect(()=>{
+    if(isInitial){
+      isInitial=false;
+      return;
+    }
+    dispatch(sendCartData(cart));
+    // const sendCartData=async()=>{
+    //   dispatch(uiActions.showNotification({
+    //     status:'pending',
+    //     title:'sending...',
+    //     message:'sending cart data!',
+    //   })
+    //   );
+    // const response=await fetch(
+    // 'https://redux-4288d-default-rtdb.firebaseio.com/cart.json',
+    // {
+    //   method:'PUT',
+    //   body:JSON.stringify(cart),
+    // }
+    // );
+    // if(!response.ok){
+    //   throw new Error('sending cart data failed');
+    // }
+
+    // const responseData=await response.json();
+
+    // dispatch(uiActions.showNotification({
+    //   status:'success',
+    //   title:'Success..',
+    //   message:'sending cart data successfully!',
+    // })
+    // );
+  // };
+
+  // if(isInitial){
+  //   isInitial=false;
+  //   return;
+  // }
+  //   sendCartData().catch(error=>{
+      // dispatch(uiActions.showNotification({
+      //   status:'error',
+      //   title:'Error!',
+      //   message:'sending cart data failed!',
+      // })
+      // );
+    // });
+  },[cart]);
+  return (
+    <Fragment>
+      {notification && <Notification status={notification.status}
+       title={notification.title} 
+       message={notification.message}
+       />}
+    <Layout>
+      {showCart&& <Cart />}
+      <Products />
+    </Layout>
+    </Fragment>
+  );
+}
+
+export default App;
+
+
+o/p:own action creators pic 
+
+
+Getting Started with Fetching Data
+==================================
+
+=>At this moment we are only sending data but we never fetched data when
+the application load.and if we reload,all our data is still lost.
+
+create cart-actions.js file and cut the sendCartData related code
+ and paste it in new file(cart-actions.js)
+
+
+
+cart-actions.js
+----------------
+import { uiActions } from "./ui-slice";
+import { cartActions } from "./cart-slice";
+
+export const fetchCartData=(cart)=>{
+    return async(dispatch)=>{
+      const fetchData=async()=>{
+        const response=await fetch(
+          'https://redux-4288d-default-rtdb.firebaseio.com/cart.json'
+        );
+        if(!response.ok){
+          throw new Error('could not fetch cart data');
+        }
+
+        const data=await response.json();
+        return data;
+      };
+      try{
+        const cartData=await fetchData();
+        dispatch(cartActions.replaceCart({
+          items:cartData.items || [],
+          totalQuantity:cartData.totalQuantity,
+        }));
+
+      }catch(error){
+        dispatch(
+          uiActions.showNotification({
+          status:'error',
+          title:'Error!!!',
+          message:'Fetching cart data failed!',
+        })
+        );
+     }
+    };
+};
+
+
+export const sendCartData=(cart)=>{
+  return async(dispatch)=>{
+  dispatch(
+    uiActions.showNotification({
+    status:'pending',
+    title:'sending...',
+    message:'sending cart data!',
+  })
+ );
+
+ const sendRequest=async()=>{
+  const response=await fetch(
+      'https://redux-4288d-default-rtdb.firebaseio.com/cart.json',
+      {
+        method:'PUT',
+        body:JSON.stringify({
+          items:cart.items,
+          totalQuantity:cart.totalQuantity,
+        }),
+      }
+      );
+      if(!response.ok){
+        throw new Error('sending cart data failed');
+      }
+  };
+ try{
+  await sendRequest();   
+  dispatch(
+      uiActions.showNotification({
+      status:'success',
+      title:'Success..',
+      message:'sending cart data successfully!',
+    })
+    );
+ }
+ catch(error){
+  dispatch(uiActions.showNotification({
+      status:'error',
+      title:'Error!',
+      message:'sending cart data failed!',
+    })
+    );
+ }
+ };
+};
+
+App.js
+------
+=>write another useEffect
+
+  useEffect(()=>{
+    dispatch(fetchCartData());
+   },[dispatch]);
+
+
+Finalizing the Fetching Logic
+=============================
+
+
+cart-slice.js
+-------------
+import { createSlice } from "@reduxjs/toolkit";
+import { uiActions } from "./ui-slice";
+
+const cartSlice=createSlice({
+    name:'cart',
+    initialState:{
+        items:[],
+        totalQuantity:0,
+        changed:false,
+    },
+    reducers:{
+        replaceCart(state,action) {
+            state.totalQuantity = action.payload.totalQuantity;
+            state.items = action.payload.items;
+          },
+        addItemToCart(state,action){
+            const newItem=action.payload;
+            console.log("new Item:"+newItem);
+            const existingItem=state.items.find(item=>item.id === newItem.id);
+            console.log("existingItem:"+existingItem);
+            state.totalQuantity++;
+            state.changed=true;
+            console.log(state.totalQuantity);
+            if(!existingItem){
+                state.items.push({
+                    id:newItem.id,
+                    price:newItem.price,
+                    quantity:1,
+                    totalPrice:newItem.price,
+                    name:newItem.title
+                });
+            }else{
+                existingItem.quantity++;
+                console.log("existingItem.quantity"+existingItem.quantity);
+                existingItem.totalPrice=existingItem.totalPrice+newItem.price;
+                console.log("existingItem.totalPrice"+existingItem.totalPrice);
+            }
+        },
+        removeItemCFromCart(state,action){
+            const id=action.payload;
+            const existingItem=state.items.find(item=>item.id === id);
+            console.log("existingItem in remove"+existingItem)
+            state.totalQuantity--;
+            state.changed=true;
+            if(existingItem.quantity === 1){
+                state.items= state.items.filter(item=>item.id !== id);
+                console.log("qua 1"+state.items)
+            }else{
+                existingItem.quantity--;
+                 existingItem.totalPrice=existingItem.totalPrice-existingItem.price;
+            }
+        }
+    }
+});
+
+// export const sendCartData=(cart)=>{
+//     return async(dispatch)=>{
+//     dispatch(
+//       uiActions.showNotification({
+//       status:'pending',
+//       title:'sending...',
+//       message:'sending cart data!',
+//     })
+//    );
+
+//    const sendRequest=async()=>{
+//     const response=await fetch(
+//         'https://redux-4288d-default-rtdb.firebaseio.com/cart.json',
+//         {
+//           method:'PUT',
+//           body:JSON.stringify(cart),
+//         }
+//         );
+//         if(!response.ok){
+//           throw new Error('sending cart data failed');
+//         }
+//     };
+//    try{
+//     await sendRequest();   
+//     dispatch(
+//         uiActions.showNotification({
+//         status:'success',
+//         title:'Success..',
+//         message:'sending cart data successfully!',
+//       })
+//       );
+//    }
+//    catch(error){
+//     dispatch(uiActions.showNotification({
+//         status:'error',
+//         title:'Error!',
+//         message:'sending cart data failed!',
+//       })
+//       );
+//    }
+//    };
+// };
+export const cartActions=cartSlice.actions;
+export default cartSlice;
+
+
+
+//At first the notification wont be displayed.
+App.js
+------
+ if(cart.changed){
+      dispatch(sendCartData(cart));
+    }
+  },[cart,dispatch]);
+
+
+o/p:fetching the Data pic.
+
+Exploring the Redux Devtools
+=============================
+
+=>add the redux dev tools for web browser
+

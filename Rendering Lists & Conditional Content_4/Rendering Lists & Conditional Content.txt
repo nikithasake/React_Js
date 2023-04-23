@@ -1,0 +1,837 @@
+Rendering List in React
+========================
+=>In the last lecture we moved the product object from
+ProductForm.js to the ProductList.js 
+=>Now in this ProductList.js  we have our new Product object for now
+we are jst simply logging it (console.log(newProduct))
+=>now we want to add the new product object to the products array in
+ProductList.js  and then we want to display it in the webpage.
+=>we cannot know in advance how many products we will have inside this
+products array.and how many times do we need to call this Products component
+so this approach which we are using here where we are calling this
+Products component five time this is not a better approach.
+=>so we need a way to loop over this products array and based on the number
+of elements we have inside this products array that many times we want to
+call this Products component & we want to do it dynamically.
+=>from the ProductList component we are returning a jsx expression and in jsx
+we do not have a concept of loops bcse jsx is a templating engine that
+eventually gets compiled to react elements.
+
+so How can we loop over this products array and based on the number of products
+we can call the Products component?
+---------------------------------------------------------------------------------
+
+To do that we can simply use a javascript function called as map.
+
+usig the map function we can loop over an array we can transform the elements 
+of that array.and then we can return that transformed value
+
+
+
+ProductList.js
+-------------
+import Products from './Products';
+let products = [
+    {
+        pID: 1, 
+        pName: 'Fresh Milk', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: 'images/fresh-milk.png',
+        price: 12
+    },
+    {
+        pID: 2, 
+        pName: 'Cottage Cheese', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/cottage-cheese.png",
+        price: 10
+    },
+    {
+        pID: 3, 
+        pName: 'Brocoli', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/brocoli.png",
+        price: 15
+    },
+    {
+        pID: 4, 
+        pName: 'oranges', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/oranges.png",
+        price: 20
+    },
+    {
+        pID: 5, 
+        pName: 'Olive oil', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/olive-oil.png",
+        price: 14
+    }
+  ]
+function ProductList(props){
+    console.log(props.newProduct)
+    return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+        {
+            products.map((product)=>{
+                return <Products 
+                    id={product.pID}
+                    name={product.pName}
+                    description={product.desc}
+                    isAvailable={product.isAvailable}
+                    imageUrl={product.image}
+                    price={product.price}>
+                </Products>
+             })
+        }
+		
+    </ul>
+  </div>
+</div>);
+
+}
+
+export default ProductList;
+
+
+=>The products are displayed in webpage
+
+=>if i add the items in products array
+
+  {
+        pID: 6, 
+        pName: 'carrot', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/olive-oil.png",
+        price: 14
+    }
+
+then also it displayed all items in webapage.
+
+
+but we got an warning like
+
+Warning: Each child in a list should have a unique "key" prop
+
+
+
+Using Stateful List in React
+============================
+
+=>In the last lecture we learned how to render a list of products from
+the products array using the map function so we are using the map 
+function to iterate over this Products array and for each iteration the
+map function is transforming the element of the products array and it is 
+transforming it to the products component and then it is returning it so for
+each product inside the products array in the web page a Products
+component is being rendered.
+
+=>we want to add the newproduct object to the products array.
+=>when should we add the new product object to the products array.
+should we do it when the product list is rendered 
+
+lets try it once
+----------------
+here we dont want to directly go ahead and add this newProduct to the products array thats
+bcse even if we do that this newProduct will not reflect in the web page
+
+why?
+----
+bcse when we add this newProduct to this Products array it is not going to re-evaluate the
+ProductList function and if this component is not re-evaluated we will see the changes in the web page.
+so here we need to use useState.
+
+
+
+let[newProductList,updateProductList]=useState(products);
+
+=>to this useState we also need to pass an initial value lets pass products array.
+=>when the ProductList component will be rendered at that time the state will be
+assigned with the products array.
+=>Now lets update the function we need to pass the new value which we want to assign the newProductList
+for updateProductList we need to pass the updated value lets use [] bcse to the newProductList variable
+we want to assign an array and this array should have the newProduct object and it should have rest all other
+elements from the products array.
+use spread operator it expands the elements of that array into individual elements.
+since we are using it inside the [] those individual elements will now become an element of the new array
+
+updateProductList([props.newProduct, ...products])
+
+=>so we are updating the newProductList variable  with the new array.
+
+ newProductList.map((product)=>{
+	}
+
+ProductList.js
+---------------
+
+function ProductList(props){
+    //console.log(props.newProduct)
+    
+
+let[newProductList,updateProductList]=useState(products);
+updateProductList([props.newProduct, ...products]);
+
+    return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+        {
+            newProductList.map((product)=>{
+                return <Products 
+                    id={product.pID}
+                    name={product.pName}
+                    description={product.desc}
+                    isAvailable={product.isAvailable}
+                    imageUrl={product.image}
+                    price={product.price}>
+                </Products>
+             })
+        }
+
+
+o/p:TypeError: Cannot read properties of null (reading 'pID')
+
+we have this error bcse initially when this page loads the newProduct object will be null
+bcse we can only create a new product when the page has loaded
+so intially when the page loads the newProduct object will be null and on that null we
+are trying to access the pID,pName,desc
+
+we can fix this by nullish coalescing operator
+
+
+ {
+            newProductList.map((product)=>{
+                return <Products 
+                    id={product?.pID}
+                    name={product?.pName}
+                    description={product?.desc}
+                    isAvailable={product?.isAvailable}
+                    imageUrl={product?.image}
+                    price={product?.price}>
+                </Products>
+             })
+        }
+
+o/p:Now that error has gone but we got another error
+
+Too many re-renders. React limits the number of renders to prevent an infinite loop
+
+why do we have this error?
+-------------------------
+we have this kind of error when we try to render a component and when the state of that component
+immediately changes.
+
+Eg:In app.js we are trying to render the ProductList component so when this ProductList will be 
+rendered in the web page.the ProductList component function will be called  inside this ProductList component
+function we are creating a state and then we are immediately trying to update that state
+now when we are trying to update the state by calling updateProductList function it is going to
+re-evaluate the ProductList component function that means it is going to recall th ProductList component function
+so again the newProductList state will be created and then we are calling this function(updateProductList)
+to update the state so again it will recall the ProductList component function in this way it will create an infinite
+loop.
+
+
+=>so remove the below code from productList.js
+
+
+let[newProductList,updateProductList]=useState(products);
+updateProductList([props.newProduct, ...products]);
+
+and cut the products array from productList.js and paste it into App.js
+
+
+App.js
+------
+function App(){
+
+	let[newProduct,updateProduct]=useState(null);
+	 
+    function createProduct(product){
+        //console.log(product)
+		updateProduct(product);
+    }
+	return <div>
+		<CreateProduct createProduct={createProduct}></CreateProduct>
+		<ProductList newProduct={newProduct}></ProductList>
+	</div>
+	
+	
+}
+
+
+Here the createProduct function will be called when we click on the AddProduct button in the form.
+and thats when we want to add the new product object to this products array
+for that lets create a new state so first of all we dont need to pass this newProduct object to the ProductList component 
+so remove that attribute( newProduct={newProduct}) and we also dont need to set any state for that newProduct
+lets remove that (let[newProduct,updateProduct]=useState(null);)
+
+=>Again create a new useState
+
+let[newProductList,updateProductList]=useState(products);
+
+
+when this app component will be rendered in the web page it will create a new state called newProductList
+and to this we are assigning the products array.inside the createProduct function we want to update the state
+
+
+ function createProduct(product){
+		updateProductList([product,...newProductList);
+    }
+
+and pass it to the ProductList component.
+
+
+
+ProductList.js
+--------------
+ {
+      props.newProductList.map((product)=>{
+             return <Products 
+                    id={product?.pID}
+                    name={product?.pName}
+                    description={product?.desc}
+                    isAvailable={product?.isAvailable}
+                    imageUrl={product?.image}
+                    price={product?.price}>
+                </Products>
+         })
+  }
+
+
+
+o/p: we dont have any errors 
+Now when the user create the new product then it will display in the web page.
+
+using Stateful List pic in Proacademy_channel_output_RenderingList
+
+=>when u are changing the state it should not be done directly inside the component function
+it should be done when some event happens in the web page.
+Eg:Earlier we were trying to update the state directly inside the ProductList component function
+and we saw that there we had an error
+but now what we are doing is inside the App.js we are not updating the state directly inside the app
+component function instead we are updating it inside the createProduct() function and this
+createProduct() function will be called every time when the user click on AddProduct button in the webpage.
+=>so here we are updating the state when some event is happening.
+
+
+Understanding key props
+=======================
+
+In this leacture we can understand why do we have this 
+Warning: Each child in a list should have a unique "key" prop
+when we are trying to rendering a list in the web page.
+
+why do we have this error?
+-------------------------
+when the user is added a new product jst observer in ctrl+shift+j-->Elements
+we will notice that new element has been added the last element in the list(Elements in console)
+of flashed.
+if a item flashes like this that means either it was edited or added by the browser.
+but its strange that the last item flashed bcse here we are adding the new product
+at the top of the list but in console list(Elements) the last product flashed.
+
+so why is that?
+---------------
+To understand what's going on lets expand the first list in console(Elements)
+and here u will notice that is the new product which we have jst added so
+the first list is actually the new product which we have jst added.
+when the user add a new product using the form react renders that new product as
+the last product the last item in the list and then it updates all the item and
+replaces their content so that it again matches the order of the items in the 
+products array so this new product which we have created first it was added at the
+end of the list and then react updated all these list jst to match the order 
+in which we have these products in our products array basically in the
+newProductlist array.
+this is happening bcse to react all these items looks similar.
+and it only sees that our product array changed and hence it simply renders
+that additional item in the page inside <ul>.and adds that item at the end of the list.
+and then it simply goes through all the list items here and it update the
+content inside of every item to match the order of the product array
+content again so the final result therefore is crt here from a performance 
+point of view it is not great bcse here all the items are revisited and 
+updated one by one.and this could even lead to bugs.
+
+but why ?
+
+bcse if the prouduct item would be a stateful item and we would have some
+state inside of that then we could lose that state 
+for ex:If our item in the productList if it has some state and when we add a new item
+the old first item would be overwritten with the new first item so if we had any
+state change in the old first item it will be lost.
+
+why does react behave like this?
+--------------------------------
+Because it has no other way it currently simply checks the length of the array and
+then has a look at the number of items that were already rendered.
+the individual items all look similar to react so it cant know where the new item 
+should be added  thats why we are getting that warning
+Warning: Each child in a list should have a unique "key" prop
+react will not show this warning msg if it can uniquely identify each item in the list
+and we can do that by adding a special props to the list.
+To the list we are adding attribute called  key and to this key we can assign a value
+which is unique for each list item in the particular list
+now from where can we get this unique value well if u notice for each products we are
+specifying a product id so this product id will be unique for each product so we can 
+use this value as the unique value for this key prop.
+Now we already have the pid for our existing products which we have inside this products
+but we dont have that for the newly create products so this new product so before we add
+this new product to this array.
+	key={}
+lets also set an id property here for that products so lets say 
+	product.PID=newProductList.length+1;
+here in the product list we have total 6 products so id for the last product is 6
+so when we add a new product the seventh product to the products array its id should 
+be seven so for that we are using the length property which will return six and to that
+we are adding 1.
+
+productList.js
+--------------
+  {
+     props.newProductList.map((product)=>{
+    	return <Products 
+        key={product?.pID}
+        id={product?.pID}
+        name={product?.pName}
+        description={product?.desc}
+        isAvailable={product?.isAvailable}
+        imageUrl={product?.image}
+        price={product?.price}>
+      </Products>
+}
+
+App.js
+-------
+function createProduct(product){
+   //console.log(product)
+   //updateProduct(product);
+   product.pID=newProductList.length+1;
+   updateProductList([product,...newProductList])
+}
+           
+
+o/p:now error is not showing
+
+so when we have added this key prop to the ProdutcList item it helps react to identify the individual
+list items 
+
+
+now if the user is  added the item if u notice that the first item has not flashed instead a new list item 
+has been created at the top which is the new product.
+by adding key props now react knows where to add the new item and it able to update the list in the
+more efficient way.
+
+
+Filtering a List in React
+=========================
+
+
+=>modify the components
+
+remove two divs in ProductList and paste it in App.js
+
+and remove the first div in CreateProduct.js
+
+from second div remove the className and margin and add the BorderRadius.
+
+=>we want to provide the user a way to filter these products based on the availability.
+
+
+create a FilterProduct component and add FilterProduct.js and .css files
+------------------------------------------------------------------------
+
+
+FilterProduct.js
+---------------
+import './FilterProduct.css'
+let FilterProduct=()=>{
+    return(
+        <div className="filter-area">
+            <select name="isAvailable">
+            <option value="all">All</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+            </select>
+        </div>  
+    )
+}
+
+export default FilterProduct;
+
+
+FilterProduct.css
+-----------------
+.filter-area{
+    width: 100%;
+    background-color: white;
+    padding: 2px 20px;
+    border-radius: 2px;
+    border: #ddd 2px solid;
+}
+
+
+App.js
+-------
+
+<FilterProduct></FilterProduct>
+
+
+o/p:Filtering a list pic in Proacademy_channel_output_Rendering List
+
+jst it added the drop down menu with the All,Available and Unavailable options.
+
+
+=>Whenever the user selects a value from the drop down a change event will happen 
+on the select  element.so here we can listen to the change event for that
+we can use onChange event listener.
+
+FilterProduct.js
+-----------------import './FilterProduct.css'
+let FilterProduct=()=>{
+
+    function onFilterValueChanged(event){
+        console.log(event.target.value);
+    }
+    return(
+        <div className="filter-area">
+            <select name="isAvailable" onChange={onFilterValueChanged}>
+            <option value="all">All</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+            </select>
+        </div>  
+    )
+}
+
+export default FilterProduct;
+
+o/p:whenever user select the All or available or unavailable then it will display the
+user specific selected value in the console.
+
+Now we want to pass this data from FilterProduct.js to App.js that means 
+from children to parent component.
+
+App.js
+-------
+
+  function onFilteredValueSelected(filterValue){
+        console.log(filterValue);
+    }
+
+  <FilterProduct filterValueSelected={onFilteredValueSelected}></FilterProduct>
+
+FilterProduct.js
+----------------
+
+  function onFilterValueChanged(event){
+        //console.log(event.target.value);
+        props.filterValueSelected(event.target.value);
+    }
+
+o/p:In the app component we are receiving the filter value which the user as selected in the 
+web page.using the filterValue we want to filter the newProductList 
+for that lets create a useState.
+lets create a variable called filteredProductList and we want to assign an array with the
+filtered products.for that on the newProductList on this array i am going to call a function
+called filter so this filter function is also a transformation function.
+and this filter function also takes a callback function
+so this filter function is going to loop over the newProductList array and for each iteration it 
+is going to pass the current element from the array to the callback function.
+lets call it product
+
+
+App.js
+-------
+
+let[filterTextvalue,updateFilterText]=useState('all');
+
+    let filteredProductList=newProductList.filter((product)=>{
+        if(filterTextvalue === 'available'){
+            return product.isAvailable===true;
+        }else if(filterTextvalue==='unavailable'){
+            return product.isAvailable===false;
+        }else{
+            return product;
+        }
+    })
+
+
+    function onFilteredValueSelected(filterValue){
+        //console.log(filterValue);
+        updateFilterText(filterValue);
+    }
+
+<ProductList newProductList={filteredProductList}></ProductList>
+
+
+
+o/p:Now if i select unavailable  now it should display only unavailable products.
+if i select all then it should display all products 
+if i select available  now it should display only available products.
+
+
+
+Rendering conditional content
+===============================
+
+
+Now lets say if i dont have any products inside the products array in that case we want to
+display a msg no products available.and we want to display the list of products when the
+products array has some products.
+
+for ex:if i comment the products array in App.js then no product is being displayed in the
+web page.
+
+
+=>
+
+ProductList.js
+-------------
+
+function ProductList(props){
+
+    if(props.newProductList.length===0) return <h2>No products available</h2>
+
+
+    return (
+    <ul className="list-group shadow">
+        {
+            props.newProductList.map((product)=>{
+                return <Products 
+                    key={product?.pID}
+                    id={product?.pID}
+                    name={product?.pName}
+                    description={product?.desc}
+                    isAvailable={product?.isAvailable}
+                    imageUrl={product?.image}
+                    price={product?.price}>
+                </Products>
+             })
+        }
+
+}
+
+o/p:If i dont have any products then it will display No products available.
+
+
+
+Alternative way :usin ternary operator 
+---------------------------------------
+
+
+ProductList.js
+-------------
+
+function ProductList(props){
+
+    // if(props.newProductList.length===0) return <h2>No products available</h2>
+
+    return  props.newProductList.length===0 ? <h2>No products available</h2>:
+   
+    (<ul className="list-group shadow">
+        {
+            props.newProductList.map((product)=>{
+                return <Products 
+                    key={product?.pID}
+                    id={product?.pID}
+                    name={product?.pName}
+                    description={product?.desc}
+                    isAvailable={product?.isAvailable}
+                    imageUrl={product?.image}
+                    price={product?.price}>
+                </Products>
+             })
+        }
+
+}
+
+o/p:In this case also If i dont have any products then it will display No products available.
+
+
+Rendering Condidtion content(if products are not available ) pic in Proacademy_channel_output_RenderingList
+
+
+Rendering Form Conditionally
+============================
+=>here we want to have a button and when the user clicks on that button it should display
+this form and, in this form along with the Add Product button we also want to have a cancel
+button so when the user clicks on the Add Product button it should create a new product
+and then it should remove the form from the web page.and also when the cancel button is clicked
+we want to hide the form 
+
+=>In createProduct.js create button lets say Create product
+
+  <button>Create Product</button>
+
+when the button is clicked the form should be shown and when the form is submitted or cancelled
+this button should be shown.
+
+=>o/p:Create product button and Add Product button both are shown but only one of these
+should be rendered in the web page.
+
+=>for that lets create useState
+
+
+ let [showForm,updateShowForm]=useState();
+
+this state will store the information whether the create product form should displayed or not.
+so initially we dont want to display the create product form.
+so for the intial value lets pass false
+Now when the user click on the button at that time we want to show the create product form.
+so on the button element lets listen to click event.
+
+
+  function onCreateNewProduct(){
+        updateShowForm(true);
+    }
+
+ {!showForm && <button onClick={onCreateNewProduct}>Create Product</button>}
+
+when the showForm is false then !showForm will return True and then we have
+
+&& operator since the button value here is not an empty string it is a truthy value.
+
+so end operator returns the last truthy value in the expression.
+
+In this expression we have two truthy values (True && True)
+
+form this expression the last truthy value is button so this will be returned
+
+
+CreateProduct.js
+----------------
+
+import { useState } from "react";
+import ProductForm from "./ProductForm";
+
+function CreateProduct(props){
+    
+    let [showForm,updateShowForm]=useState(false);
+    function onCreateProduct(product){
+        //console.log(product)
+        props.createProduct(product);
+    }
+
+    function onCreateNewProduct(){
+        updateShowForm(true);
+    }
+    return (
+        
+            <div style={{backgroundColor:'white',padding:'10px 20px',borderRadius:2}}>
+                    {!showForm && <button onClick={onCreateNewProduct}>Create Product</button>}
+                    {showForm && <ProductForm createProduct={onCreateProduct}></ProductForm>}
+               
+            </div>
+        
+    )
+}
+
+export default CreateProduct;
+
+o/p:At first the create product is displayed when we click on the create product button
+then the form will be displayed.
+
+
+=>Now we want after the product added that means when the user add the product and click
+on the Add product then again it should be hidden.and also want a cancel button.
+
+
+For cancel button
+----------------
+
+ProductForm.js
+--------------
+<button  type="button" onClick={props.onCancel}>Cancel</button>
+
+
+CreateProduct.js
+---------------
+ function onProductSubmittedOrCancelled(){
+        updateShowForm(false);
+    }
+
+{showForm && <ProductForm createProduct={onCreateProduct}
+
+ onCancel={onProductSubmittedOrCancelled}></ProductForm>}
+
+
+o/p:when the user click on cancel button the form has been hidden.
+
+For Add Product button
+----------------------
+
+ProductForm.js
+--------------
+
+  function createProductEventHandler(event) {
+    event.preventDefault();
+    let product = {
+      // pID: 1,
+      pName: pName,
+      desc: pDescription,
+      isAvailable: Boolean(pAvailabilty),
+      image: pImageUrl,
+      price: Number(pPrice),
+    };
+
+    updateName(''),
+    updatePrice(''),
+    updateDescription(''),
+    //empty string will be type cast to boolean value false
+    updateAvailability(''), //or updateAvailability(false)
+    updateImageUrl('')
+
+    //console.log(product);
+    props.createProduct(product);
+
+
+    props.onCancel();
+  }
+
+o/p:when the user click on Add Product button the form has been submitted and  hidden.
+
+Rendering Form conditionally 1 
+
+Rendering Form conditionally 2 when the create product button click and adding the data.
+
+Rendering Form conditionally 3 After adding the data. pics in Proacademy_channel_output_RenderingList
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Using Stateful Lists
+=============
+
+Adding the new Expenses dynamically.
+
+Understanding "keys"
+===============
+
+When i add a new item,react render the new item as the last item in the list of divs
+and updates all item and replace their content.This is happening because to
+ React all these items look similar so it can't know where a new item should be added..
+from performance perspective this is not great bcse all items are visited and updated.
+
+Outputting Conditional Content
+=====================
+
+ we might wanna show an appropriate message Where we have no data.
+
+

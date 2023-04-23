@@ -1,0 +1,1905 @@
+Handling Events in React
+========================
+
+How to handle events in react application
+-----------------------------------------
+=> On the Button element i want to handle the click event
+so on the Button we can use an event handler attribute called onClick
+The attribute name will be the event name prefixed with on
+and we can assign some javascript expression within the double quotes
+	
+	onclick="" or onmouseover=""
+whenever the click event will happen on that particular element the javascript logic
+which we write within these double quotes that will be executed.
+
+we have the same concepts in jsx but in jsx we specify the event handler attribute name in
+a slightly different way.
+
+=>when we use attributes in jsx the first letter of each word in the event name will be uppercase.
+and to this we can assign javascript expression within the curly braces.
+
+		onClick={} or onMouseOver={}
+
+
+=>in this case it will execute the function immediately.
+here we dont want to execute the function immediately 
+
+	onClick={btnClickEventHandler()}
+
+so we want to execute the function only when the click
+event happens on this button element for that we need to remove that paranthesis.
+
+	onClick={btnClickEventHandler}
+
+
+
+Button.js
+----------
+
+import React from "react";
+
+function btnClickEventHandler(){
+    console.log("Button clicked")
+}
+function Button (props){
+    return  <button onClick={btnClickEventHandler} className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+o/p: whenever the click event happend on this(- or +) button element it wil execute the btnClickEventHandle
+
+Handling event on jsx button pic in Proacademy_channel_output_Events
+
+
+Using Event Handler functions 
+=============================
+Here we want to implement the functionality where the user clicks on the plus button it should increment product count by 1
+when the user clicks on the minus button it should decrement product count by 1.
+
+In ProductDetails.js the button element is a custom element.it is not a jsx element.
+
+lets try to handle the click event on the custom button element
+---------------------------------------------------------------
+
+ProductDetails.js
+-----------------
+
+ let incrementProductCount=function(){
+    productCount++;
+    console.log(productCount)
+  }
+
+  let decrementProductCount=function(){
+    productCount--;
+    console.log(productCount)
+  }
+
+
+ <Button onClick={decrementProductCount}>-</Button>
+   
+ <Button onClick={incrementProductCount}>+</Button>
+
+
+o/p:Handling event on custom button pic in Proacademy_channel_output_Events
+
+ntg has been logged in console bcse when we are clicking on the button it is not calling the decrementProductCount 
+function that bcse the button element here is a custom component.and component is ntg but a function
+so when we are specifying on the onClick attribute it will be created as a property of the props object(Button.js)
+it is not going to work like an event handle attribute...
+
+so what we can do here ?
+------------------------
+
+lets provide a meaningful name in ProductDetail.js  lets call it may be eventHandler
+so this eventHandler will be created as a property of the props object(Button.js)
+and that property will be assigned with a reference to the decrementProductCount function.
+
+Indirectly we are assigning the decrementProductCount function to the onClcik event handle attribute in Button.js
+
+
+ProductDetails.js
+-----------------
+
+ let incrementProductCount=function(){
+    productCount++;
+    console.log(productCount)
+  }
+
+  let decrementProductCount=function(){
+    productCount--;
+    console.log(productCount)
+  }
+
+
+ <Button eventHandler={decrementProductCount}>-</Button>
+   
+ <Button eventHandler={incrementProductCount}>+</Button>
+
+Button.js
+---------
+import React from "react";
+
+function Button (props){
+    return  <button  onClick={props.eventHandler} className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+
+
+O/P: Handling Event on incre and decr custon Buttons(Global Variable) in Proacademy_channel_Output_Events
+
+for a new product when the plus button is clicked for the first time it should display one 
+and when i cliked scond time it should display two.
+in the same way when any other product is clicked for the first time it should display one but 
+it is not working like that 
+thats bcse if u notice in ProductDetails.js the productCount is a global variable 
+so from the App.js we are calling the Products component five times.
+once the function is returned the local variables will be destroyed but the 
+the product Count is global variable so it will destroyed once we close the application 
+
+so i will the change the product count(global variable) into local variable 
+
+so now every time the productDetails will be called the product count will be reset to zero.
+since this productDetails function is called five times there will be five copies of the
+product count in the memory and each of these copies will be independent of each other 
+
+->o/p:Handling Event on incre and decr custon Buttons(Local Variable) in Proacademy_channel_Output_Events
+
+it should working as expected
+
+
+in the console it will display properly but in the web page it is always displaying Zero even
+when the product count is changed.
+
+
+
+Working with State in React
+===========================
+=> In the console it is logging the proper value that means the product count value is incrementing
+or decrementing based on whether we click the + or - button but that value is not reflecting in the
+web page. bcse the jsx code has been returned when the page loads after that when we are clicking on 
+the button it is not going to call the ProductDetails component function again that means it is not 
+going to return the jsx code with the updated product count value.
+
+How to  resolve the issue?
+-------------------------
+when the value of the product count variable changes we want the component to be re-evaluated that means
+when the value of the product count changes we want to recall the product details function and we want
+to re-return the jsx code with the updated value of the product count variable.
+and by default the regular variables like the product count is not triggering the re-evaluation
+if u have a variable in your component function and if that variable changes react ignores it 
+it doesn't care about that 
+the code which we write inside the incrementProductCount and decrementProductCount it is getting executed
+bcse these are the callback functions so we have assigned these functions so we have assigned these functions 
+to this onClick event handler so these functions will be a callback function and thats why we are getting executed
+when we are clicking on - or + buttons.
+Even if u make the ProductDetails function to be called whenever we change the value of the product count 
+is not going to work bcse 
+lets say productCount=0 so whenever the value of the product count changes somehow we are making the 
+productDetails function to be called 
+so when the productDetails function will be called at this line(let productcount=0) the product count 
+will be set to 0.
+so if somehow we are able to call the producDetails function whenever the value of the product count changes 
+that is not going to work.
+
+ProductDetails function is not going to be called second time after the intial rendering jst bcse a button
+was clicked or the value of the variable has changed this(productDetails) function will not run again.
+this is the default behavior of React.
+
+so to tell react that when the button is clicked and when the value of the product count variable changes it should
+run the component function again we need to use a function called as useState
+
+we need to import that function from react library
+
+=> import {useState} from 'react';
+
+u can only use the useState function inside a component function
+u cannot use it outside of the component function or inner function
+
+The useState is so called as react hook.
+
+the useState is returning an array
+
+const[productCount,updateCount]=useState(0);//updateCount-->spatial function
+
+
+ProductDetails.js
+------------------
+ let [productCount,updateCount]=useState(0);
+function displayFormattedProductCount() {
+  return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+  let incrementProductCount=function(){
+    // productCount++;
+    // console.log(productCount)
+    updateCount(productCount++)
+  }
+
+  let decrementProductCount=function(){
+    // productCount--;
+    // console.log(productCount)
+    updateCount(productCount--)
+  }
+
+o/p:when i click on + button ntg has happened if i click on the plus button again then 1 is displayed
+if click on + button one more time then ntg has happended if if click again then 2 is displayed.
+
+same as - button also.
+
+why do we have this behaviour?
+-----------------------------
+bcse we are using postincrement and postdecrement operator
+first it returns the original value and then only it updates the value 
+
+Here the Productcount++ return the intial value so intial value is 0 
+so first it will return the intial value that means the productCount 
+will again get intialized with the value 0
+and then it will increment the value of the productCount to 1
+
+so instead of using postincrement and postdecrement operator
+lets use preincrement and predecrement operator
+
+
+ProductDetails.js
+------------------
+ let [productCount,updateCount]=useState(0);
+function displayFormattedProductCount() {
+  return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+  let incrementProductCount=function(){
+    // productCount++;
+    // console.log(productCount)
+    updateCount(++productCount)
+  }
+
+  let decrementProductCount=function(){
+    // productCount--;
+    // console.log(productCount)
+    updateCount(--productCount)
+  }
+
+
+=>o/p:the - and + buttons  working as expected.and it is also displaying the updated product count value in web page.
+
+
+so when we are using the spatial function(updateCount) this function is not only going to assign the updated value
+to the product count variable but it is also going to recall the ProductDetails function it is re-evaluate the ProductDetails function
+
+Every time the spatial function which the useState function returning  every time the updateCount is called it is going to 
+update the variable(productCount) and it is also going to call the ProductDetails component function
+so the  ProductDetails component function will be called and the jsx code will be returned again and this time it will returned
+with the updated value of the ProductCount variable 
+
+
+A Closer look at useState hook
+================================
+=>useState functions registers some state that means some value as a state for the component in which it is called
+=>so when we are using the useState(0) function we are registering a state a value for the product count variable
+and we are registering this state in ProductDetails component 
+=> useState function registers a state for a specific component instance
+Eg:we have the App.js ,we are calling the Products component five times.so there will be five instance for the
+products component and for each product component we are also calling the productDetails component 
+so for each product component an instance if produc details component will also get created.
+Every call to ProductDetails component will receive its own separate state which is independent from other states
+bcse they will be created in same way but they will be managed by react
+so if we increment the value of productCount of first product
+the produtCount of other products are not affected thats bcse they have their own state
+so states are created for each component independent of each other.
+whenever the state changes when we click on the + or - button only that component function and only that
+specific instance where the component is being used that component only will be re-evaluated.
+
+
+Button.js
+---------
+import React from "react";
+
+function Button (props){
+    console.log("Button component executed");
+    return  <button  onClick={props.eventHandler} className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+Products.js
+-----------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+function Products(props){
+	console.log("Products component executed");
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{'font-size':22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} >
+							{/* <p>This is a demo</p> */}
+						</ProductDetails>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+
+ProductDetails.js
+-----------------
+import Button from "./Button";
+import React, { useState } from "react";
+
+
+function ProductDetails(props) {
+  console.log("ProductDetails component executed");
+  let badgeClass = "badge-margin-left-240 badge "; //theser two css classes are common whether the product is available or not.
+  badgeClass += props.isAvailable ? "bg-success" : "bg-danger ";
+
+  // let productCount = 0;
+  let [productCount,updateCount]=useState(0);
+function displayFormattedProductCount() {
+  return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+  let incrementProductCount=function(){
+    // productCount++;
+    // console.log(productCount)
+    updateCount(++productCount)
+  }
+
+  let decrementProductCount=function(){
+    // productCount--;
+    // console.log(productCount)
+    updateCount(--productCount)
+  }
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ "margin-right": 30 }}>{props.price}</h6>
+      {/* <button className="btn btn-primary">-</button> */}
+      <Button eventHandler={decrementProductCount}>-</Button>
+      <span style={{ padding: "8px 14px", "font-size": 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      {/* <button className="btn btn-primary">+</button> */}
+      <Button eventHandler={incrementProductCount}>+</Button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+      {/* {props.children} */}
+    </div>
+  );
+}
+
+export default ProductDetails;
+
+
+o/p:
+
+Products component executed
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+Products.js:15 Products component executed
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+Products.js:15 Products component executed
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+Products.js:15 Products component executed
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+Products.js:15 Products component executed
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+the Product component has been logged five time then if we go Products.js
+the productDetails component has been logged five times then if we go to ProductDetails.js 
+for each ProductDetail we are calling the Button component two times.
+
+
+=>if i click on + button then 
+
+ProductDetails.js:6 ProductDetails component executed
+2Button.js:4 Button component executed
+
+o/p:useState(ProductDetails.js) and useState(Products.js) and useState(Button.js) and useState(App.js) in Proacademy_channel_output_Events
+
+Here ProductDetails component executed and Button component executed logged 2 times.
+but Products component has not been logged that bcse 
+the state for ProductDetails component has changed so bcse of that only
+the ProductDetails has been re-evaluated
+since the state for the productDetails component has changed thats why only
+the productDetails component function has been re-evaluated.
+the entire Products component has not been re-evaluated
+
+=> a state is separated on a per component instance and if u notice only those two stmts has only 
+logged once and it has not been logged five times.
+and this proves that only that instance of the ProductDetails component  has been re-evaluated
+and not all the instance of the ProductDetails component has been  re-evaluated.
+
+we learned that when we call the spatial function so in our case updateCount function it is
+going to re-evaluate the ProductDetails component function that means this function will be called again
+and let[ProductCount,updateCount]=useStae(0) line it should re-initialize the product count variable to 0.
+but that not the case here that bcse react takes care of fetching the updated value of the variable and 
+assign it with that updated value instead of re-initializing it.
+
+=>when the component function will be re-evaluated it is not going to re-intialize the state with its intial value
+the intial value which we are specifying , the intial value is only considered when the component function 
+executes for the first time for a given component instance
+
+
+
+=>In a nutshell useState is simple u register a state using the useState function
+from the useState function you always get two values
+a spatial variable whose value will be updated and
+spatial function which we call to update the value of that spatial variable.
+and we can call the spatial function whenever the state should change
+and then we use the spatial variable whenever we want to use the updated value for outputting it in the web page.
+and react will do the rest.it will re-execute the component function and re-evaluate the jsx code and
+return it with the updated state whenever a state changes.
+
+=>without state our user interface will never change it will always remain static.
+
+
+Working with Forms
+==================
+
+=>the application is refactor and add form Now the project
+
+components
+=>ProductList
+	->Button.js
+	->ProductDetails.js
+	->ProductList.js
+	->Products.js
+=>CreateProduct
+	->CreateProduct.js
+	->ProductForm.js
+
+App.js
+------
+import './app.css'
+
+import React from 'react';
+import ProductList from './components/ProductList/ProductList';
+import CreateProduct from './CreateProduct/CreateProduct';
+
+
+function App(){
+	return <div>
+		<CreateProduct></CreateProduct>
+		<ProductList></ProductList>
+	</div>
+	
+	
+}
+
+export default App;
+
+CreateProduct.js
+----------------
+import ProductForm from "./ProductForm";
+
+function CreateProduct(){
+    return (
+        <div className="row">
+            <div className="col-lg-8 mx-auto" style={{backgroundColor:'white',padding:'10px 20px',marginBottom:20}}>
+                <form>
+                    <ProductForm></ProductForm>
+                </form>
+            </div>
+        </div>
+    )
+}
+
+export default CreateProduct;
+
+ProductForm.js
+--------------
+function ProductForm(){
+    return (
+        <form className="row g-3">
+        <div className="col-md-6">
+            <label for="name">Product Name</label>
+            <input type="text" 
+                    className="form-control" 
+                    id="name" 
+                    placeholder="Product Name" />
+        </div>
+        <div className="col-md-6">
+            <label for="price">Product Price</label>
+            <input type="number" 
+                    min="0.01" step="0.01" 
+                    className="form-control" 
+                    id="price" 
+                    placeholder="Product Price" />
+        </div>
+
+        <div className="form-group">
+            <label for="description">Product Description</label>
+            <input type="text" 
+                    className="form-control" 
+                    id="description" 
+                    placeholder="Product Description" />
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="isAvailable" />
+            <label class="form-check-label" for="isAvailable">Is product available in stock?</label>
+        </div>
+
+        <div className="form-group">
+            <label for="select-image">Select product image</label>
+            <input type="file" className="form-control" id="select-image" />
+        </div>
+        
+
+        <button type="submit" className="btn btn-primary">Add Product</button>
+    </form>
+    );
+}
+
+export default ProductForm;
+
+ProductList.js
+--------------
+import Products from './Products';
+let products = [
+    {
+        pID: 1, 
+        pName: 'Fresh Milk', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: 'images/fresh-milk.png',
+        price: 12
+    },
+    {
+        pID: 2, 
+        pName: 'Cottage Cheese', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/cottage-cheese.png",
+        price: 10
+    },
+    {
+        pID: 3, 
+        pName: 'Brocoli', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/brocoli.png",
+        price: 15
+    },
+    {
+        pID: 4, 
+        pName: 'oranges', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/oranges.png",
+        price: 20
+    },
+    {
+        pID: 5, 
+        pName: 'Olive oil', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/olive-oil.png",
+        price: 14
+    }
+  ]
+function ProductList(){
+    return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+		<Products 
+        id={products[0].pID}
+        name={products[0].pName}
+        description={products[0].desc}
+        isAvailable={products[0].isAvailable}
+        imageUrl={products[0].image}
+        price={products[0].price}>
+      </Products>
+    <Products 
+        id={products[1].pID}
+        name={products[1].pName}
+        description={products[1].desc}
+        isAvailable={products[1].isAvailable}
+        imageUrl={products[1].image}
+        price={products[1].price}>
+    </Products>
+    <Products 
+        id={products[2].pID}
+        name={products[2].pName}
+        description={products[2].desc}
+        isAvailable={products[2].isAvailable}
+        imageUrl={products[2].image}
+        price={products[2].price}>
+    </Products>
+    <Products 
+        id={products[3].pID}
+        name={products[3].pName}
+        description={products[3].desc}
+        isAvailable={products[3].isAvailable}
+        imageUrl={products[3].image}
+        price={products[3].price}>
+    </Products>
+    <Products 
+        id={products[4].pID}
+        name={products[4].pName}
+        description={products[4].desc}
+        isAvailable={products[4].isAvailable}
+        imageUrl={products[4].image}
+        price={products[4].price}>
+    </Products>
+    </ul>
+  </div>
+</div>);
+
+}
+
+export default ProductList;
+
+Products.js
+----------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+
+// let imageUrl=require("../images/fresh-milk.png");
+
+
+/*let style={
+
+	padding:'0px 20px',
+	'font-size':12
+}*/
+
+function Products(props){
+	console.log("Products component executed");
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{fontSize:22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} >
+							{/* <p>This is a demo</p> */}
+						</ProductDetails>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+
+ProductDetails.js
+-----------------
+import Button from "./Button";
+import React, { useState } from "react";
+
+
+function ProductDetails(props) {
+  console.log("ProductDetails component executed");
+  let badgeClass = "badge-margin-left-240 badge "; //theser two css classes are common whether the product is available or not.
+  badgeClass += props.isAvailable ? "bg-success" : "bg-danger ";
+
+  // let productCount = 0;
+  let [productCount,updateCount]=useState(0);
+function displayFormattedProductCount() {
+  return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+  let incrementProductCount=function(){
+    // productCount++;
+    // console.log(productCount)
+    updateCount(++productCount)
+  }
+
+  let decrementProductCount=function(){
+    // productCount--;
+    // console.log(productCount)
+    updateCount(--productCount)
+  }
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ marginRight: 30 }}>{props.price}</h6>
+      {/* <button className="btn btn-primary">-</button> */}
+      <Button eventHandler={decrementProductCount}>-</Button>
+      <span style={{ padding: "8px 14px", fontSize: 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      {/* <button className="btn btn-primary">+</button> */}
+      <Button eventHandler={incrementProductCount}>+</Button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+      {/* {props.children} */}
+    </div>
+  );
+
+  // return React.createElement('div',{className:'d-flex align-items-center justify-content-start mt-1'},
+  // React.createElement('h6',{className:'font-weight-bold my-2',style:{marginRight: 30 }},"$" +props.price),
+  // //Since Button is custom element so we need not to write it in single quotes & we importing the Button in this component already
+  // React.createElement(Button,{},"-"),
+  // React.createElement('span',{style:{padding:'8px 14px','font-size':13}},displayFormattedProductCount()),
+  // React.createElement(Button,{},"+"),
+  // React.createElement('span',{className:badgeClass},props.isAvailable ? 'Available' : 'Unavailable')
+  // )
+}
+
+export default ProductDetails;
+
+Button.js
+---------
+import React from "react";
+
+function Button (props){
+    console.log("Button component executed");
+    return  <button  onClick={props.eventHandler} className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+o/p:working with forms output pic in Proacademy_channel_output_Events
+
+
+Listening to User Input
+=======================
+Difference b/w onInput() and onChange()?
+=> onInput will be called every time we make a key stroke in that input element 
+=> onChange event listener will listen to every key stroke which we make inside the input element.
+
+difference is onInput can only be used on th input elements
+but onChange can also be used on elements other than input elements.
+
+
+=>whenever the change event will happen it is going to receive that event as its argument.
+
+
+productForm.js
+--------------
+function ProductForm(){
+
+    function nameInputHandler(event){
+        // console.log("some text entered");
+        console.log(event.target.value);
+    }
+    function priceInputHandler(event){
+        // console.log("some text entered");
+        console.log(event.target.value);
+    }
+    function descriptionInputHandler(event){
+        // console.log("some text entered");
+        console.log(event.target.value);
+    }
+    function availabilityInputHandler(event){
+        // console.log("some text entered");
+        console.log(event.target.value);
+    }
+    function imageInputHandler(event){
+        // console.log("some text entered");
+        console.log(event.target.value);
+    }
+    return (
+        <form className="row g-3">
+        <div className="col-md-6">
+            <label for="name">Product Name</label>
+            <input type="text" 
+                    className="form-control" 
+                    id="name" 
+                    placeholder="Product Name"
+                    onChange={nameInputHandler} />
+        </div>
+        <div className="col-md-6">
+            <label for="price">Product Price</label>
+            <input type="number" 
+                    min="0.01" step="0.01" 
+                    className="form-control" 
+                    id="price" 
+                    placeholder="Product Price" 
+                    onChange={priceInputHandler}/>
+        </div>
+
+        <div className="form-group">
+            <label for="description">Product Description</label>
+            <input type="text" 
+                    className="form-control" 
+                    id="description" 
+                    placeholder="Product Description" 
+                    onChange={descriptionInputHandler}/>
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="isAvailable"  onChange={availabilityInputHandler}/>
+            <label class="form-check-label" for="isAvailable">Is product available in stock?</label>
+        </div>
+
+        <div className="form-group">
+            <label for="select-image">Select product image</label>
+            <input type="file" className="form-control" id="select-image"  onChange={imageInputHandler}/>
+        </div>
+        
+
+        <button type="submit" className="btn btn-primary">Add Product</button>
+    </form>
+    );
+}
+
+export default ProductForm;
+
+
+o/p:All the input field user entered data is displayed in the developer console.
+
+Listening to User Inputs(ProductForm.js) pic in Proacademy_channel_output_Events
+
+
+Working with Multiple states
+============================
+In the last lecture we have learned how to capture the values from the form using event listener and event handler function
+and display those values in console form
+but i want those values display in the form.
+
+
+
+ProductForm.js
+--------------
+//intially value is empty string
+    //bcse when the component will be rendered for the first time in the web page 
+    //the input field should be empty.
+  let[pName,updateName]=useState('');
+    let[pPrice,updatePrice]=useState('');
+    let[pDescription,updateDescription]=useState('');
+    let[pAvailabilty,updateAvailability]=useState('');
+    let[pImageUrl,updateImageUrl]=useState('');
+
+
+    function nameInputHandler(event){
+        // console.log("some text entered");
+        // console.log(event.target.value);
+        updateName(event.target.value);
+    }
+    function priceInputHandler(event){
+        // console.log("some text entered");
+        updatePrice(event.target.value);
+    }
+    function descriptionInputHandler(event){
+        // console.log("some text entered");
+        updateDescription(event.target.value);
+    }
+    function availabilityInputHandler(event){
+        // console.log("some text entered");
+        updateAvailability(event.target.value);
+    }
+    function imageInputHandler(event){
+        // console.log("some text entered");
+        updateImageUrl(event.target.value);
+    }
+
+=>As u see we are calling the useState function multiple times in the same component function.it is perfectly fn.
+=>change in one state will not affect the other state.
+
+now we are storing the value entered by the user in the form into these variables so we know these variables are stored somewhere
+in the memory.and since these variables will be stored somewhere in the memory later in the
+program we can use these variables to create new product object and display it in the product list
+
+instead of creating multiple useState we can also have a single state which can update all the inputs whenever there is a change.
+
+
+Using a Single state 
+====================
+=>All these states are related to form so instead of creating multiple useState we can use a single state.
+=>when u want to use single state for multiple values u need to pass an object.
+=>and in that object u can  grp all states together.
+
+
+
+let[userInput,updateUserInput]=useSate({
+	pName:'',
+	pPrice:'',
+	pDescription:'',
+	pAvailabilty:'',
+	pImageUrl:''
+});
+
+
+updateUserInput({pName:event.target.value});
+
+=>here the pName property will be updated but 
+=>here we also need to ensure that all the four property values dont get lost.
+To do that we manually need to copy the other values which u are not updating here.
+
+Eg:if u want to updating the pName property u would also want to copy the existing values of 
+other properties in the object.
+one way of doing this would be to use this spread operator which is js operator
+
+
+    function nameInputHandler(event){
+        // console.log("some text entered");
+        // console.log(event.target.value);
+        //updateName(event.target.value);
+        updateUserInput({
+            ...userInput,
+            pName:event.target.value});
+    }
+
+=>Now we are using the spread operator on the userInput object it is going to expand the properties 
+of the userInput object into individual properties.and those individual properties are again wrapped
+within these curly braces.so it will become of the this(within curly braces) object
+
+=>spread operator simply takes an object pulls out all the key value pair from that object and adds 
+them to this new object.that means we are going to have these five properties for this(within curly braces) object
+and after that we are also overriding the value of the pName property.
+
+
+which approach u should use either multiple state or single state
+-----------------------------------------------------------------
+user choice
+
+
+Updating state that depends on previous value 
+=============================================
+
+ function nameInputHandler(event){
+        // console.log("some text entered");
+        // console.log(event.target.value);
+        //updateName(event.target.value);
+        updateUserInput({
+            ...userInput,
+            pName:event.target.value});
+    }
+
+
+=> when we are calling the  updateUserInput  again we are passing an object to it
+so when this updateUserInput function will be called and when 
+it will be executed it will assign this userInput variable
+
+ let[userInput,updateUserInput]=useState({
+	    pName:'',
+	    pPrice:'',
+	    pDescription:'',
+	    pAvailabilty:'',
+	    pImageUrl:''
+    });
+
+
+ with this new object
+
+{
+ ...userInput,
+            pName:event.target.value
+}
+
+
+here the spread operator will expand the properties of userInput object into individual properties.
+since we are using the spread operator inside the curly braces those individual properties
+will now become a property of this(within curly braces) object.
+so here we will have these five properties with their previous value
+and then from those five properties we are overwriting the value of pName property.
+so these(pPrice,pDescription,pAvailabilty,pImageUrl) four properties will have their previous value
+but the pName property will have new current value.
+
+the way we are updateuserInput function is not entirely crt .
+technically it will work but in some cases it could fail an its simply not
+a good practise to update a state.
+
+why?
+----
+bcse to update the userInput object with new value we are depending on the previous state
+lets say the user has entered a name for the product in the form so this( pName:event.target.value)
+expression will return us the name of the product from that form and we want to assign that value
+to the pName property( pName:'',) to do that we need to update the entire object and in that entire
+object we dont want to update the value of all these properties(pPrice,pDescription,pAvailabilty,pImageUrl) 
+we only want to update the value of pName property and we want to retain the value of 
+these properties(pPrice,pDescription,pAvailabilty,pImageUrl) with its previous value
+thats why we are depending the previous state snapshot of the userInput when we are updating it.
+
+=>When u want to update a state and your state depends on its previous state then u should not update like
+this 
+{
+ ...userInput,
+            pName:event.target.value
+}
+
+instead of doing this what u can do is?
+---------------------------------------
+still call updateuserInput function and instead of passing an object directly to this updateuserInput function
+u can pass a callback function to it.and this callback function is going to receive an argument and that argument
+will be the previous state value so we can call this argument may be prevState u can call it anyname 
+and this parameter is going to receive the previous state of the userInput and from this function u can return an object
+and inside this object u can use the spread operator on prevState object and u can update the property which u 
+want to update here so here we want to update pName property.
+
+
+
+ function nameInputHandler(event){
+        updateUserInput((prevState)=>{
+           return{ ...prevState,
+            pName:event.target.value}
+        });
+    }
+
+
+why can we use this approach only why dont we use before approach
+------------------------------------------------------------------
+react schedules state update it does not perform them instantlyand therefore
+theoretically if u schedule a lot of state update at the same time u could be
+depending on an outdated or incorrect state snapshot if u use this approach
+
+ updateUserInput({
+            ...userInput,
+            pName:event.target.value
+});
+
+
+but if u use this approach 
+
+ updateUserInput((prevState)=>{
+           return{ ...prevState,
+            pName:event.target.value}
+ });
+
+react will make sure that u receive the latest state snapshot for the prevState parameter.
+this is the safer way to ensure that u always operate on the latest state snapshot.
+
+it is not only true when your initial state is an object.
+it is also true for primitive values like boolean,string,number etc
+
+
+
+=>
+
+function availabilityInputHandler(event){
+        updateAvailability(event.target.value);
+}
+
+when we are using the value even when the checkbox is not checked it is going to return on
+and when the checkbox is checked in this case also it is going to return on
+so thats why instead of using value 
+we can use checked.
+
+function availabilityInputHandler(event){
+        updateAvailability(event.target.checked);
+}
+
+
+if the checkbox is checked then it will going to return true
+and if the checkbox is not checked it is going to return false.
+
+
+Handling form submission
+========================
+
+=>when the user clicks on the Add Product button we want to gather these states
+
+   let[pName,updateName]=useState('');
+    let[pPrice,updatePrice]=useState('');
+    let[pDescription,updateDescription]=useState('');
+    let[pAvailabilty,updateAvailability]=useState('');
+    let[pImageUrl,updateImageUrl]=useState('');
+
+and we want to combine it into an object.
+
+=>To prevent the default behaviour of reloading a page we use preventDefault() function.
+
+
+
+    function createProductEventHandler(event){
+        event.preventDefault();
+        let product={  
+            pID: 1, 
+            pName: pName,
+            desc: pDescription,
+            isAvailable: pAvailabilty,
+            image: pImageUrl,
+            price: pPrice
+        }
+
+    }
+
+
+All the values are string PName,desc is going to return string but the isAvailabilty is going to be type boolean
+so lets convert  this string into boolean by type casting.Boolean is a javascript specifi but not react specific.
+In the same i want to convert the price into a number.for that we use Number function.
+  function createProductEventHandler(event){
+        event.preventDefault();
+        let product={  
+            pID: 1, 
+            pName: pName,
+            desc: pDescription,
+            isAvailable: Boolean(pAvailabilty),
+            image: pImageUrl,
+            price: Number(pPrice)
+        }
+
+    }
+
+
+
+o/p:Handling Form submission.js pic in Proacademy_channel_Output_Events
+
+it will display the user input data in the console.
+for each of these products we also have the pID property but we are not gathering the value for the pID property.
+This pID property should assigned automatically based on the number of products which we have in the productList
+but now lets keep it as 1.
+
+OverallProductForm.js
+----------------------
+import { useState } from "react";
+
+function ProductForm() {
+  //intially value is empty string
+  //bcse when the component will be rendered for the first time in the web page
+  //the input field should be empty.
+  let [pName, updateName] = useState('');
+  let [pPrice, updatePrice] = useState('');
+  let [pDescription, updateDescription] = useState('');
+  let [pAvailabilty, updateAvailability] = useState('');
+  let [pImageUrl, updateImageUrl] = useState('');
+
+  function nameInputHandler(event) {
+    updateName(event.target.value);
+
+  }
+  function priceInputHandler(event) {
+    updatePrice(event.target.value);
+  
+  }
+  function descriptionInputHandler(event) {
+    updateDescription(event.target.value);
+  }
+  function availabilityInputHandler(event) {
+    updateAvailability(event.target.checked);
+  }
+  function imageInputHandler(event) {
+    updateImageUrl(event.target.value); 
+  }
+
+  function createProductEventHandler(event) {
+    event.preventDefault();
+    let product = {
+
+      pID: 1,
+      pName: pName,
+      desc: pDescription,
+      isAvailable: Boolean(pAvailabilty),
+      image: pImageUrl,
+      price: Number(pPrice),
+    };
+    console.log(product);
+  }
+  return (
+    <form className="row g-3" onSubmit={createProductEventHandler}>
+      <div className="col-md-6">
+        <label for="name">Product Name</label>
+        <input
+          type="text"
+          className="form-control"
+          id="name"
+          placeholder="Product Name"
+          onChange={nameInputHandler}
+        />
+      </div>
+      <div className="col-md-6">
+        <label for="price">Product Price</label>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          className="form-control"
+          id="price"
+          placeholder="Product Price"
+          onChange={priceInputHandler}
+        />
+      </div>
+
+      <div className="form-group">
+        <label for="description">Product Description</label>
+        <input
+          type="text"
+          className="form-control"
+          id="description"
+          placeholder="Product Description"
+          onChange={descriptionInputHandler}
+        />
+      </div>
+
+      <div class="form-check form-switch">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          id="isAvailable"
+          onChange={availabilityInputHandler}
+        />
+        <label class="form-check-label" for="isAvailable">
+          Is product available in stock?
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label for="select-image">Select product image</label>
+        <input
+          type="file"
+          className="form-control"
+          id="select-image"
+          onChange={imageInputHandler}
+        />
+      </div>
+      <button type="submit" className="btn btn-primary">
+        Add Product
+      </button>
+    </form>
+  );
+}
+
+export default ProductForm;
+
+
+
+overall App.js
+--------------
+import './app.css'
+
+import React from 'react';
+import ProductList from './components/ProductList/ProductList';
+import CreateProduct from './CreateProduct/CreateProduct';
+
+
+function App(){
+	return <div>
+		<CreateProduct></CreateProduct>
+		<ProductList></ProductList>
+	</div>
+	
+	
+}
+
+export default App;
+
+overall CreateProduct.js
+------------------------
+import ProductForm from "./ProductForm";
+
+function CreateProduct(){
+    return (
+        <div className="row">
+            <div className="col-lg-8 mx-auto" style={{backgroundColor:'white',padding:'10px 20px',marginBottom:20}}>
+                
+                    <ProductForm></ProductForm>
+               
+            </div>
+        </div>
+    )
+}
+
+export default CreateProduct;
+
+
+
+
+OverallProductList.js
+---------------------
+import Products from './Products';
+let products = [
+    {
+        pID: 1, 
+        pName: 'Fresh Milk', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: 'images/fresh-milk.png',
+        price: 12
+    },
+    {
+        pID: 2, 
+        pName: 'Cottage Cheese', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/cottage-cheese.png",
+        price: 10
+    },
+    {
+        pID: 3, 
+        pName: 'Brocoli', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/brocoli.png",
+        price: 15
+    },
+    {
+        pID: 4, 
+        pName: 'oranges', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: true,
+        image: "images/oranges.png",
+        price: 20
+    },
+    {
+        pID: 5, 
+        pName: 'Olive oil', 
+        desc: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit fuga autem maiores necessitatibus.',
+        isAvailable: false,
+        image: "images/olive-oil.png",
+        price: 14
+    }
+  ]
+function ProductList(){
+    return (<div className="row">
+		<div className="col-lg-8 mx-auto">
+    <ul className="list-group shadow">
+		<Products 
+        id={products[0].pID}
+        name={products[0].pName}
+        description={products[0].desc}
+        isAvailable={products[0].isAvailable}
+        imageUrl={products[0].image}
+        price={products[0].price}>
+      </Products>
+    <Products 
+        id={products[1].pID}
+        name={products[1].pName}
+        description={products[1].desc}
+        isAvailable={products[1].isAvailable}
+        imageUrl={products[1].image}
+        price={products[1].price}>
+    </Products>
+    <Products 
+        id={products[2].pID}
+        name={products[2].pName}
+        description={products[2].desc}
+        isAvailable={products[2].isAvailable}
+        imageUrl={products[2].image}
+        price={products[2].price}>
+    </Products>
+    <Products 
+        id={products[3].pID}
+        name={products[3].pName}
+        description={products[3].desc}
+        isAvailable={products[3].isAvailable}
+        imageUrl={products[3].image}
+        price={products[3].price}>
+    </Products>
+    <Products 
+        id={products[4].pID}
+        name={products[4].pName}
+        description={products[4].desc}
+        isAvailable={products[4].isAvailable}
+        imageUrl={products[4].image}
+        price={products[4].price}>
+    </Products>
+    </ul>
+  </div>
+</div>);
+
+}
+
+export default ProductList;
+
+Overall Products.js
+-------------------
+import React from "react";
+import ProductDetails from "./ProductDetails";
+
+
+function Products(props){
+	console.log("Products component executed");
+	return (
+    			<li className="list-group-item">
+      		    <div className="media align-items-lg-center flex-column flex-lg-row p-3 d-flex">
+        		    <div className="media-body order-2 order-lg-1">
+          		        <h5 className="mt-0 font-weight-bold mb-2">{props.name}</h5>
+          		        <p style={{fontSize:22}}className="font-italic text-muted mb-0 small">{props.description}</p>
+          		        <ProductDetails price={props.price} isAvailable={props.isAvailable} >
+							{/* <p>This is a demo</p> */}
+						</ProductDetails>
+        	        </div>
+                    <img src={props.imageUrl} alt="Generic placeholder image" width="200" className="ml-lg-5 order-1 order-lg-2" />
+                </div>
+    		</li>
+		)
+}
+export default Products;
+
+overall ProductDetails.js
+--------------------------
+import Button from "./Button";
+import React, { useState } from "react";
+
+
+function ProductDetails(props) {
+  console.log("ProductDetails component executed");
+  let badgeClass = "badge-margin-left-240 badge "; //theser two css classes are common whether the product is available or not.
+  badgeClass += props.isAvailable ? "bg-success" : "bg-danger ";
+
+  // let productCount = 0;
+  let [productCount,updateCount]=useState(0);
+function displayFormattedProductCount() {
+  return productCount > 0 ? productCount : <h1>Zero</h1>;
+}
+
+  let incrementProductCount=function(){
+   
+    updateCount(++productCount)
+  }
+
+  let decrementProductCount=function(){
+    
+    updateCount(--productCount)
+  }
+  return (
+    <div className="d-flex align-items-center justify-content-start mt-1">
+      <h6 className="font-weight-bold my-2" style={{ marginRight: 30 }}>{props.price}</h6>
+      {/* <button className="btn btn-primary">-</button> */}
+      <Button eventHandler={decrementProductCount}>-</Button>
+      <span style={{ padding: "8px 14px", fontSize: 13 }}>
+        {displayFormattedProductCount()}
+      </span>
+      {/* <button className="btn btn-primary">+</button> */}
+      <Button eventHandler={incrementProductCount}>+</Button>
+      {/* <span className="badge bg-danger">{isAvailable}</span> */}
+      <span className={badgeClass}>
+        {props.isAvailable ? "Available " : "Unavilable"}
+      </span>
+      {/* {props.children} */}
+    </div>
+  );
+
+  
+}
+
+export default ProductDetails;
+
+Overall Button.js
+-----------------
+import React from "react";
+
+function Button (props){
+    console.log("Button component executed");
+    return  <button  onClick={props.eventHandler} className="btn btn-primary">{props.children}</button>
+}
+
+export default Button;
+
+
+
+Two way data binding
+====================
+=>If we would have used global variables instead of useState that could have also worked.
+lets comment below line 
+	 let [pName, updateName] = useState('');
+
+lets create global variable(outside of the ProductForm)
+
+	let pName='';
+
+function nameInputHandler(event) {
+    pName=event.target.value;
+    
+  }
+
+o/p:it should working as before means it will display the user input data in the console.
+
+then why are we using the useState before bcse useState provides two-way data binding when working with forms.
+=> By using global variables the values will not reflect in the web page thats bcse when the value
+of the global variable changes it is not going to re-evaluate the component function.so the web page is not
+going to refresh and show the updated value when we use global variable
+but that is possible in case of useState.
+whenever the state changes it re-evaluates the component function so it display the updated value in the web page.
+=>using useState also provides two-way data binding.
+=> using this concept we can clear the form whenever the userclicks on the AddProduct button.
+
+
+=> when the AddProduct object is clicked and when the product object is created after that we also 
+want to clear the form
+to do that basically we use Two way data binding.
+
+=>Each of the input elements we need to add value attribute and assign the respective state.
+
+value={pName}
+value={pPrice} etc 
+
+whenever the value in the input field will change that value will be assigned to the pPrice
+and from this component if we change the value of this pPrice that will be visible
+in the input element.
+
+<input
+    type="number"
+    min="0.01"
+    step="0.01"
+    className="form-control"
+    id="price"
+    placeholder="Product Price"
+    value={pPrice}
+    onChange={priceInputHandler}
+ />
+
+
+ function createProductEventHandler(event) {
+    event.preventDefault();
+    let product = {
+      pID: 1,
+      pName: pName,
+      desc: pDescription,
+      isAvailable: Boolean(pAvailabilty),
+      image: pImageUrl,
+      price: Number(pPrice),
+    };
+
+    updateName(''),
+    updatePrice(''),
+    updateDescription(''),
+    //empty string will be type cast to boolean value false
+    updateAvailability(''), //or updateAvailability(false)
+    updateImageUrl('')
+
+    console.log(product);
+  }
+
+
+
+o/p:two-way data binding.js pic in Proacademy_channel_output_Events
+
+=>two-way data binding is imp when working with forms it allows us to gather i/p and then it also allow
+us to reset the form
+=>To use two-way data binding we need useState
+
+
+Child to Parent Component Communication
+=======================================
+
+=>we want to pass data from the productForm component to createProduct component 
+first of all we are going to create a function lets call this function onCreateProduct.
+this function is going to receive the product object.
+
+on the childComponnet on this ProductForm component lets create a user defined attribute
+lets call it may be createProduct and to this we are going to assign the onCreateProduct function.
+
+CreateProduct.js
+-----------------
+ function onCreateProduct(product){
+        console.log(product)
+    }
+                
+ <ProductForm createProduct={onCreateProduct}></ProductForm>
+
+
+
+Now the ProductForm is going to have a props object and to this props object this attribute(createProdcut)
+will be created as its property and to that property the onCreateProduct function will be assigned.
+
+
+ProductForm.js
+---------------
+function ProductForm(props) {
+
+ function createProductEventHandler(event) {
+    event.preventDefault();
+    let product = {
+      pName: pName,
+      desc: pDescription,
+      isAvailable: Boolean(pAvailabilty),
+      image: pImageUrl,
+      price: Number(pPrice),
+    };
+
+    updateName(''),
+    updatePrice(''),
+    updateDescription(''),
+    //empty string will be type cast to boolean value false
+    updateAvailability(''), //or updateAvailability(false)
+    updateImageUrl('')
+
+    //console.log(product);
+    props.createProduct(product);
+  }
+
+}
+
+o/p:it should work as expected 
+
+
+
+=>Again createProduct is child component of App component 
+so again we can use the same concept.
+
+CreateProduct.js
+----------------
+
+function CreateProduct(props){
+    
+    function onCreateProduct(product){
+        //console.log(product)
+        props.createProduct(product);
+    }
+}
+
+
+
+
+App.js
+------
+function App(){
+	 
+    function createProduct(product){
+        console.log(product)
+    }
+	return <div>
+		<CreateProduct createProduct={createProduct}></CreateProduct>
+		<ProductList></ProductList>
+	</div>
+	
+	
+}
+
+
+
+=>This concept is called as lifting state up bcse  we are lifting the pName,pDescription etc
+from the child component(ProductForm.js) to parent(CreateProduct.js) component and again we are 
+lifting that state up  from chidl(CreateProduct.js) component to parent(App.js) component and 
+thats why this concept is called as lifting state up.
+
+
+
+=>Now from this App component we can pass the product object to the productList component so 
+in App.js lets create a new state for that i am going to first import useState function
+
+App.js
+------
+
+function App(){
+
+	let[newProduct,updateProduct]=useState(null);
+	 
+    function createProduct(product){
+        //console.log(product)
+		updateProduct(product);
+    }
+	return <div>
+		<CreateProduct createProduct={createProduct}></CreateProduct>
+		<ProductList newProduct={newProduct}></ProductList>
+	</div>
+	
+	
+}
+
+ProductList.js
+--------------
+
+function ProductList(props){
+    console.log(props.newProduct)
+}
+
+
+o/p:
+{pName: 'Bag', desc: 'good', isAvailable: true, image: 'C:\\fakepath\\Silence.jpg', price: 32}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++++++++++++++++++++++++++++
+Lecture -3 React_State_Working with Events 
+++++++++++++++++++++++++++++
+
+
+Working with "State"
+=============
+
+If you have a variable in your component function and the that variable changes, React ignores it.
+
+It doesn't care about that, that code executes, sure, but the overall component function doesn't execute again
+
+just because some variable changed. This ExpenseItem component function currently
+
+is not called a second time after the initial rendering  just because a click occurred
+
+or because a variable changed  does not trigger this component function to run again.
+
+So to tell React that it should run it again, we need to import something from the React library.
+
+And we want to import a function here, a function which is called useState.
+
+and this function allows us to define values as state where changes to these values should reflect
+
+in the component function being called again.
+
+And useState is a so-called React hook.
+
+all these hooks must only be called inside of React component functions like ExpenseItem.
+
+They can't be called outside of these functions.
+
+And they all just shouldn't be called in any nested functions.
+
+They must be called directly inside such component functions.
+
+ for example and therefore useState also returns something.
+
+It gives us access to this special variable. However, it does not just return that,
+
+it also returns a function which we can then call to assign a new value to that variable.
+
+So we'll not be assigning values like this with the equal sign,
+
+instead, we will be assigning new values by calling a function.
+
+ useState, this hook, always returns an array with exactly two elements.
+
+that the first element is the current state value. And the second element is a function for updating that.
+
+
+A Closer Look at the "useState" Hook
+========================
+
+
+
+this initial value is really only considered when this component function is being executed
+
+for the first time But if a component is then re-executed because of such a State change, for example,
+
+React will not reinitialize the State. Instead, it will detect that this State had been initialized
+
+in the past, and it will just grab the latest State which is based on some State update.
+
+
+
+we just call a function and we never assign a new value to title
+
+with the equal operator. And therefore, using a const is absolutely fine.
+
+
+Without State, our user interface would never change. But with State and with listening to events,
+
+we can make sure that we can react to user input and that such input can result in a visible change on our screen.
+
+
+Adding FormInputs
+=============
+form creating
+
+Listening to User Input
+===============
+
+Updating State That Depends On The Previous State
+==================================
+
+if you schedule a lot of state updates at the same time, you could be depending on an outdated or incorrect state snapshot
+
+If you use this approach, React will guarantee that the state snapshot it gives you here in this inner function, will always be the latest state snapshot,
+
+So this is the safer way to ensure that you always operate on the latest state snapshot.
+
+So you should use this function syntax here whenever your state update depends on the previous state.
+
+if you depend on the previous state, use this approach thing.
+
+Handling Form Submission
+==================
+if you do click this button, the page reloads because the browser actually automatically sends a request whenever a form is submitted to the serverwhich is hosting this webpage.
+
+we can call a prevent default method.
+
+We can prevent the default of this request being sent and since that request is not sent the page will now also not reload
+
+because we stay on the currently loaded page without sending any request anywhere and we can continue handling this with Java script.
+
+Adding Two-Way Binding
+================
+
+How can we clear those inputs values?
+
+We can now implement something which is called two-way binding, which simply means
+
+that for inputs we don't just listen to changes, but we can also pass a new value back into the input.
+
+Child-to-Parent Component Communication(Bottom-up)
+=====================================
+
+moving data from a child to a parent component by utilizing props
+
+to receive a function from the parent component which we call in the child component.
+
+
+Lifting the state up
+============
+
+
+sharing state is accomplished by moving it up to the closest common ancestor of the components that need it. 
+This is called “lifting state up”.
+
+
+This is where the concept of lifting state up comes in.
+> We lift up state to a common ancestor of components that need it, so that they can all share in the state. 
+This allows us to more easily share state among all of these components that need rely upon it.
+
+
+Controlled Component
+==================
+
+Control Component:
+ 
+Element data can be controlled by parent component through callbacks like onChange().
+
+
+Uncontrolled Components:
+
+Elements data can be controlled by the DOM itself.
+
+
+Stateful component:
+
+Using State
+
+Stateless or dumb or presentational components:
+
+Jst like Html or props or js or filter or mapping using
+
+
+

@@ -1,0 +1,1084 @@
+Diving into Redux(An Alternative to the Context API)
+====================================================
+
+What is Redux
+-------------
+=> A state management system for cross-component or app-wide state.
+
+LocalState
+-----------
+=>should be managed component-internal with useState()/useReducer()
+
+Cross-Component State
+---------------------
+=>Requires props chains /props drilling.
+
+OR : React Context or Redux
+
+App-wide state
+--------------
+=>Requires props chains/props drilling
+
+OR : React Context or Redux
+so both React Context and Redux are there to help use manage 
+such cross-component or app-wide states.
+
+Redux vs React Context
+======================
+
+then why do we need Redux if we have already React Context ??
+----------------------------------------------------------
+
+=>complex setup / Management
+
+	In more complex apps,managing React Context can lead to deeply nested
+	JSX code and / or huge "Context Provider" components.
+
+=>performance
+
+	React Context is not optimized for high-frequency state changes.
+
+How Redux Works
+================
+=>components dont directly manipulate the data in the store.so 
+we use the concept called reducers.
+
+
+=>components dispatch the actions,which describe what should be done,
+but dont do directly,then these actions are forwarded to the reducer,
+the reducer then does what the action wants,the reducer to do,
+and then the reducer,spits out new state,which effectively will
+replace the existing state in the central data store.
+
+
+
+   forwarded
+   --------------->Reducer Function------->not useReducer()
+   |				|
+   |				|Mutates(changes)Store Data
+   |			     \|/
+Actions		central Data(State)
+  /|\			    Store
+   |				|
+   |				|Subscription
+   |			     \|/
+   |-----------------Components
+
+
+Exploring the Core Redux Concepts
+=================================
+=>Empty Folder
+=>In this folder we need to create js file named as redux-demo.js
+=>npm init -y
+=>npm install redux
+
+
+=>The Reducer function will takes the two parameters.
+
+		should be a pure function---------->same i/p leads to same o/p
+
+	-> Inputs:old or existing state+Dispatched Action
+				|
+				|
+	->Output:New State Object.
+
+
+=>The reducer function should be a pure function
+
+
+redux-demo.js
+-------------
+const redux=require('redux');
+
+const CounterReducer=(state={counter:0},action)=>{
+    return {
+        counter:state.counter+1
+    };
+};
+
+const store=redux.createStore(CounterReducer);
+// console.log( store.getState());
+
+const counterSubscriber=()=>{
+   const latestState= store.getState();//give the latest snapshot.
+   console.log(latestState);
+}
+
+store.subscribe(counterSubscriber);
+
+store.dispatch({type:"increment"})
+
+o/p:
+PS C:\Users\nikit\Desktop\Redux> node redux-demo.js
+{ counter: 1 }
+PS C:\Users\nikit\Desktop\Redux> node redux-demo.js
+{ counter: 2 }
+
+More Redux Basics
+=================
+
+redux-demo.js
+-------------
+const redux=require('redux');
+
+const CounterReducer=(state={counter:0},action)=>{
+    if(action.type === 'increment'){
+        return {
+            counter:state.counter+1
+        };
+    }
+    if(action.type === 'decrement'){
+        return {
+            counter:state.counter-1
+        };
+    }
+    return state;//unchanged state
+};
+
+const store=redux.createStore(CounterReducer);
+// console.log( store.getState());
+
+const counterSubscriber=()=>{
+   const latestState= store.getState();//give the latest snapshot.
+   console.log(latestState);
+}
+
+store.subscribe(counterSubscriber);
+
+store.dispatch({type:"increment"})
+store.dispatch({type:"decrement"})
+
+Preparing a new Project
+=======================
+
+=> npm install redux
+
+=> Redux can be used in any javascript project and it doesnot know 
+anything about React.
+=>Now to make working with Redux in React application easier.
+=>There is a second package which we should install
+the react-redux package.
+	
+	npm install redux react-redux
+
+This is a package which makes connecting react applications.
+
+o/p:New project pic
+
+Creating a Redux Store for React
+================================
+
+=>creating a new project named as Redux toolkit.
+
+=>creating a store
+
+index.js
+--------
+import {createStore} from 'redux';
+
+const counterReducer=(state={counter:0},action)=>{
+    if(action.type=="increment"){
+       return counter=state.counter+1
+    }
+    if(action.type=="decrement"){
+        return counter=state.counter-1
+    }
+    return state;
+
+}
+const store=createStore(counterReducer);
+
+export default store;
+
+=>Now i want to connect my React application to that store.
+for this we need to provide this store to the React app.
+
+Providing the Store
+===================
+
+index.js
+--------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react';
+
+import './index.css';
+import App from './App';
+import store from './store/index'
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+<Provider store={store}>
+    <App />
+</Provider>
+);
+
+
+using Redux Data in React Components
+====================================
+
+Counter.js
+----------
+import classes from './Counter.module.css';
+import {useSelector} from 'react-redux';
+const Counter = () => {
+  const counter=useSelector(state=>state.counter);
+  const toggleCounterHandler = () => {};
+
+  return (
+    <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      <div className={classes.value}>{counter}</div>
+      <button onClick={toggleCounterHandler}>Toggle Counter</button>
+    </main>
+  );
+};
+
+export default Counter;
+
+=>When we use useSelector React Redux will automatically
+set up a subscription to the Redux store for the component(Counter.js).
+
+o/p:use store data in Components pic
+
+
+Now How can change the data 
+How can we dispatch actions?
+
+Dispatching Actions From inside Components
+==========================================
+
+=>useDispatch() function which we can call which will dispacth an action
+against our Redux store.
+
+using Functional Components(useSelector,useDispatch)
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Counter.js
+----------
+import classes from './Counter.module.css';
+import {useDispatch, useSelector} from 'react-redux';
+const Counter = () => {
+  const counter=useSelector(state=>state.counter);
+  const dispatch=useDispatch();
+
+  const incrementHandler=()=>{
+    dispatch({type:"increment"})
+  }
+
+  const decrementHandler=()=>{
+    dispatch({type:"decrement"})
+  }
+  const toggleCounterHandler = () => {};
+
+  return (
+    <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      <div className={classes.value}>{counter}</div>
+      <div>
+        <button onClick={incrementHandler}>Increment</button>
+        <button onClick={decrementHandler}>Decrement</button>
+      </div>
+      <button onClick={toggleCounterHandler}>Toggle Counter</button>
+    </main>
+  );
+};
+
+export default Counter;
+
+
+o/p:dispatching actions pic
+
+
+For class Components(use connect)
++++++++++++++++++++++++++++++++++
+
+Counter.js
+-----------
+import {connect} from 'react-redux';
+
+class counter extends Component{
+
+  incrementHandler=()=>{
+    this.props.increment();
+  }
+
+  decrementHandler=()=>{
+    this.props.decrement();
+  }
+  toggleCounterHandler = () => {};
+  render(){
+    return(
+      <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      <div className={classes.value}>{this.props.counter}</div>
+      <div>
+        <button onClick={this.incrementHandler.bind(this)}>Increment</button>
+        <button onClick={this.decrementHandler.bind(this)}>Decrement</button>
+      </div>
+      <button onClick={this.toggleCounterHandler}>Toggle Counter</button>
+    </main>
+    )
+  }
+}
+
+const mapStateToProps=(state)=>{
+  return{
+    counter:state.counter
+  };
+}
+
+const mapDispatchToProps=(dispatch)=>{
+  return{
+    increment:()=>dispatch({type:"increment"}),
+    decrement:()=>dispatch({type:"decrement"})
+  }
+}
+export default connect(mapStateToProps,)(Counter);
+
+
+o/p:store using in class components pic
+
+=>connect will return a new function and connect also wants two arguments
+and both arguments are functions
+->The first function is a function that maps Redux state to props,
+which will be received in the component Hence we call this function
+as mapStateToProps
+and mapStateToProps is a function which receives th Redux state,and
+then this returns an object.
+->The second argument is another function,which is typically called
+mapDispatchToProps  it is the equivalent to useDispatch.
+mapDispatchToProps will receive the dispatch function as an argument
+ automatically and then this returns an object.
+
+=>when we use connect,react Redux will set up a subscription and manage
+a subscription for you.
+
+
+Attaching Payloads to Actions
+=============================
+
+counter.js
+----------
+import { Component } from 'react';
+import classes from './Counter.module.css';
+import {useDispatch, useSelector,connect} from 'react-redux';
+const Counter = () => {
+  const counter=useSelector(state=>state.counter);
+  const dispatch=useDispatch();
+
+  const incrementHandler=()=>{
+    dispatch({type:"increment"})
+  }
+
+  const increaseHandler=()=>{
+    dispatch({type:"increase",amount:5})
+  }
+  const decrementHandler=()=>{
+    dispatch({type:"decrement"})
+  }
+  const toggleCounterHandler = () => {};
+
+  return (
+    <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      <div className={classes.value}>{counter}</div>
+      <div>
+        <button onClick={incrementHandler}>Increment</button>
+        <button onClick={increaseHandler}>Increment by 5</button>
+        <button onClick={decrementHandler}>Decrement</button>
+      </div>
+      <button onClick={toggleCounterHandler}>Toggle Counter</button>
+    </main>
+  );
+};
+
+export default Counter;
+
+index.js
+---------
+import {createStore} from 'redux';
+
+const counterReducer=(state={counter:0},action)=>{
+    if(action.type==="increment"){
+       return {
+            counter:state.counter+1,
+       };
+    }
+    if(action.type==="increase"){
+        return {
+             counter:state.counter+action.amount,
+        };
+     }
+    if(action.type==="decrement"){
+        return {
+            counter:state.counter-1,
+        };
+    }
+    return state;
+
+}
+const store=createStore(counterReducer);
+
+export default store;
+
+o/p:payloads pic
+
+Working with Multiple State Properties
+======================================
+counter.js
+----------
+import { Component } from 'react';
+import classes from './Counter.module.css';
+import {useDispatch, useSelector,connect} from 'react-redux';
+const Counter = () => {
+  const counter=useSelector(state=>state.counter);
+  const show=useSelector(state=>state.showCounter);
+  const dispatch=useDispatch();
+
+  const incrementHandler=()=>{
+    dispatch({type:"increment"})
+  }
+
+  const increaseHandler=()=>{
+    dispatch({type:"increase",amount:5})
+  }
+  const decrementHandler=()=>{
+    dispatch({type:"decrement"})
+  }
+  const toggleCounterHandler = () => {
+    dispatch({type:"toggle"})
+  };
+
+  return (
+    <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      {show && <div className={classes.value}>{counter}</div>}
+      <div>
+        <button onClick={incrementHandler}>Increment</button>
+        <button onClick={increaseHandler}>Increment by 5</button>
+        <button onClick={decrementHandler}>Decrement</button>
+      </div>
+      <button onClick={toggleCounterHandler}>Toggle Counter</button>
+    </main>
+  );
+};
+
+export default Counter;
+
+
+index.js
+---------
+import {createStore} from 'redux';
+
+const counterReducer=(state={counter:0,showCounter:true},action)=>{
+    if(action.type==="increment"){
+       return {
+            counter:state.counter+1,
+            showCounter:state.showCounter
+       };
+    }
+    if(action.type==="increase"){
+        return {
+             counter:state.counter+action.amount,
+             showCounter:state.showCounter
+        };
+     }
+    if(action.type==="decrement"){
+        return {
+            counter:state.counter-1,
+            showCounter:state.showCounter
+        };
+    }
+    if(action.type==="toggle"){
+        return{
+            showCounter:!state.showCounter,
+            counter:state.counter
+        }
+    }
+    return state;
+
+}
+const store=createStore(counterReducer);
+
+export default store;
+
+
+
+o/p:Multiple States pic
+
+Here If i click on Toggle Counter then it will display the counter value
+and again if i clikc on Toggle counter it will hide.
+
+
+How to work with Redux State Correctly
+======================================
+
+index.js
+--------
+import {createStore} from 'redux';
+
+const counterReducer=(state={counter:0,showCounter:true},action)=>{
+    if(action.type==="increment"){
+       return {
+            counter:state.counter+1,
+            // showCounter:state.showCounter
+       };
+    }
+    if(action.type==="increase"){
+        return {
+             counter:state.counter+action.amount,
+             showCounter:state.showCounter
+        };
+     }
+    if(action.type==="decrement"){
+        return {
+            counter:state.counter-1,
+            showCounter:state.showCounter
+        };
+    }
+    if(action.type==="toggle"){
+        return{
+            showCounter:!state.showCounter,
+            counter:state.counter
+        }
+    }
+    return state;
+
+}
+const store=createStore(counterReducer);
+
+export default store;
+
+=>If i comment the below line in index.js
+
+	showCounter:state.showCounter
+
+then the o/p will be like
+if i click on increment button then it will be going to hide.
+bcse here the value treat as undefined for showCounter when 
+the type is increment so it will take undefined as false.
+so it is going to hide.
+
+so we must always set all the other states when we update a piece of state.
+bcse we overwrite the old state.
+
+o/p:overwrite the old state pic.
+
+Redux Challenge & Introducing Redux Toolkit
+===========================================
+
+Problems using redux
+---------------------
+=> clashing identifier names
+=> Manipulated nested data
+
+=>By using Redux Toolkit we dont need to install redux
+
+Adding State Slices
+===================
+
+=>npm install @reduxjs/toolkit
+
+index.js
+--------
+import { createSlice } from '@reduxjs/toolkit';
+
+const initialState={counter:0,showCounter:true}
+
+createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;//we still must not manipulate the existing state
+            //when we use Redux toolkit and its functions like createSlice,
+            //we can't accidentally manipulate the existing state
+            //bcse Redux toolkit internally uses another package called as imgur
+            //which will detect code like this and which will automatically clone the existing state.create
+            //a new state object,keep all the state which we are not editing and override the state which we
+            //are editing in an immutable way.
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.amount;
+        },
+        toggleCounter(state){
+            state.showCounter=!showCounter;
+        }
+    }
+})
+
+
+Connecting Redux Toolkit State
+==============================
+
+index.js
+---------
+import {createStore} from 'redux';
+import { createSlice,configureStore } from '@reduxjs/toolkit';
+
+const initialState={counter:0,showCounter:true}
+const counterSlice=createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.amount;
+        },
+        toggleCounter(state){
+            state.showCounter=!showCounter;
+        }
+    }
+})
+
+const store=createStore(counterSlice.reducer);
+
+export default store;
+
+
+=> const store=createStore(counterSlice.reducer); 
+
+Now we want to send multiple slice we have standard Redux, there is a combineReducers function..but this 
+also we use from redux here like import {combineReducers} from 'redux'
+=> we use ConfigureStore like createStore creates a store but it makes merging multiple reducers
+into one reducer from redux toolkit.
+we pass an object but not a reducer function.
+ConfigureStore expected property that is called reducer.
+
+index.js
+--------
+import {createStore} from 'redux';
+import { createSlice,configureStore } from '@reduxjs/toolkit';
+
+const initialState={counter:0,showCounter:true}
+const counterSlice=createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.amount;
+        },
+        toggleCounter(state){
+            state.showCounter=!showCounter;
+        }
+    }
+})
+
+const store=configureStore({
+    reducer:{counter:counterSlice.reducer}
+});
+
+export default store;
+
+Migrating Everything To Redux Toolkit
+=====================================
+Counter.js
+----------
+import { Component } from 'react';
+import classes from './Counter.module.css';
+import { counterActions } from '../store';
+import {useDispatch, useSelector,connect} from 'react-redux';
+
+const Counter = () => {
+  const dispatch=useDispatch();
+  const counter=useSelector((state)=>state.counter);
+  const show=useSelector((state)=>state.showCounter);
+  
+
+  const incrementHandler=()=>{
+    // dispatch({type:"increment"})
+    dispatch(counterActions.increment());
+  };
+
+  const increaseHandler=()=>{
+    // dispatch({type:"increase",amount:5})
+    dispatch(counterActions.increase(5));
+  };
+  const decrementHandler=()=>{
+    // dispatch({type:"decrement"})
+    dispatch(counterActions.decrement());
+  };
+  const toggleCounterHandler = () => {
+    //dispatch({type:"toggle"})
+    dispatch(counterActions.toggleCounter());
+  };
+
+  return (
+    <main className={classes.counter}>
+      <h1>Redux Counter</h1>
+      {show && <div className={classes.value}>{counter}</div>}
+      <div>
+        <button onClick={incrementHandler}>Increment</button>
+        <button onClick={increaseHandler}>Increment by 5</button>
+        <button onClick={decrementHandler}>Decrement</button>
+      </div>
+      <button onClick={toggleCounterHandler}>Toggle Counter</button>
+    </main>
+  );
+};
+
+export default Counter;
+
+index.js
+---------
+import {createStore} from 'redux';
+import { createSlice,configureStore } from '@reduxjs/toolkit';
+const initialState={counter:0,showCounter:true};
+const counterSlice=createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.payload;
+        },
+        toggleCounter(state){
+            state.showCounter=!state.showCounter;
+        } }})
+// const counterReducer=(state=initialState,action)=>{
+//     if(action.type==="increment"){
+//        return {
+//             counter:state.counter+1,
+//             // showCounter:state.showCounter
+//        };
+//     }
+//     if(action.type==="increase"){
+//         return {
+//              counter:state.counter+action.amount,
+//              showCounter:state.showCounter
+//         };
+//      }
+//     if(action.type==="decrement"){
+//         return {
+//             counter:state.counter-1,
+//             showCounter:state.showCounter
+//         };
+//     }
+//     if(action.type==="toggle"){
+//         return{
+//             showCounter:!state.showCounter,
+//             counter:state.counter
+//         }
+//     }//     return state;// }
+const store=configureStore({
+    reducer:counterSlice.reducer
+});
+export const counterActions=counterSlice.actions;
+export default store;
+
+o/p:using Redux Toolkit pic
+
+Working with Multiple Slices
+=============================
+
+=>adding login and logout authentication
+
+App.js
+-------
+import Counter from './components/Counter';
+import React from 'react';
+import Auth from './components/Auth';
+import Header from './components/Header';
+
+function App() {
+  return (
+    <>
+    <Header/>
+    <Auth/>
+    <Counter />
+    </>
+  );
+}
+
+export default App;
+
+index.js
+--------
+import {createStore} from 'redux';
+import { createSlice,configureStore } from '@reduxjs/toolkit';
+
+const initialState={counter:0,showCounter:true};
+const counterSlice=createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.payload;
+        },
+        toggleCounter(state){
+            state.showCounter=!state.showCounter;
+        }
+    }
+})
+// const counterReducer=(state=initialState,action)=>{
+//     if(action.type==="increment"){
+//        return {
+//             counter:state.counter+1,
+//             // showCounter:state.showCounter
+//        };
+//     }
+//     if(action.type==="increase"){
+//         return {
+//              counter:state.counter+action.amount,
+//              showCounter:state.showCounter
+//         };
+//      }
+//     if(action.type==="decrement"){
+//         return {
+//             counter:state.counter-1,
+//             showCounter:state.showCounter
+//         };
+//     }
+//     if(action.type==="toggle"){
+//         return{
+//             showCounter:!state.showCounter,
+//             counter:state.counter
+//         }
+//     }
+//     return state;
+
+// }
+const initialAuthState={isAuthenticated:false};
+const authSlice=createSlice({
+    name:'authentication',
+    initialState:initialAuthState,
+    reducers:{
+        login(state){
+            state.isAuthenticated=true;
+        },
+        logout(state){
+            state.isAuthenticated=false;
+        }
+    }
+});
+
+
+const store=configureStore({
+    reducer:{counter:counterSlice.reducer,auth:authSlice.reducer},
+});
+
+export const counterActions=counterSlice.actions;
+export const authActions=authSlice.actions;
+export default store;
+
+Counter.js
+-----------
+  const counter=useSelector((state)=>state.counter.counter);
+  const show=useSelector((state)=>state.counter.showCounter);
+
+o/p:adding login and logout authentication(another slice) pic
+
+Reading & Dispatching From a New Slice
+======================================
+
+Auth.js
+-------
+import classes from './Auth.module.css';
+import { useDispatch } from 'react-redux';
+import { authActions } from '../store';
+
+const Auth = () => {
+
+  const dispatch=useDispatch();
+  const loginHandler=(event)=>{
+    event.preventDefault();
+    dispatch(authActions.login());
+  }
+  return (
+    <main className={classes.auth}>
+      <section>
+        <form onSubmit={loginHandler}>
+          <div className={classes.control}>
+            <label htmlFor='email'>Email</label>
+            <input type='email' id='email' />
+          </div>
+          <div className={classes.control}>
+            <label htmlFor='password'>Password</label>
+            <input type='password' id='password' />
+          </div>
+          <button>Login</button>
+        </form>
+      </section>
+    </main>
+  );
+};
+
+export default Auth;
+
+App.js
+------
+import Counter from './components/Counter';
+import React from 'react';
+import Auth from './components/Auth';
+import Header from './components/Header';
+import { useSelector } from 'react-redux';
+import UserProfile from'./components/UserProfile';
+
+function App() {
+
+  const isAuth=useSelector(state=>state.auth.isAuthenticated)
+  return (
+    <>
+    <Header/>
+    {!isAuth && <Auth/>}
+    {isAuth && <UserProfile/>}
+    <Counter />
+    </>
+  );
+}
+
+export default App;
+
+
+UserProfile.js
+--------------
+import classes from './UserProfile.module.css';
+
+const UserProfile = () => {
+  return (
+    <main className={classes.profile}>
+      <h2>My User Profile</h2>
+    </main>
+  );
+};
+
+export default UserProfile;
+
+Header.js
+---------
+import classes from './Header.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { authActions } from '../store';
+const Header = () => {
+  const isAuth=useSelector(state=>state.auth.isAuthenticated);
+ const dispatch=useDispatch();
+  const logoutHandler=()=>{
+    dispatch(authActions.logout());
+  }
+  return (
+    <header className={classes.header}>
+      <h1>Redux Auth</h1>
+      {isAuth && <nav>
+        <ul>
+          <li>
+            <a href='/'>My Products</a>
+          </li>
+          <li>
+            <a href='/'>My Sales</a>
+          </li>
+          <li>
+            <button onClick={logoutHandler}>Logout</button>
+          </li>
+        </ul>
+      </nav>}
+    </header>
+  );
+};
+
+export default Header;
+
+o/p:
+login 
+after click on login button
+after click on logout button pics
+
+
+Splitting our code
+===================
+
+index.js
+--------
+import {createStore} from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './auth';
+import counterReducer from './counter';
+
+
+
+const store=configureStore({
+    reducer:{counter:counterReducer,auth:authReducer},
+});
+
+
+
+export default store;
+
+
+auth.js
+-------
+import { createSlice,configureStore } from '@reduxjs/toolkit';
+const initialAuthState={isAuthenticated:false};
+const authSlice=createSlice({
+    name:'authentication',
+    initialState:initialAuthState,
+    reducers:{
+        login(state){
+            state.isAuthenticated=true;
+        },
+        logout(state){
+            state.isAuthenticated=false;
+        }
+    }
+});
+
+
+export const authActions=authSlice.actions;
+export default authSlice.reducer;
+
+
+counter.js
+---------
+  import { createSlice,configureStore } from '@reduxjs/toolkit';
+
+const initialState={counter:0,showCounter:true};
+const counterSlice=createSlice({
+    name:'counter',//it can be any name
+    initialState,
+    reducers:{
+        increment(state){
+            state.counter++;
+        },
+        decrement(state){
+            state.counter--;
+        },
+        increase(state,action){
+            state.counter=state.counter+action.payload;
+        },
+        toggleCounter(state){
+            state.showCounter=!state.showCounter;
+        }
+    }
+})
+
+export const counterActions=counterSlice.actions;
+export default counterSlice.reducer;
+
+
+o/p:splitting the code  pic
+
+it should work same as before.

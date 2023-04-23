@@ -1,0 +1,547 @@
+class based components
+================
+
+Demo.js
+----------
+class Demo extends Component{
+	render(){
+		return <p>This is a class component</p>
+	}
+}	
+
+export default Demo;
+
+=> render method which is responsible for bringing smtg onto the UI.
+=> so it must return some JSX code 
+=> Demo class is inheriting from the component class.
+=> This component class provides some functionalities and properties.
+
+App.js
+------
+
+<Demo><Demo/>
+
+o/p:This is a class component
+
+
+Eg:2
+----
+Demo.js
+----------
+class Demo extends Component{
+	render(){
+		return <p>{this.props.children}</p>
+	}
+}	
+
+export default Demo;
+
+App.js
+------
+
+<Demo>Setting children props from App component<Demo/>
+
+o/p:Setting children props from App component
+
+=> For functional based component we have props for accessing data from one
+component to other component.
+=> For class based components we dont have props but the Component provides
+the props for accessing the data.
+=> In class based components we can access props  using this keyword.
+
+class Demo extends Component{
+}
+
+
+Eg:3
+----
+Demo.js
+----------
+class Demo extends Component{
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 <p>{this.props.children}</p>
+		</>
+	}
+}	
+
+export default Demo;
+
+App.js
+------
+
+<Demo name={'Hello world'}>Setting children props from App component<Demo/>
+
+why do we need a class based component?
+-------------------------------------------------
+=> The class based componets exist bcse they were required in the  past.
+in the version of 16.8 it was not possible to use functional components 
+to manage states or side effects.
+=> To work with states and side effects prior to react 16.8 it was required to 
+use class based components.
+=> In react 16.8 React hooks were introduced for functional components
+like useState,useEffects etc.
+=> Earlier it was not possible to manage states and side effects using 
+functional components so that time we need to use class based components.
+=> React hooks cannot be used in class based components.
+=> We have already learned react hooks can only be used inside a functional
+components only.
+
+
+Managing States & Events
+==================
+=> When working with class based component we dont have react hooks
+to define a state for a class based component first we need to use a constructor.
+=> constructor will be called whenever the class is instantiated 
+=> eg: we are using demo class as a component inside the app component
+ when the react encounter the below line
+
+App.js
+------
+<Demo name={'Hello world'}>Setting children props from App component<Demo/>
+
+it is going to instantiate the demo class and when the demo class will be instantiated.
+the first thing will be happen is the constructor will be called.
+
+=>when your class(Demo) inherits from another class(Component) in that case
+ in the constructor of that class you must call the parent(Component) class constructor
+=> You can call the parent class constructor by using the super keyword.
+=> When we are calling the super() internally it is going to call the constructor of
+component class.
+=> In case of a class based when we are creating a state using state property to this
+we need to assign an object we cannot assign anything else to the state property
+=> Inside curly braces we create any number of states 
+this.state={showParagraph:true,count:0};
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	}
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <p>{this.props.children}</p>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+export default Demo;
+
+App.js
+------
+
+<Demo name={'Hello world'}>Setting children props from App component<Demo/>
+
+=> this variable inside toggleParagraph it is undefined but we want this variable
+to point to an instance of the demo class.for that we have js method which is bind()
+
+
+Handling side effect in class component
+==========================
+=> we cannot use useEffect() hook in side effects However class based componenrs
+have a concept called component life cycle.
+=> Lifecycle methods are special methods in a class based component which can be
+used to execute certain logics in diff stages of a component lifecycle.
+
+
+componentDidMount()
+---------------------------
+=> It is a built-in method of class based components
+=> To use this method your component class must inherit from reacts built in component class.
+=> This method get called whenever your component is jst mounted.
+=> This method is equivalent to useEffect() hook in functional component without dependencies.
+=> The lifecycle hook method gets executed only once,when the component is rendered for 
+the first time.after that even if the state in that component changes this method  will not get 
+re-executed.
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	}
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <p>{this.props.children}</p>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+export default Demo;
+
+componentDidUpdate()
+----------------------------
+=> This method gets called when the component was updated.
+=> This method is equivalent to useEffect() hook in functional component with dependencies specified.
+=> This lifecycle hook method gets executed every time when the dependent state changes in the component.
+
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+
+	componentDidUpdate(){
+		//Logic to handle side effectswhenever state changes
+		console.log("componentDidUpdate called");
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	}
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <p>{this.props.children}</p>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+export default Demo;
+
+=> componentDidupdate() receive previous props and previous state
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+
+	componentDidUpdate(prevProps,prevState){
+		//Logic to handle side effectswhenever state changes
+		if(prevState.count!=this.state.count)
+			//console.log("componentDidUpdate called");
+			this.setState({count:this.count+1});
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <p>{this.props.children}</p>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+export default Demo;
+
+componentwillUnmount
+----------------------------
+=> This method gets executed just before the component gets removed from the DOM.
+=> This method is equivalent to clean-up function in useEffect.
+
+
+Paragraph.js
+--------------
+import {component} from react;
+
+class Paragraph extends Component{
+
+	componentWillUnmount(){
+		console.log("componentWillUnmount");
+	}
+	render(){
+		return <p>This is a demo paragraph</p>
+	}
+}
+export default Paragraph;
+
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+
+	componentDidUpdate(prevProps,prevState){
+		//Logic to handle side effectswhenever state changes
+		if(prevState.count!=this.state.count)
+			//console.log("componentDidUpdate called");
+			this.setState({count:this.count+1});
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <Paragraph></Paragraph>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+export default Demo;
+
+o/p:When we remove paragraph then componentWillUnmount() will be called.
+
+Handling context in class component
+========================
+=> createContext returns a context
+=> In below ex the value is available in child components and also their child components.
+	-> App=>Demo=>Paragraph 
+=> In a functional based component we have a hook called useContext but in class based components
+we dont have it but we have a static property which we can use to consume context.
+
+DemoContext.js
+-------------------
+import React from 'react';
+let DemoContext=React.createContext({
+	value=" "
+})
+
+
+
+App.js
+------
+function App(){
+	return(
+	<DemoContext.Provider value={{value:"This value is coming from demo context"}}>
+	<div className="App>
+		<Demo name={'Hello world'}>Setting children props from App component<Demo/>
+	</div>
+	</DemoContext.Provider>
+	);
+}
+
+export default App;
+
+Paragraph.js
+--------------
+import {component} from react;
+
+class Paragraph extends Component{
+	static contextType=DemoContext;
+
+	componentWillUnmount(){
+		console.log("componentWillUnmount");
+	}
+
+	/*render(){
+		return <DemoContext.Consumer>
+			{(ctx)=>{
+				return (<p>{ctx.value}</p>)
+			}}	
+			</DemoContext.Consumer>
+	}*/
+
+	render(){
+		return <p>{this.context.value}</p>
+	}
+}
+export default Paragraph;
+
+=> The problem here is we can only set the static context type property only once.
+=> if there are lets say two context which should be connected for this component
+this would not be possible with class based component and context type property.
+=> we remember with useContext react hook we can listen to multiple context in 
+the same component by calling useContext multiple times and point at diff
+contexts  but that is not possible with class based components.
+=> In a class based components  u can access or use one context at a time.
+
+
+Understanding Error Boundaries
+=====================
+=> Error boundary is simply a class-based component,which we can use to avoid react
+applications getting crashed    when an unexpected errors  & shows some meaningful msg to the user                                                                              
+sometimes there are some kind of errors which can occur unexpectedly  & which cannot be prevented
+Eg:server down or internet connection then we will get an error  in the response..for that we have Error Boundary
+
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+
+	componentDidUpdate(prevProps,prevState){
+		//Logic to handle side effectswhenever state changes
+		//if(prevState.count!=this.state.count)
+			//console.log("componentDidUpdate called");
+			//this.setState({count:this.count+1});
+
+		throw new Error("An error occured");
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <Paragraph></Paragraph>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}	
+
+=> since React is a js library in a javascript we can use try catch block to handle the errors 
+
+
+
+Demo.js
+----------
+class Demo extends Component{
+	constructor(){
+		super();
+		this.state={showParagraph:true,count:0};
+	}
+
+	componentDidMount(){
+		//Logic to handle side effects
+		console.log("componentDidMount called");
+	}
+
+	componentDidUpdate(prevProps,prevState){
+		//Logic to handle side effectswhenever state changes
+		//if(prevState.count!=this.state.count)
+			//console.log("componentDidUpdate called");
+			//this.setState({count:this.count+1});
+		try{
+			throw new Error("An error occured");
+		}catch(error){
+			alert(error.message);
+		}
+	}
+	toggleParagraph(){
+		console.log(this)//undefined
+		this.setState((currentState)=>{
+			return {showParagraph:!currentState.showParagraph}
+	})
+	
+	render(){
+		return <>
+			<h3>{this.props.name}</h3>
+			 {this.state.showParagraph && <Paragraph></Paragraph>}
+			<button onClick={this.toggleParagraph.bind(this)}>{this.state.showParagraph ? 'Hide' : 'Show'}</button>
+		</>
+	}
+}
+
+what if we want to handle the error in the parent component
+--------------------------------------------------------------------
+=> There we cannot use try-catch block bcse try catch will work only in those places where we are 
+writing some regular javascript code..but in the parent(App.js->Demo) component we have JSX code 
+we cannot handle the error thrown by this (In App we are using demo component)demo component 
+using try catch block..in such cases we can utilize error boundary.
+
+ErrorBoundaries.js
+---------------------
+import {Component} from 'react';
+
+class ErrorBoundary extends Component{
+
+	constructor(){
+		super();
+		this.state={hasError:false}
+	}
+
+	componentDidCatch(error){
+		this.setState({hasError:true})
+		
+	}
+	render(){
+		if(this.state.hasError)
+			return <h3>Smtg went wrong!</h3>
+		return this.props.children;
+	}
+}
+export default ErrorBoundary;
+
+=>componentDidCatch() method will be called whenever the child component of  this error boundary
+throws an error and this method is also going to receive that error object
+=> we cannot use componentDidCatch() method in Functional based components.
+
+
+App.js
+------
+function App(){
+	return(
+	<DemoContext.Provider value={{value:"This value is coming from demo context"}}>
+	<div className="App>
+		<ErrorBoundary>
+		<Demo name={'Hello world'}>Setting children props from App component<Demo/>
+		<ErrorBoundary/>
+	</div>
+	</DemoContext.Provider>
+	);
+}
+
+export default App;
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3613 @@
+Building a Multi-Page SPA with React Router
++++++++++++++++++++++++++++++++++++++++++++
+============================================
+
+
+Routing:Multiple Pages in Single-page Applications
+==================================================
+
+What is Routing?
+----------------
+=>Different URL paths load diff content on the screen.
+
+
+Page(URL) changes are then handled by client-side (React) code.
+			|
+		     \|/
+changes the visible content without fetching a new HTML file.
+
+
+=>npm install react-router-dom
+
+Defining Routes
+===============
+
+import {createBrowserRouter} from 'react-router-dom';
+
+Here this createBrowserRouter allows us to define our routes.
+
+and we call this function and pass an array of route definition objects.
+
+createBrowserRouter([
+	
+]);
+
+App.js
+------
+import {createBrowserRouter} from 'react-router-dom';
+import HomePage from './pages/Home';
+
+const router=createBrowserRouter([
+  {path:'/',element: <HomePage/>},
+])
+
+Home.js
+--------
+function HomePage(){
+    return <h1>My Home page</h1>
+}
+
+export default HomePage;
+
+To tell the React that this router should be used,we need to import another thing
+from react-router-dom.
+
+
+App.js
+------
+import {createBrowserRouter,RouterProvider} from 'react-router-dom';
+import HomePage from './pages/Home';
+
+const router=createBrowserRouter([
+  {path:'/',element: <HomePage/>},
+])
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+o/p:My Home page
+
+Adding a Second Route
+=====================
+
+Product.js
+----------
+function ProductsPage(){
+     return <h1>The Products Page</h1>
+}
+
+export default ProductsPage;
+
+App.js
+------
+import {createBrowserRouter,RouterProvider} from 'react-router-dom';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+
+const router=createBrowserRouter([
+  {path:'/',element: <HomePage/>},
+  {path:'/products',element:<ProductsPage/>}
+])
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+o/p:
+
+localhost:3000
+
+	My Home page
+
+localhost:3000/products
+
+	The products page
+
+
+
+Exploring an Alternative way of Defining Routes
+===============================================
+
+In older versions
+
+App.js
+-------
+<Route path="/welcome">
+	<welcome/>
+</Route>
+<Route path="/products">
+	<Products/>
+</Route>
+
+
+In newer version also we can use above code
+
+App.js
+------
+import {createBrowserRouter,RouterProvider,createRoutesFromElements} from 'react-router-dom';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import { Route } from 'react-router-dom';
+
+const routeDefinitions=createRoutesFromElements(
+  <Route>
+    <Route path="/" element={<HomePage/>}/>
+    <Route path="/products" element={<ProductsPage/>}/>
+  </Route>
+);
+// const router=createBrowserRouter([
+//   {path:'/',element: <HomePage/>},
+//   {path:'/products',element:<ProductsPage/>}
+// ])
+
+const router=createBrowserRouter(routeDefinitions);
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+
+o/p:
+localhost:3000
+
+	My Home page
+
+localhost:3000/products
+
+	The products page
+
+
+
+Navigating b/w pages with Links
+===============================
+
+App.js
+------
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+
+const router=createBrowserRouter([
+  {path:'/',element: <HomePage/>},
+  {path:'/products',element:<ProductsPage/>}
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+Home.js
+--------
+import { Link } from "react-router-dom";
+function HomePage(){
+    return(
+    <>
+    <h1>My Home page</h1>
+    <p>
+        Go to <Link to="/products">the list of products</Link>
+    </p>
+    </>
+    );
+}
+
+export default HomePage;
+
+Product.js
+---------
+function ProductsPage(){
+     return <h1>The Products Page</h1>
+}
+
+export default ProductsPage;
+
+
+=>It will change the URL without sending a new HTTP request.
+
+o/p:
+My Home page
+Go to the list of products(URL)
+
+when i click on list or products link it will display the The products page text.
+
+
+Layouts & Nested Routes
+=======================
+
+MainNavigation.js
+-----------------
+import { Link } from "react-router-dom";
+import classes from './MainNavigation.module.css'
+function MainNavigation(){
+    return(
+        <header className={classes.header}>
+            <nav>
+                <ul className={classes.list}>
+                    <li>
+                        <Link to="/">Home</Link> 
+                    </li>
+                    <li>
+                        <Link to="/products">Products</Link>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+    )
+}
+
+export default MainNavigation;
+
+MainNavigation.module.css
+--------------------------
+.header {
+    max-width: 60rem;
+    margin: auto;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .list {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .list a {
+    text-decoration: none;
+    color: var(--color-primary-400);
+  }
+  
+  .list a:hover,
+  .list a.active {
+    color: var(--color-primary-800);
+    text-decoration: underline;
+  }
+
+Root.js
+-------
+import { Outlet } from "react-router-dom";
+import MainNavigation from "../components/MainNavigation";
+import classes from './Root.module.css'
+
+function RootLayout(){
+    return <>
+        {/* <h1>Root Layout</h1> */}
+        <MainNavigation/>
+        <main className={classes.content} >
+            <Outlet/>
+        </main>
+       
+    </>
+}
+
+export default RootLayout;
+
+Root.module.css
+---------------
+.content{
+    margin: 2rem auto;
+    text-align: center;
+}
+
+App.js
+-------
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import RootLayout from './pages/Root';
+
+const router=createBrowserRouter([
+  {
+    path:'/',
+    element:<RootLayout/>,
+    children:[
+      {path:'/',element: <HomePage/>},
+      {path:'/products',element:<ProductsPage/>}
+    ]
+  },
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+
+o/p:Layouts1 for Home page.png
+Layouts2 for product page.png 
+
+
+Showing Error Pages with errorElement
+=====================================
+
+Error.js
+---------
+import MainNavigation from "../components/MainNavigation";
+
+function ErrorPage(){
+    return(
+        <>
+        <MainNavigation/>
+        <main>
+            <h1>An error Occurred!</h1>
+            <p>Could not find this page!</p>
+        </main>
+        </>
+    )
+}
+
+export default ErrorPage;
+
+index.css
+----------
+main{
+  margin: 2rem auto;
+  text-align: center;
+}
+
+
+App.js
+------
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import ErrorPage from './pages/Error';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import RootLayout from './pages/Root';
+
+const router=createBrowserRouter([
+  {
+    path:'/',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {path:'/',element: <HomePage/>},
+      {path:'/products',element:<ProductsPage/>}
+    ]
+  },
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+o/p:error page pic
+
+Working with Navigation Links(Nav Link)
+=======================================
+
+MainNavigation.js
+-----------------
+import { Link } from "react-router-dom";
+import classes from './MainNavigation.module.css'
+function MainNavigation(){
+    return(
+        <header className={classes.header}>
+            <nav>
+                <ul className={classes.list}>
+                    <li>
+                        <Link to="/">Home</Link> 
+                    </li>
+                    <li>
+                        <Link to="/products">Products</Link>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+    )
+}
+
+export default MainNavigation;
+
+MainNavigation.module.css
+-------------------------
+
+  .list a:hover,
+  .list a.active{
+    color:var(--color-primary-800);
+    text-decoration: underline;
+  }
+
+o/p:Now we can see which link is active when we click on Home or Products.
+but it still doesnt stay active thereafter.
+
+To support links that should show us whether they led to the currently active page or not,
+react-router-dom has an alternative to the link component,the NavLink component.
+
+=>NavLink is jst used as Link.u can use it as a replacement for Link
+but Navlink has one special behaviour if u add the class name prop to it,
+its actually not the regular class name prop,which takes a string,but instead its a prop
+that takes a function and that function should return the class name,the CSS class name
+that should be added to the anchor tag Now that function also automatically receives an object.
+from which we can de-structure the isActive property.and this object with the isActive property
+is provided by react-router-dom and isActive as a Boolean.thats true if the link is currently active.
+
+MainNavigation.js
+-----------------
+import { NavLink } from "react-router-dom";
+import classes from './MainNavigation.module.css'
+function MainNavigation(){
+    return(
+        <header className={classes.header}>
+            <nav>
+                <ul className={classes.list}>
+                    <li>
+                        <NavLink to="/" className={({isActive})=>isActive ? classes.active : undefined}
+                        end >Home</NavLink> 
+                    </li>
+                    <li>
+                        <NavLink to="/products" className={({isActive})=>isActive ? classes.active : undefined}>Products</NavLink>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+    )
+}
+
+export default MainNavigation;
+
+without using end prop when i click on Home then Home is active and if i click on products
+then products is active.and Home is also still active bcse
+That behavior exists so that a linke could be treated as active even if you are on some
+nested child route. To resolve this problem we use end prop.
+
+o/p:with using end prop this indicates that this link should only be considered active
+if the currently active route ends with this path after the URL.
+
+Navigating Programatically
+==========================
+
+Home.js
+-------
+import { Link, useNavigate } from "react-router-dom";
+function HomePage(){
+
+    const navigate=useNavigate();
+
+    const navigateHandler=()=>{
+        navigate('/products');
+    }
+    return(
+    <>
+    <h1>My Home page</h1>
+    <p>
+        Go to <Link to="/products">the list of products</Link>
+    </p>
+    <p>
+        <button onClick={navigateHandler}>Navigate</button>
+    </p>
+    </>
+    );
+}
+
+export default HomePage;
+
+o/p:when i click on navigate button in Home page then it will navigate to the
+products page.
+
+
+Defining & Using Dynamic Routes
+===============================
+
+Product.js
+---------
+function ProductsPage(){
+     return (
+     <>
+          <h1>The Products Page</h1>
+          <ul>
+               <li>Product 1</li>
+               <li>Product 2</li>
+               <li>Product 3</li>
+          </ul>
+     
+     </>
+     );
+}
+
+export default ProductsPage;
+
+ProductDetails.js
+-----------------
+import { useParams } from "react-router-dom";
+
+function ProductDetailPage(){
+    const params=useParams();
+   
+    return (
+        <> 
+            <h1>product Details!</h1>
+            <p>{params.productId}</p>
+        </>
+    )
+}
+
+export default ProductDetailPage;
+
+
+App.js
+------
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import ErrorPage from './pages/Error';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import ProductDetailPage from './pages/ProductDetail';
+import RootLayout from './pages/Root';
+
+const router=createBrowserRouter([
+  {
+    path:'/',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {path:'/',element: <HomePage/>},
+      {path:'/products',element:<ProductsPage/>},
+      {path:'/products/:productId',element:<ProductDetailPage/>}
+    ]
+  },
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+o/p:Dynamic Routes  pic
+
+Adding Links for Dynamice Routes
+================================
+Product.js
+----------
+import { Link } from "react-router-dom";
+
+const PRODUCTS=[
+     {id:'p1',title:'Product 1'},
+     {id:'p2',title:'Product 2'},
+     {id:'p3',title:'Product 3'},
+
+]
+function ProductsPage(){
+     return (
+     <>
+          <h1>The Products Page</h1>
+          <ul>
+               {PRODUCTS.map((prod)=>(
+                    <li key={prod.id}>
+                         <Link to={`/products/${prod.id}`}>{prod.title}</Link>
+                    </li>
+               ))}
+          </ul>
+     
+     </>
+     );
+}
+
+export default ProductsPage;
+
+
+o/p:add Dynamic link Routes pic
+
+Understanding Relatives & Absolute Paths
+========================================
+
+=>If a path starts with a slash,it is an absolute path.
+
+const router=createBrowserRouter([
+  {
+    path:'/root',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {path:'/',element: <HomePage/>},
+      {path:'/products',element:<ProductsPage/>},
+      {path:'/products/:productId',element:<ProductDetailPage/>}
+    ]
+  },
+])
+
+
+=>If we remove the slash then it becomes an relative path
+
+
+const router=createBrowserRouter([
+  {
+    path:'/root',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {path:'',element: <HomePage/>},
+      {path:'products',element:<ProductsPage/>},
+      {path:'products/:productId',element:<ProductDetailPage/>}
+    ]
+  },
+])
+
+
+=>
+
+ <p><Link to=".." relative="path">Back</Link></p>
+
+
+it will take from locolhost:3000/root/product/p1 to locolhost:3000/root/product directly
+when i click on Back link
+
+relative="path" will take a look at currently active path and simply remove one segment from
+that path.
+
+before using this relative prop it will take from
+
+locolhost:3000/root/product/p1 to locolhost:3000/root
+
+
+App.js
+-------
+
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import ErrorPage from './pages/Error';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import ProductDetailPage from './pages/ProductDetail';
+import RootLayout from './pages/Root';
+
+const router=createBrowserRouter([
+  {
+    path:'/',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {path:'',element: <HomePage/>},
+      {path:'products',element:<ProductsPage/>},
+      {path:'products/:productId',element:<ProductDetailPage/>}
+    ]
+  },
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+Home.js
+-------
+import { Link, useNavigate } from "react-router-dom";
+function HomePage(){
+
+    const navigate=useNavigate();
+
+    const navigateHandler=()=>{
+        navigate('/products');
+    }
+    return(
+    <>
+    <h1>My Home page</h1>
+    <p>
+        Go to <Link to="products">the list of products</Link>
+    </p>
+    <p>
+        <button onClick={navigateHandler}>Navigate</button>
+    </p>
+    </>
+    );
+}
+
+export default HomePage;
+
+
+Product.js
+-----------
+  import { Link } from "react-router-dom";
+
+const PRODUCTS=[
+     {id:'p1',title:'Product 1'},
+     {id:'p2',title:'Product 2'},
+     {id:'p3',title:'Product 3'},
+
+]
+function ProductsPage(){
+     return (
+     <>
+          <h1>The Products Page</h1>
+          <ul>
+               {PRODUCTS.map((prod)=>(
+                    <li key={prod.id}>
+                         <Link to={prod.id}>{prod.title}</Link>
+                    </li>
+               ))}
+          </ul>
+     
+     </>
+     );
+}
+
+export default ProductsPage;
+
+ProductDetails.js
+-----------------
+import { Link, useParams } from "react-router-dom";
+
+function ProductDetailPage(){
+    const params=useParams();
+   
+    return (
+        <> 
+            <h1>product Details!</h1>
+            <p>{params.productId}</p>
+            <p><Link to=".." relative="path">Back</Link></p>
+        </>
+    )
+}
+
+export default ProductDetailPage;
+
+o/p:Relative & Absolute path1
+Relative & Absolute path2
+Relative & Absolute path3
+Relative & Absolute path4 when i click on back link
+Relative & Absolute path5 when i click on Home link pics
+
+Working with index Routes
+=========================
+
+ {index:true,element: <HomePage/>},
+
+it should be displayed if the parent routes path is currently active path.
+
+=>Index routes is which allows you to define the default route that should
+be loaded if the parent routes path is active.
+
+App.js
+------
+import {createBrowserRouter, RouterProvider,} from 'react-router-dom';
+import ErrorPage from './pages/Error';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Product';
+import ProductDetailPage from './pages/ProductDetail';
+import RootLayout from './pages/Root';
+
+const router=createBrowserRouter([
+  {
+    path:'/',
+    element:<RootLayout/>,
+    errorElement:<ErrorPage/>,
+    children:[
+      {index:true,element: <HomePage/>},
+      {path:'products',element:<ProductsPage/>},
+      {path:'products/:productId',element:<ProductDetailPage/>}
+    ]
+  },
+])
+
+
+function App() {
+  return <RouterProvider router={router}/>
+}
+
+export default App;
+
+
+o/p:index routes pic
+
+
+Onwards to a new Project Setup
+===============================
+=>Take a project folder and enter following commands.
+
+cd backend 
+npm install
+
+cd frontend 
+npm install
+
+
+Challenge-problem
+=================
+// Challenge / Exercise
+
+1. Add five new (dummy) page components (content can be simple <h1> elements)
+    	- HomePage
+   	- EventsPage
+      - EventDetailPage
+      - NewEventPage
+      - EditEventPage
+2. Add routing & route definitions for these five pages
+    - / => HomePage
+    - /events => EventsPage
+    - /events/<some-id> => EventDetailPage
+    - /events/new => NewEventPage
+    - /events/<some-id>/edit => EditEventPage
+3. Add a root layout that adds the <MainNavigation> component above all page components
+4. Add properly working links to the MainNavigation
+5. Ensure that the links in MainNavigation receive an "active" class when active
+6. Output a list of dummy events to the EventsPage
+     Every list item should include a link to the respective EventDetailPage
+7. Output the ID of the selected event on the EventDetailPage
+BONUS: Add another (nested) layout route that adds the <EventNavigation> component above all /events... page components
+
+
+Challenge-solution
+==================
+
+Home.js
+-------
+function HomePage(){
+    return <h1>Home page</h1>
+}
+
+export default HomePage;
+
+same as for all Events.js,EventDetail.js,NewEvent.js,EditEvent.js
+
+
+Task2:
+
+App.js
+------
+import {RouterProvider,createBrowserRouter} from 'react-router-dom'
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage from './pages/Events';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+
+
+  const router=createBrowserRouter([
+    {path:'/',element:<HomePage/>},
+    {path:'/events',element:<EventsPage/>},
+    {path:'/events/:eventId',element:<EventDetailPage/>},
+    {path:'/events/new',element:<NewEventPage/>},
+    {path:'/events/:eventId/edit',element:<EditEventPage/>}
+  ])
+function App() {
+  return <RouterProvider router={router}/>;
+}
+
+export default App;
+
+o/p:
+
+http://localhost:3000=====>Home page
+http://localhost:3000/events===>EventsPage
+http://localhost:3000/events/e1===>EventDetailPage
+http://localhost:3000/events/e1/edit===>EditEventPage
+http://localhost:3000/events/new===>NewEventPage
+
+
+Task 3:
+
+MainNavigation.js
+-----------------
+import classes from './MainNavigation.module.css';
+
+function MainNavigation() {
+
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <a>Home</a>
+          </li>
+          <li>
+            <a>Events</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+
+export default MainNavigation;
+
+
+Root.js
+------
+import { Outlet } from "react-router-dom";
+import MainNavigation from "../components/MainNavigation";
+
+function RootLayout(){
+
+    return <>
+        <MainNavigation/>
+            <main>
+                <Outlet/>
+            </main>
+        
+    </>
+}
+export default RootLayout;
+
+App.js
+------
+import {RouterProvider,createBrowserRouter} from 'react-router-dom'
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage from './pages/Events';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+  const router=createBrowserRouter([
+    {
+      path:'/',
+      element:<RootLayout/>,
+      children:[
+      {index:true,element:<HomePage/>},
+      {path:'events',element:<EventsPage/>},
+      {path:'events/:eventId',element:<EventDetailPage/>},
+      {path:'events/new',element:<NewEventPage/>},
+      {path:'events/:eventId/edit',element:<EditEventPage/>}
+
+    ]},
+    
+  ])
+function App() {
+  return <RouterProvider router={router}/>;
+}
+
+export default App;
+
+o/p:
+
+http://localhost:3000/
+
+	Home Events
+
+Homepage
+
+it(Home Events ) is same for every page except  HomePage.
+
+
+Task 4:
+
+MainNavigation.js
+-----------------
+import classes from './MainNavigation.module.css';
+import {Link} from 'react-router-dom';
+function MainNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/events">Events</Link>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+
+export default MainNavigation;
+
+
+o/p:Now we can switch b/w Home and Events pages
+
+
+Task 5:
+
+MainNavigation.js
+-----------------
+
+import classes from './MainNavigation.module.css';
+import {NavLink} from 'react-router-dom';
+function MainNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <NavLink to="/" className={({isActive})=>isActive ? classes.active : undefined} end>Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/events" className={({isActive})=>isActive ? classes.active : undefined} >Events</NavLink>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+
+export default MainNavigation;
+
+MainNavigation.module.css
+-------------------------
+.header {
+  max-width: 60rem;
+  margin: auto;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.list {
+  display: flex;
+  gap: 1rem;
+}
+
+.list a {
+  text-decoration: none;
+  color: var(--color-primary-400);
+}
+
+.list a:hover,
+.list a.active {
+  color: var(--color-primary-800);
+}
+
+Task 6
+------
+Events.js
+---------
+import { Link } from "react-router-dom";
+
+const DUMMY_EVENTS=[
+{
+    id:'e1',
+    title:'Some event',
+},
+{
+    id:'e2',
+    title:'Another event',
+}
+]
+function EventsPage(){
+    return <>
+         <h1>EventsPage</h1>
+         <ul>
+            {DUMMY_EVENTS.map(event=>
+            <li key={event.id}>
+                <Link to={event.id}>{event.title}</Link>
+            </li>
+            )}
+         </ul>
+    
+    </>
+   
+}
+
+export default EventsPage;
+
+o/p:
+
+	Home Events
+
+EventsPage
+
+Some event
+Another event
+
+When i click on Some event or Another event link then it will navigate
+
+to  http://localhost:3000/events/e1
+
+		Home Events
+
+EventDetailPage
+
+
+Task 7:
+------
+
+useParams hook gives us access to the currently active route parameters.
+
+EventDetail.js
+--------------
+import { useParams } from "react-router-dom";
+function EventDetailPage(){
+
+    const params=useParams();
+
+    return <>
+    <h1>EventDetailPage</h1>
+    <p>Event ID:{params.eventId}</p>
+    </>
+
+}
+
+export default EventDetailPage;
+
+o/p:
+
+	Home Events
+
+EventsPage
+
+Some event
+Another event
+
+When i click on Some event or Another event link then it will navigate
+
+to  http://localhost:3000/events/e1
+
+		Home Events
+
+EventDetailPage
+Event ID:e1 or e2 //(based on user click)
+
+Task 8:
+-------
+
+EventsNavigation.js
+-------------------
+import { NavLink } from 'react-router-dom';
+import classes from './EventsNavigation.module.css';
+
+function EventsNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <NavLink to="/events" className={({isActive})=>isActive ? classes.active : undefined} end>All Events</NavLink>
+          </li>
+          <li>
+            <NavLink to="/events/new" className={({isActive})=>isActive ? classes.active : undefined}>New Event</NavLink>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+
+export default EventsNavigation;
+
+EventsNavigation.module.css
+---------------------------
+.header {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.list {
+  display: flex;
+  gap: 1rem;
+}
+
+.list a {
+  background-color: var(--color-gray-500);
+  color: var(--color-gray-900);
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.list a:hover,
+.list a:active,
+.list a.active {
+  background-color: var(--color-primary-600);
+}
+
+EventsRoot.js
+-------------
+import EventsNavigation from "../components/EventsNavigation";
+import {Outlet} from 'react-router-dom';
+
+function EventsRootLayout(){
+    return <>
+        <EventsNavigation/>
+        <Outlet/>
+    </>
+}
+
+export default EventsRootLayout;
+
+App.js
+------
+import {RouterProvider,createBrowserRouter} from 'react-router-dom'
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+  const router=createBrowserRouter([
+    {
+      path:'/',
+      element:<RootLayout/>,
+      children:[
+      {index:true,element:<HomePage/>},
+      {
+        path:'events',
+        element:<EventsRootLayout/>,
+        children:[
+            {index:true,element:<EventsPage/>},
+            {path:':eventId',element:<EventDetailPage/>},
+            {path:'new',element:<NewEventPage/>},
+            {path:':eventId/edit',element:<EditEventPage/>}
+      ]},
+    ]},
+    
+  ])
+function App() {
+  return <RouterProvider router={router}/>;
+}
+
+export default App;
+
+o/p:localhost:3000/events
+
+		Home Events
+				
+				AllEvents NewEvents
+
+EventsPage
+
+Some event
+Another event
+
+
+o/p:problem with solution pic
+
+Data Fetching with a loader()
+=============================
+
+=> Loader is a  property that wants a  function as a value
+
+=>Jst before render the <EventsPage/> the loader function will be triggered.
+
+=>by using useState() it first rendering the component and then fetching data will be rendered.
+
+=> by using React Router it first fetching data and it will rendered the component.
+
+Events.js
+--------
+import { useEffect, useState } from 'react';
+
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchedEvents, setFetchedEvents] = useState();
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    async function fetchEvents() {
+      setIsLoading(true);
+      
+      setIsLoading(false);
+    }
+
+    fetchEvents();
+  }, []);
+  return (
+    <>
+      <div style={{ textAlign: 'center' }}>
+        {isLoading && <p>Loading...</p>}
+        {error && <p>{error}</p>}
+      </div>
+      {!isLoading && fetchedEvents && <EventsList events={fetchedEvents} />}
+    </>
+  );
+}
+
+export default EventsPage;
+
+EventsList.js
+-------------
+import classes from './EventsList.module.css';
+
+function EventsList({ events }) {
+  return (
+    <div className={classes.events}>
+      <h1>All Events</h1>
+      <ul className={classes.list}>
+        {events.map((event) => (
+          <li key={event.id} className={classes.item}>
+            <a href="...">
+              <img src={event.image} alt={event.title} />
+              <div className={classes.content}>
+                <h2>{event.title}</h2>
+                <time>{event.date}</time>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default EventsList;
+
+App.js
+-----
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: async() => {
+              const response = await fetch('http://localhost:8080/events');
+
+              if (!response.ok) {
+                
+              } else {
+                const resData = await response.json(); 
+                return resData.events;
+              }
+            }
+          },
+          { path: ':eventId', element: <EventDetailPage /> },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p:loader.js pic 
+
+
+Using Data from a Loader in the Route Component
+===============================================
+
+=> useLoaderData hook which we can execute to get access to the closest 
+loader data.
+
+Events.js
+---------
+
+import {useLoaderData} from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+  
+  const events=useLoaderData();
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+o/p:loader in Route component.js pic 
+
+
+More loader() Data usage
+========================
+
+Where we can use useLoaderData() in components?
+----------------------------------------
+
+=>You can use useLoaderData() in the element thats assigned to a route and in all components
+that might be used inside that element.
+
+=>use useLoaderData() at same level or lower level.
+
+=>For ex:if we use useLoaderData() in <RootLayout/> ie. Root.js then this will not work
+as  expected.it display undefined bcse here i am trying to get data from a
+route thats actually defined on a higher level.
+
+EventsList.js
+-------------
+import classes from './EventsList.module.css';
+import {useLoaderData} from 'react-router-dom';
+
+function EventsList() {
+
+  const events=useLoaderData();
+
+  return (
+    <div className={classes.events}>
+      <h1>All Events</h1>
+      <ul className={classes.list}>
+        {events.map((event) => (
+          <li key={event.id} className={classes.item}>
+            <a href="...">
+              <img src={event.image} alt={event.title} />
+              <div className={classes.content}>
+                <h2>{event.title}</h2>
+                <time>{event.date}</time>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default EventsList;
+
+Events.js
+---------
+
+//import {useLoaderData} from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+  
+  //const events=useLoaderData();
+
+
+  return (
+    <>
+      <EventsList />
+    </>
+  );
+}
+
+export default EventsPage;
+
+
+=>we can revert the EventsList.js and Events.js file
+
+Events.js
+---------
+
+import {useLoaderData} from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+  
+  const events=useLoaderData();
+
+
+  return (
+    <>
+      <EventsList />
+    </>
+  );
+}
+
+EventsList.js
+-------------
+import classes from './EventsList.module.css';
+//simport {useLoaderData} from 'react-router-dom';
+
+function EventsList({events}) {
+
+  //const events=useLoaderData();
+
+  return (
+    <div className={classes.events}>
+      <h1>All Events</h1>
+      <ul className={classes.list}>
+        {events.map((event) => (
+          <li key={event.id} className={classes.item}>
+            <a href="...">
+              <img src={event.image} alt={event.title} />
+              <div className={classes.content}>
+                <h2>{event.title}</h2>
+                <time>{event.date}</time>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default EventsList;
+
+Where should loader() coder be stored?
+=======================================
+
+=>if would add more loaders to more and more routes then the app.js file would
+start doing a lot of things,You could also argue that the logic for fetching data 
+for the events page belongs to the events page and not to the app.js file.so 
+u might want to put that code into events page file(Events.js) and not into the
+app.js file.
+=>so i put that loader code into your component file where you need it.so in the
+Events.js file we need to add the loader and cut the code from app.js file.
+
+=>here we are seperate the loader code into component file.
+
+
+Events.js
+---------
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const events = useLoaderData();
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+
+  } else {
+    const resData = await response.json();
+    return resData.events;
+  }
+}
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          { path: ':eventId', element: <EventDetailPage /> },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p:it should work same as before.
+
+
+When are loader() functions Executed
+====================================
+=>The loader for a page will be called when we start navigating to that page.
+so not after the page component has been rendered,but before we actually go there.
+
+
+backend
+-------
+events.js
+---------
+
+router.get('/', async (req, res, next) => {
+  try {
+    const events = await getAll();
+    setTimeout(()=>{
+      res.json({ events: events });
+    },1500)
+  } catch (error) {
+    next(error);
+  }
+});
+
+o/p:it should work same as before but it will display after 1500 milliseconds
+
+
+Reflecting The current Navigation State in the UI
+=================================================
+
+Root.js
+-------
+import { Outlet,  useNavigation } from "react-router-dom";
+import MainNavigation from "../components/MainNavigation";
+
+function RootLayout(){
+
+    const navigation=useNavigation();
+    return <>
+        <MainNavigation/>
+            <main>
+                {navigation.state ==='loading' && <p>Loading...</p>}
+                <Outlet/>
+            </main>
+        
+    </>
+}
+export default RootLayout;
+
+o/p:it will display the Loading... before getting the data
+
+=> revert the changes in Root.js and events.js in backend 
+
+Returning Response in loader()
+===============================
+Events.js
+---------
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const data = useLoaderData();
+  const events=data.events;
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+
+o/p:it should be work as same as before
+
+
+Which kind of Code Guess into loader()
+======================================
+
+=>The code thats defined in the loader(Events.js) executes in the browser,not on some server
+that means that u can use any browser APIs in loader functions.
+
+Ex:access local storage,access cookies here u can do anything u can do in the other
+js code as well.
+
+export async function loader() {
+
+ // localstorage.get();	//we can use like this 
+
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+What you cant do in the loader function is?
+-------------------------------------------
+
+Eg:use React hooks like useState that does not work bcse those hooks are available in
+React components and the loader function is not a React component.this is only limitation
+
+Any other default browser features can be used in loader functions.
+
+Error Handling with Custom Errors
+=================================
+Events.js
+---------
+
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const data = useLoaderData();
+  if(data.isError){
+    return <p>{data.message}</p>
+  }
+  const events=data.events;
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/eventsvjhbkjbkj');
+
+  if (!response.ok) {
+    return {isError:true,message:'Could not fetch events'};
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+
+o/p:
+
+			Home Events
+
+				AllEvents NewEvent
+Could not fetch events
+
+Alternative way
+---------------
+
+=>errorElement will be shown to the screen whenever an error is generated in any route 
+related code,including loaders
+
+Events.js
+---------
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const data = useLoaderData();
+  // if(data.isError){
+  //   return <p>{data.message}</p>
+  // }
+  const events=data.events;
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/eventsvjhbkjbkj');
+
+  if (!response.ok) {
+    //return {isError:true,message:'Could not fetch events'};
+    throw{message:'Could not fetch events'};
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+
+
+
+create a new file named Error.js
+Error.js
+--------
+function ErrorPage(){
+    return <h1>An error occured!</h1>
+}
+export default ErrorPage;
+
+or 
+
+import PageContent from "./components/PageContent";
+function ErrorPage(){
+    return (
+        <PageContent title="An error occurred!">
+            <p>Something went Wrong!</p>
+        </PageContent>
+    )
+   
+}
+export default ErrorPage;
+
+
+
+pageContent.js
+++++++++++++++
+import classes from './PageContent.module.css';
+
+function PageContent({ title, children }) {
+  return (
+    <div className={classes.content}>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+}
+
+export default PageContent;
+
+pageContent.module.css
+----------------------
+.content {
+    text-align: center;
+  }
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          { path: ':eventId', element: <EventDetailPage /> },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+=>without PageContent.js 
+
+o/p:localhost:3000/events
+
+An error occured!
+
+=>with PageContent.js 
+
+o/p:localhost:3000/events
+
+An error occured!
+
+Something went wrong!
+
+
+Extracting Error Data & Throwing Response
+=========================================
+
+Events.js
+---------
+import { useLoaderData } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const data = useLoaderData();
+  // if(data.isError){
+  //   return <p>{data.message}</p>
+  // }
+  const events=data.events;
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/eventsdaknfasm');
+
+  if (!response.ok) {
+    //return {isError:true,message:'Could not fetch events'};
+    //throw{message:'Could not fetch events'};
+    throw new Response(JSON.stringify({message:'could not fetch events.'}),{
+      status:500,
+    });
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+
+Error.js
+--------
+=>indicate smtg wrong by using useRouteError() hook.
+=>it gives an object.
+
+import PageContent from "../components/PageContent";
+import { useRouteError } from "react-router-dom";
+
+function ErrorPage(){
+
+    const error=useRouteError();
+    
+    let title='An error occurred!';
+    let message='Something went Wrong!';
+
+    if(error.status===500){
+        message=JSON.parse(error.data).message;
+    }
+
+    if(error.status===404){
+        title='Not found!'
+        message='could not find resource or page';
+    }
+    return (
+        <PageContent title={title}>
+            <p>{message}</p>
+        </PageContent>
+    )
+   
+}
+export default ErrorPage;
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          { path: ':eventId', element: <EventDetailPage /> },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p:localhost:3000/events 
+
+	An error occurred!
+	could not fetch events.
+
+o/p:localhost:3000/dafsf
+
+	Not found!
+	could not find resource or page
+
+
+change the Error.js file 
+
+Error.js
+--------
+ return (
+        <>
+        <MainNavigation/>
+        <PageContent title={title}>
+            <p>{message}</p>
+        </PageContent>
+        </>
+    )
+
+o/p:localhost:3000/events 
+
+Home events
+
+	An error occurred!
+	could not fetch events.
+
+o/p:localhost:3000/dafsf
+
+Home events
+
+	Not found!
+	could not find resource or page
+
+=> 
+
+const response = await fetch('http://localhost:8080/eventsdaknfasm');
+if we remove the  unnecessary url data then we will get data same as before
+
+const response = await fetch('http://localhost:8080/events');
+
+The json() utility function
+===========================
+
+Events.js
+---------
+
+import { useLoaderData,json } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+
+function EventsPage() {
+
+  const data = useLoaderData();
+  // if(data.isError){
+  //   return <p>{data.message}</p>
+  // }
+  const events=data.events;
+
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
+}
+
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/eventsdaknfasm');
+
+  if (!response.ok) {
+    //return {isError:true,message:'Could not fetch events'};
+    //throw{message:'Could not fetch events'};
+    // throw new Response(JSON.stringify({message:'could not fetch events.'}),{
+    //   status:500,
+    // });
+
+    return json(
+      {message:'could not fetch events.'},
+      {
+        status:500,
+      }
+    );
+  } else {
+    // const resData = await response.json();
+    // return resData;
+    return response;
+  
+  }
+}
+
+Error.js
+--------
+import PageContent from "../components/PageContent";
+import { useRouteError } from "react-router-dom";
+import MainNavigation from "../components/MainNavigation";
+function ErrorPage(){
+
+    const error=useRouteError();
+    
+    let title='An error occurred!';
+    let message='Something went Wrong!';
+
+    if(error.status===500){
+        message=error.data.message;
+    }
+
+    if(error.status===404){
+        title='Not found!'
+        message='could not find resource or page';
+    }
+    return (
+        <>
+        <MainNavigation/>
+        <PageContent title={title}>
+            <p>{message}</p>
+        </PageContent>
+        </>
+    )
+   
+}
+export default ErrorPage;
+
+o/p:it should work same as before.
+
+
+
+Dynamic Router loader()s
+========================
+
+EventList.js
+------------
+import classes from './EventsList.module.css';
+import {Link} from 'react-router-dom';
+//import {useLoaderData} from 'react-router-dom';
+
+function EventsList({events}) {
+
+  //const events=useLoaderData();
+
+  return (
+    <div className={classes.events}>
+      <h1>All Events</h1>
+      <ul className={classes.list}>
+        {events.map((event) => (
+          <li key={event.id} className={classes.item}>
+            <Link to={event.id}>
+              <img src={event.image} alt={event.title} />
+              <div className={classes.content}>
+                <h2>{event.title}</h2>
+                <time>{event.date}</time>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default EventsList;
+
+EventItem.js
+-------------
+import classes from './EventItem.module.css';
+
+function EventItem({ event }) {
+  function startDeleteHandler() {
+    // ...
+  }
+
+  return (
+    
+    <article className={classes.event}>
+      <img src={event.image} alt={event.title} />
+      <h1>{event.title}</h1>
+      <time>{event.date}</time>
+      <p>{event.description}</p>
+      <menu className={classes.actions}>
+        <a href="edit">Edit</a>
+        <button onClick={startDeleteHandler}>Delete</button>
+      </menu>
+    </article>
+  );
+}
+
+export default EventItem;
+
+EventDetail.js
+--------------
+import { useLoaderData, useParams } from "react-router-dom";
+import { json } from "react-router-dom";
+import EventItem from '../components/EventItem';
+function EventDetailPage(){
+
+    const data=useLoaderData();
+
+    return <>
+    {/* <h1>EventDetailPage</h1>
+    <p>Event ID:{params.eventId}</p> */}
+    <EventItem event={data.event}/>
+    </>
+
+}
+
+export default EventDetailPage;
+
+export async function loader({request,params}){
+    const id=params.eventId;
+    const response=await fetch('http://localhost:8080/events/'+id);
+    if(!response.ok){
+        throw json({message:'Could not fetch details for selected event.'},{
+            status:500
+        })
+    }else{
+    return response;
+    }
+}
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          { path: ':eventId', element: <EventDetailPage />,loader:eventDetailLoader },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p:
+
+when i navigate to events & view the details pic
+
+The useRouteLoaderData() Hook & Accessing Data from other Routes
+================================================================
+
+=>In the EditEvent.js page we need to fetch the same data as we fetch here on the
+event detail page.
+
+=>useRouteLoaderData is same as useLoaderData but it takes route Id as an argument.
+
+=>u can get access to a higher level loader from a route that doesn't have a loader.u use
+useRouteLoaderData  instead of useLoaderData
+
+eg:
+{
+      path:':eventId',
+       id:'event-detail',
+      loader:eventDetailLoader,//higher level loader
+       children:[
+       {
+         index:true,
+          element:<EventDetailPage/>,
+        },
+      { path: 'edit', element: <EditEventPage /> },//doesn't have loader
+
+    ]
+ },
+
+=>but now we can reuse that loader across multiple routes which all need same data.
+
+EditEvent.js
+------------
+import { useLoaderData, useRouteLoaderData } from 'react-router-dom';
+import EventForm from '../components/EventForm'
+function EditEventPage(){
+
+    const data=useRouteLoaderData('event-detail');
+    return <EventForm event={data.event}/>
+}
+
+export default EditEventPage;
+
+EventForm.js
+------------
+import { useNavigate } from 'react-router-dom';
+
+import classes from './EventForm.module.css';
+
+function EventForm({ method, event }) {
+  const navigate = useNavigate();
+  function cancelHandler() {
+    navigate('..');
+  }
+
+  return (
+    <form className={classes.form}>
+      <p>
+        <label htmlFor="title">Title</label>
+        <input id="title" type="text" name="title" required defaultValue={event ? event.title : ''} />
+      </p>
+      <p>
+        <label htmlFor="image">Image</label>
+        <input id="image" type="url" name="image" required defaultValue={event ? event.image : ''}/>
+      </p>
+      <p>
+        <label htmlFor="date">Date</label>
+        <input id="date" type="date" name="date" required defaultValue={event ? event.date : ''}/>
+      </p>
+      <p>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows="5" required  defaultValue={event ? event.description : ''}/>
+      </p>
+      <div className={classes.actions}>
+        <button type="button" onClick={cancelHandler}>
+          Cancel
+        </button>
+        <button>Save</button>
+      </div>
+    </form>
+  );
+}
+
+export default EventForm;
+
+EventDetail.js
+--------------
+import { useLoaderData, useParams, useRouteLoaderData } from "react-router-dom";
+import { json } from "react-router-dom";
+import EventItem from '../components/EventItem';
+function EventDetailPage(){
+
+    const data=useRouteLoaderData('event-detail');
+
+    return <>
+    {/* <h1>EventDetailPage</h1>
+    <p>Event ID:{params.eventId}</p> */}
+    <EventItem event={data.event}/>
+    </>
+
+}
+
+export default EventDetailPage;
+
+export async function loader({request,params}){
+    const id=params.eventId;
+    const response=await fetch('http://localhost:8080/events/'+id);
+    if(!response.ok){
+        throw json({message:'Could not fetch details for selected event.'},{
+            status:500
+        })
+    }else{
+    return response;
+    }
+}
+
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          {
+            path:':eventId',
+            id:'event-detail',
+            loader:eventDetailLoader,
+            children:[
+              {
+              index:true,
+              element:<EventDetailPage/>,
+              },
+              { path: 'edit', element: <EditEventPage /> },
+            ]
+          },
+         
+          { path: 'new', element: <NewEventPage /> },
+         
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p: useRouteLoaderData() pic
+
+
+planning Data submission
+========================
+
+NewEvent.js
+-----------
+import EventForm from "../components/EventForm";
+
+function NewEventPage(){
+
+    function submitHandler(event){
+        event.preventDefault();
+    }
+    return <EventForm/>
+}
+
+export default NewEventPage;
+
+working with action() Functions
+===============================
+EventForm.js
+-----------
+import { useNavigate } from 'react-router-dom';
+import { Form } from 'react-router-dom';
+
+import classes from './EventForm.module.css';
+
+function EventForm({ method, event }) {
+  const navigate = useNavigate();
+  function cancelHandler() {
+    navigate('..');
+  }
+
+  return (
+    <Form method='post' className={classes.form}>
+      <p>
+        <label htmlFor="title">Title</label>
+        <input id="title" type="text" name="title" required defaultValue={event ? event.title : ''} />
+      </p>
+      <p>
+        <label htmlFor="image">Image</label>
+        <input id="image" type="url" name="image" required defaultValue={event ? event.image : ''}/>
+      </p>
+      <p>
+        <label htmlFor="date">Date</label>
+        <input id="date" type="date" name="date" required defaultValue={event ? event.date : ''}/>
+      </p>
+      <p>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows="5" required  defaultValue={event ? event.description : ''}/>
+      </p>
+      <div className={classes.actions}>
+        <button type="button" onClick={cancelHandler}>
+          Cancel
+        </button>
+        <button>Save</button>
+      </div>
+    </Form>
+  );
+}
+
+export default EventForm;
+
+NewEvent.js
+----------
+import EventForm from "../components/EventForm";
+import { json, redirect } from "react-router-dom";
+
+function NewEventPage(){
+    return <EventForm/>
+}
+
+export default NewEventPage;
+
+export async function action({request,params}){
+    const data=await request.formData();
+    const eventData={
+        title:data.get('title'),
+        image:data.get('image'),
+        date:data.get('date'), 
+
+        description:data.get('description'),
+    }
+    const response=await fetch('http://localhost:8080/events',{
+    method:'POST',
+    headers:{
+        'Content-Type':'application/json'
+    },
+    body:JSON.stringify(eventData),
+});
+
+if(!response.ok){
+    console.log("print erro")
+    throw json({ message:'could not save event'},{status:500});
+}
+
+return redirect('/events');
+}
+
+App.js
+------
+
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage,{action as newEventAction} from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          {
+            path:':eventId',
+            id:'event-detail',
+            loader:eventDetailLoader,
+            children:[
+              {
+              index:true,
+              element:<EventDetailPage/>,
+              },
+              { path: 'edit', element: <EditEventPage /> },
+            ]
+          },
+         
+          { path: 'new', element: <NewEventPage />,action:newEventAction},
+         
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+
+o/p:action pic 
+
+
+Submitting Data Programatically
+===============================
+
+EventItem.js
+------------
+import classes from './EventItem.module.css';
+import {Link, useSubmit} from 'react-router-dom';
+
+function EventItem({ event }) {
+
+  const submit=useSubmit();
+  function startDeleteHandler() {
+    const proceed=window.confirm('Are you sure?');
+    if(proceed){
+      submit(null,{method:'delete'});
+    }
+  }
+
+  return (
+    
+    <article className={classes.event}>
+      <img src={event.image} alt={event.title} />
+      <h1>{event.title}</h1>
+      <time>{event.date}</time>
+      <p>{event.description}</p>
+      <menu className={classes.actions}>
+        <Link to="edit">Edit</Link>
+        <button onClick={startDeleteHandler}>Delete</button>
+      </menu>
+    </article>
+  );
+}
+
+export default EventItem;
+
+EventDetails.js
+---------------
+import { redirect, useLoaderData, useParams, useRouteLoaderData } from "react-router-dom";
+import { json } from "react-router-dom";
+import EventItem from '../components/EventItem';
+function EventDetailPage(){
+
+    const data=useRouteLoaderData('event-detail');
+
+    return <>
+    {/* <h1>EventDetailPage</h1>
+    <p>Event ID:{params.eventId}</p> */}
+    <EventItem event={data.event}/>
+    </>
+
+}
+
+export default EventDetailPage;
+
+export async function loader({request,params}){
+    const id=params.eventId;
+    const response=await fetch('http://localhost:8080/events/'+id);
+    if(!response.ok){
+        throw json({message:'Could not fetch details for selected event.'},{
+            status:500
+        })
+    }else{
+    return response;
+    }
+}
+
+export async function action({params,request}){
+    const eventId=params.eventId;
+    const response=await fetch('http://localhost:8080/events/'+eventId,{
+        method:request.method,
+    });
+    if(!response.ok){
+        throw json({message:'Could not delete event.'},{
+            status:500
+        })
+    }
+    return redirect('/events');
+    }
+
+
+App.js
+-------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader,action as deleteEventAction} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage ,{action as newEventAction}from './pages/NewEvent';
+import RootLayout from './pages/Root';
+
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          {
+            path:':eventId',
+            id:'event-detail',
+            loader:eventDetailLoader,
+            children:[
+              {
+              index:true,
+              element:<EventDetailPage/>,
+              action:deleteEventAction,
+              },
+              { path: 'edit', element: <EditEventPage /> },
+            ]
+          },
+         
+          { path: 'new', element: <NewEventPage />,action:newEventAction},
+         
+        ]
+      },
+    ]
+  },
+
+])
+
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+
+updating the UI state Based on the submission Status
+====================================================
+
+backend
+--------
+events.js
+---------
+  try {
+    await add(data);
+    setTimeout(()=>{
+      res.status(201).json({ message: 'Event saved.', event: data });
+    },1500);
+  } catch (error) {
+    next(error);
+  }
+});
+
+EventForm.js
+------------
+import { useNavigate, useNavigation } from 'react-router-dom';
+import { Form } from 'react-router-dom';
+
+import classes from './EventForm.module.css';
+
+function EventForm({ method, event }) {
+  const navigate = useNavigate();
+  const navigation=useNavigation();
+
+  const isSubmitting=navigation.state === 'submitting';
+  function cancelHandler() {
+    navigate('..');
+  }
+
+  return (
+    <Form method='post' className={classes.form}>
+      <p>
+        <label htmlFor="title">Title</label>
+        <input id="title" type="text" name="title" required defaultValue={event ? event.title : ''} />
+      </p>
+      <p>
+        <label htmlFor="image">Image</label>
+        <input id="image" type="url" name="image" required defaultValue={event ? event.image : ''}/>
+      </p>
+      <p>
+        <label htmlFor="date">Date</label>
+        <input id="date" type="date" name="date" required defaultValue={event ? event.date : ''}/>
+      </p>
+      <p>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows="5" required  defaultValue={event ? event.description : ''}/>
+      </p>
+      <div className={classes.actions}>
+        <button type="button" onClick={cancelHandler} disabled={isSubmitting}>
+          Cancel
+        </button>
+        <button disabled={isSubmitting}>{isSubmitting ? 'submitting...':'Save'}</button>
+      </div>
+    </Form>
+  );
+}
+
+export default EventForm;
+
+o/p:when we submit the form it is showing the submitting... text on button
+
+=>revert the events.js om backend
+
+
+Validating User Input & Outputting Validation Errors
+====================================================
+
+NewEvents.js
+------------
+import EventForm from "../components/EventForm";
+import { json, redirect } from "react-router-dom";
+
+function NewEventPage(){
+    return <EventForm/>
+}
+
+export default NewEventPage;
+
+export async function action({request,params}){
+    const data=await request.formData();
+    const eventData={
+        title:data.get('title'),
+        image:data.get('image'),
+        date:data.get('date'),
+        description:data.get('description'),
+    }
+    const response=await fetch('http://localhost:8080/events',{
+    method:'POST',
+    headers:{
+        'Content-Type':'application/json'
+    },
+    body:JSON.stringify(eventData),
+});
+if(response.status === 422){
+    return response;
+}
+
+if(!response.ok){
+    throw json({ message:'could not save event'},{status:500});
+}
+
+return redirect('/events');
+}
+
+EventForm.js
+------------
+import { useActionData, useNavigate, useNavigation } from 'react-router-dom';
+import { Form } from 'react-router-dom';
+
+import classes from './EventForm.module.css';
+
+function EventForm({ method, event }) {
+
+  const data=useActionData();
+  const navigate = useNavigate();
+  const navigation=useNavigation();
+
+  const isSubmitting=navigation.state === 'submitting';
+  function cancelHandler() {
+    navigate('..');
+  }
+
+  return (
+    <Form method='post' className={classes.form}>
+      {data && data.errors && <ul>
+        {Object.values(data.errors).map((err=><li key={err}>{err}</li>))}
+        </ul>}
+      <p>
+        <label htmlFor="title">Title</label>
+        <input id="title" type="text" name="title" required defaultValue={event ? event.title : ''} />
+      </p>
+      <p>
+        <label htmlFor="image">Image</label>
+        <input id="image" type="url" name="image" required defaultValue={event ? event.image : ''}/>
+      </p>
+      <p>
+        <label htmlFor="date">Date</label>
+        <input id="date" type="date" name="date" required defaultValue={event ? event.date : ''}/>
+      </p>
+      <p>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows="5" required  defaultValue={event ? event.description : ''}/>
+      </p>
+      <div className={classes.actions}>
+        <button type="button" onClick={cancelHandler} disabled={isSubmitting}>
+          Cancel
+        </button>
+        <button disabled={isSubmitting}>{isSubmitting ? 'submitting...':'Save'}</button>
+      </div>
+    </Form>
+  );
+}
+
+export default EventForm;
+
+o/p:validation without required attribute(backend validation)
+
+
+Reusing Actions via Request Methods
+===================================
+
+=>The action which i do wanna trigger here is almost the same as for the new event route in App.js
+
+{
+	{ path: 'edit', element: <EditEventPage /> },]
+},
+         
+{ path: 'new', element: <NewEventPage />,action:newEventAction},
+         
+we wanna send almost the same kind of request to jst slightly diff URL with diff request method.
+But other than that it is basically same action which i wanna trigger.
+bcse its the same form with the same data.so it would be great if we could reuse that action.
+
+=>cut the action data from NewEvent.js and paste it in EventForm.js
+
+NewEvent.js
+-----------
+import EventForm from "../components/EventForm";
+
+
+function NewEventPage(){
+    return <EventForm method="post"/>
+}
+
+export default NewEventPage;
+
+
+EditEvent.js
+------------
+import { useRouteLoaderData } from 'react-router-dom';
+import EventForm from '../components/EventForm'
+function EditEventPage(){
+
+    const data=useRouteLoaderData('event-detail');
+    return <EventForm method="patch"event={data.event}/>
+}
+
+export default EditEventPage;
+
+EventForm.js
+------------
+import { useActionData, useNavigate, useNavigation } from 'react-router-dom';
+import { Form } from 'react-router-dom';
+import { json, redirect } from "react-router-dom";
+import classes from './EventForm.module.css';
+
+function EventForm({ method, event }) {
+
+  const data=useActionData();
+  const navigate = useNavigate();
+  const navigation=useNavigation();
+
+  const isSubmitting=navigation.state === 'submitting';
+  function cancelHandler() {
+    navigate('..');
+  }
+
+  return (
+    <Form method={method} className={classes.form}>
+      {data && data.errors && <ul>
+        {Object.values(data.errors).map((err=><li key={err}>{err}</li>))}
+        </ul>}
+      <p>
+        <label htmlFor="title">Title</label>
+        <input id="title" type="text" name="title" required defaultValue={event ? event.title : ''} />
+      </p>
+      <p>
+        <label htmlFor="image">Image</label>
+        <input id="image" type="url" name="image" required defaultValue={event ? event.image : ''}/>
+      </p>
+      <p>
+        <label htmlFor="date">Date</label>
+        <input id="date" type="date" name="date" required defaultValue={event ? event.date : ''}/>
+      </p>
+      <p>
+        <label htmlFor="description">Description</label>
+        <textarea id="description" name="description" rows="5" required  defaultValue={event ? event.description : ''}/>
+      </p>
+      <div className={classes.actions}>
+        <button type="button" onClick={cancelHandler} disabled={isSubmitting}>
+          Cancel
+        </button>
+        <button disabled={isSubmitting}>{isSubmitting ? 'submitting...':'Save'}</button>
+      </div>
+    </Form>
+  );
+}
+
+export default EventForm;
+export async function action({request,params}){
+
+  const method=request.method;
+  const data=await request.formData();
+  const eventData={
+      title:data.get('title'),
+      image:data.get('image'),
+      date:data.get('date'),
+      description:data.get('description'),
+  };
+
+  let url='http://localhost:8080/eventS';
+  if(method === 'PATCH'){
+    const eventId=params.eventId;
+    url='http://localhost:8080/eventS/'+eventId;
+  }
+  const response=await fetch(url,{
+  method:method,
+  headers:{
+      'Content-Type':'application/json'
+  },
+  body:JSON.stringify(eventData),
+});
+if(response.status === 422){
+  return response;
+}
+
+if(!response.ok){
+  throw json({ message:'could not save event'},{status:500});
+}
+
+return redirect('/events');
+}
+
+App.js
+-------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader,action as deleteEventAction} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+import {action as manipulateEventAction} from './components/EventForm'
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          {
+            path:':eventId',
+            id:'event-detail',
+            loader:eventDetailLoader,
+            children:[
+              {
+              index:true,
+              element:<EventDetailPage/>,
+              action:deleteEventAction,
+              },
+              { path: 'edit', element: <EditEventPage />,action:manipulateEventAction },
+            ]
+          },
+         
+          { path: 'new', element: <NewEventPage />,action:manipulateEventAction},
+         
+        ]
+      },
+    ]
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+o/p:now we can edit the form as well as create the new event
+
+Behind the scenes work with useFetcher()
+========================================
+
+
+=>The problem is however,that this form is included on all routes  bcse its part 
+
+
+  {
+        path:'newsletter',
+        element:<NewsletterPage/>,
+        action:newsletterAction,
+  },
+
+of the main navigation.This newsletter signup component is part of the main navigation.
+Therefore we would have to add the action to all routes 
+
+=>you would target a single route by setting the "action" attribute but u would initialize
+a transition to this route 
+
+=>so for this we have a special hook called as useFetcher hook.
+
+=>useFetcher hook is used when we wanna send the rqsts behind the scenes,without triggering any 
+routes changes.
+=>it is used when we want to interact with some action or a loader without transitition(doesn't change
+to any routes).
+
+=>useFetcher hook is the tool u should use if u wanna a trigger a loader or an action without
+actually loading the page.
+
+Newsletter.js
+-------------
+import NewsletterSignup from '../components/NewsletterSignup';
+import PageContent from '../components/PageContent';
+
+function NewsletterPage() {
+  return (
+    <PageContent title="Join our awesome newsletter!">
+      <NewsletterSignup />
+    </PageContent>
+  );
+}
+
+export default NewsletterPage;
+
+export async function action({ request }) {
+  const data = await request.formData();
+  const email = data.get('email');
+
+  // send to backend newsletter server ...
+  console.log(email);
+  return { message: 'Signup successful!' };
+}
+
+
+NewsletterSignUp.js
+-------------------
+import { useEffect } from 'react';
+import { useFetcher } from 'react-router-dom';
+import classes from './NewsletterSignup.module.css';
+
+function NewsletterSignup(){
+
+    const fetcher=useFetcher();
+    const {data,state}=fetcher;
+
+    useEffect(()=>{
+        if(state == 'idle' && data && data.message){
+            window.alert(data.message);
+        }
+    },[data,state])
+
+    return(
+        <fetcher.Form method="post" action="/newsletter" className={classes.newsletter}>
+        <input type="email"
+        placeholder='signup for newsletter...'
+        arial-label="signup for newsletter"
+        />
+        <button>Sign up</button>
+    </fetcher.Form>
+    );
+}
+
+export default NewsletterSignup;
+
+NewsletterSignup.module.css
+---------------------------
+.newsletter input,
+.newsletter button {
+  font: inherit;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0;
+  border: none;
+}
+
+.newsletter button {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  cursor: pointer;
+}
+
+.newsletter button:hover {
+  background-color: var(--color-primary-300);
+  color: var(--color-gray-800);
+}
+
+MainNavigation.js
+-----------------
+import NewsletterSignup from './NewsletterSignup';
+import classes from './MainNavigation.module.css';
+import {NavLink} from 'react-router-dom';
+function MainNavigation() {
+  return (
+    <header className={classes.header}>
+      <nav>
+        <ul className={classes.list}>
+          <li>
+            <NavLink to="/" className={({isActive})=>isActive ? classes.active : undefined} end>Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/events" className={({isActive})=>isActive ? classes.active : undefined} >Events</NavLink>
+          </li>
+          <li>
+          <NavLink
+              to="/newsletter"
+              className={({ isActive }) =>
+                isActive ? classes.active : undefined
+              }
+            >
+              Newsletter
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+      <NewsletterSignup />
+    </header>
+  );
+}
+
+export default MainNavigation;
+
+App.js
+------
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './pages/Error';
+import EditEventPage from './pages/EditEvent';
+import EventDetailPage ,{loader as eventDetailLoader,action as deleteEventAction} from './pages/EventDetail';
+import EventsPage,{loader as eventsLoader} from './pages/Events';
+import EventsRootLayout from './pages/EventsRoot';
+import HomePage from './pages/Home';
+import NewEventPage from './pages/NewEvent';
+import RootLayout from './pages/Root';
+import {action as manipulateEventAction} from './components/EventForm'
+import NewsletterPage,{ action as newsletterAction } from './pages/Newsletter.js';
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement:<ErrorPage/>,
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: 'events',
+        element: <EventsRootLayout />,
+        children: [
+          {
+            index: true, element: <EventsPage />, loader: eventsLoader,
+          },
+          {
+            path:':eventId',
+            id:'event-detail',
+            loader:eventDetailLoader,
+            children:[
+              {
+              index:true,
+              element:<EventDetailPage/>,
+              action:deleteEventAction,
+              },
+              { path: 'edit', element: <EditEventPage />,action:manipulateEventAction },
+            ]
+          },
+         
+          { path: 'new', element: <NewEventPage />,action:manipulateEventAction},
+         
+        ]
+      },
+      {
+        path:'newsletter',
+        element:<NewsletterPage/>,
+        action:newsletterAction,
+      },
+    ],
+    
+  },
+
+])
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+export default App;
+
+
+when i click on signup it will display the alert msg and stay on same page.
+o/p: useFetcher pic 
+
+Deferring Data Fetching with defer()
+====================================
+backend
+-------
+events.js
+---------
+router.get('/', async (req, res, next) => {
+  try {
+    const events = await getAll();
+    setTimeout(()=>{
+      res.json({ events: events });
+    },2000);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+Events.js
+---------
+
+import { Suspense } from 'react';
+import { useLoaderData,json, Await } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+import { defer } from 'react-router-dom';
+function EventsPage() {
+
+  const {events} = useLoaderData();
+
+  return (
+    <Suspense fallback={<p style={{textAlign:'center'}}>Loading...</p>}>
+  <Await resolve={events}>
+    {(loadedEvents)=><EventsList events={loadedEvents}/>}
+  </Await>
+  </Suspense>
+  );
+  // if(data.isError){
+  //   return <p>{data.message}</p>
+  // }
+  // const events=data.events;
+
+  // return (
+  //   <>
+  //     <EventsList events={events} />
+  //   </>
+  // );
+}
+
+export default EventsPage;
+
+async function loadEvents(){
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+    //return {isError:true,message:'Could not fetch events'};
+    //throw{message:'Could not fetch events'};
+    // throw new Response(JSON.stringify({message:'could not fetch events.'}),{
+    //   status:500,
+    // });
+
+    return json(
+      {message:'could not fetch events.'},
+      {
+        status:500,
+      }
+    );
+  } else {
+    const resData = await response.json();
+    return resData.events;
+    // return response;
+  
+  }
+}
+
+export  function loader() {
+  return defer({
+    events:loadEvents()
+  })
+}
+
+
+Controlling with Data should be Deferred
+========================================
+
+EventDetails.js
+---------------
+import { Await, defer, redirect, useLoaderData, useParams, useRouteLoaderData } from "react-router-dom";
+import { json } from "react-router-dom";
+import EventItem from '../components/EventItem';
+import EventsList from "../components/EventsList";
+import { Suspense } from "react";
+function EventDetailPage(){
+
+    const {event,events}=useRouteLoaderData('event-detail');
+
+    return (
+    <>
+    {/* <h1>EventDetailPage</h1>
+    <p>Event ID:{params.eventId}</p> */}
+    <Suspense fallback={<p style={{textAlign:'center'}}>Loading....</p>}>
+    <Await resolve={event}>
+        {(loadedEvent)=><EventItem event={loadedEvent}/>}
+    </Await>
+    </Suspense>
+    <Suspense fallback={<p style={{textAlign:'center'}}>Loading....</p>}>
+    <Await resolve={events}>
+        {loadedEvents => <EventsList events={loadedEvents}/>}
+    </Await>
+    </Suspense>
+    </>
+    );
+}
+
+export default EventDetailPage;
+
+async function loadEvent(id){
+    const response=await fetch('http://localhost:8080/events/'+id);
+    if(!response.ok){
+        throw json({message:'Could not fetch details for selected event.'},{
+            status:500
+        })
+    }else{
+        const resData = await response.json();
+        return resData.event;
+    }
+
+}
+async function loadEvents(){
+    const response = await fetch('http://localhost:8080/events');
+  
+    if (!response.ok) {
+      //return {isError:true,message:'Could not fetch events'};
+      //throw{message:'Could not fetch events'};
+      // throw new Response(JSON.stringify({message:'could not fetch events.'}),{
+      //   status:500,
+      // });
+  
+      return json(
+        {message:'could not fetch events.'},
+        {
+          status:500,
+        }
+      );
+    } else {
+      const resData = await response.json();
+      return resData.events;
+      // return response;
+    
+    }
+  }
+
+export async function loader({request,params}){
+    const id=params.eventId;
+    return defer({
+        event:await loadEvent(id),
+        events:loadEvents(),
+    })
+}
+
+export async function action({params,request}){
+    const eventId=params.eventId;
+    const response=await fetch('http://localhost:8080/events/'+eventId,{
+        method:request.method,
+    });
+    if(!response.ok){
+        throw json({message:'Could not delete event.'},{
+            status:500
+        })
+    }
+    return redirect('/events');
+    }
+
+EventsList.js
+-------------
+import classes from './EventsList.module.css';
+import {Link} from 'react-router-dom';
+//import {useLoaderData} from 'react-router-dom';
+
+function EventsList({events}) {
+
+  //const events=useLoaderData();
+
+  return (
+    <div className={classes.events}>
+      <h1>All Events</h1>
+      <ul className={classes.list}>
+        {events.map((event) => (
+          <li key={event.id} className={classes.item}>
+            <Link to={`/events/${event.id}`}>
+              <img src={event.image} alt={event.title} />
+              <div className={classes.content}>
+                <h2>{event.title}</h2>
+                <time>{event.date}</time>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default EventsList;
+
+Events.js
+---------
+import { Suspense } from 'react';
+import { useLoaderData,json, Await } from 'react-router-dom';
+import EventsList from '../components/EventsList';
+import { defer } from 'react-router-dom';
+function EventsPage() {
+
+  const {events} = useLoaderData();
+
+  return (
+    <Suspense fallback={<p style={{textAlign:'center'}}>Loading...</p>}>
+  <Await resolve={events}>
+    {(loadedEvents)=><EventsList events={loadedEvents}/>}
+  </Await>
+  </Suspense>
+  );
+  // if(data.isError){
+  //   return <p>{data.message}</p>
+  // }
+  // const events=data.events;
+
+  // return (
+  //   <>
+  //     <EventsList events={events} />
+  //   </>
+  // );
+}
+
+export default EventsPage;
+async function loadEvents() {
+  const response = await fetch('http://localhost:8080/events');
+
+  if (!response.ok) {
+    // return { isError: true, message: 'Could not fetch events.' };
+    // throw new Response(JSON.stringify({ message: 'Could not fetch events.' }), {
+    //   status: 500,
+    // });
+    throw json(
+      { message: 'Could not fetch events.' },
+      {
+        status: 500,
+      }
+    );
+  } else {
+    const resData = await response.json();
+    return resData.events;
+  }
+}
+
+
+export  function loader() {
+  return defer({
+    events:loadEvents()
+  })
+}
+
+o/p:data defer1 and data defer2 pics
+
+
+
+
+
+
+ 
+

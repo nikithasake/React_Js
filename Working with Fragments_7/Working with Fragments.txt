@@ -1,0 +1,836 @@
+Fragments in React
+==================
+
+index.html
+----------
+we have the div with the id root and inside this div only all other components will be rendered.
+
+App.js
+------import './App.css';
+import Component1 from './Components/Component1';
+
+function App() {
+  return (
+    <div>
+      <h1>This is App Component</h1>
+      <Component1></Component1>
+    </div>
+  );
+}
+
+export default App;
+
+Component1.js
+--------------
+import Component2 from "./Component2";
+
+function Component1(){
+    return <div>
+        <h3>This is Component1</h3>
+        <Component2></Component2>
+    </div>
+}
+
+export default Component1;
+
+Component2.js
+-------------
+function Component2(){
+    return <div>
+        <h3>This is Component2</h3>
+        <p>This is a paragraph</p>
+    </div>
+}
+
+export default Component2;
+
+
+Console(Elements)
+-----------------
+
+<div id="root">
+ <div>//from App.js
+	<h1>This is App component</h1>
+	<div>
+		<h3>This is Component</h3>
+		<div>
+			<h3>This is Component2</h3>
+			<p>This is a paragraph</h3>
+		</div>
+	</div>
+</div>
+
+
+ o/p:if u notice in order to return more than one jsx elements from a component we need to wrap
+it within a container element.usually we are using the div element.
+
+In the web page u can see that div's also rendered but these div's are not required.
+these are unnecessarily we are using it jst to avoid the error which react throws
+where we try to return more than one jsx element.
+
+TO avoid these div's we can use Fragment or <> </> or React.Fragment
+
+ 
+App.js
+------
+import './App.css';
+import Component1 from './Components/Component1';
+
+function App() {
+  return (
+    <React.Fragment>
+      <h1>This is App Component</h1>
+      <Component1></Component1>
+    </React.Fragment>
+  );
+}
+
+export default App;
+
+Component1.js
+-------------
+import React from "react";
+import Component2 from "./Component2";
+
+function Component1(){
+    return <React.Fragment>
+        <h3>This is Component1</h3>
+        <Component2></Component2>
+    </React.Fragment>
+}
+
+export default Component1;
+
+Component2.js
+-------------
+function Component2(){
+    return <React.Fragment>
+        <h3>This is Component2</h3>
+        <p>This is a paragraph</p>
+    </React.Fragment>
+}
+
+export default Component2;
+
+
+
+o/p:
+
+
+Console(Elements)
+-----------------
+
+<div id="root">
+	<h1>This is App component</h1>
+	<h3>This is Component</h3>
+	<h3>This is Component2</h3>
+	<p>This is a paragraph</h3>
+</div>
+
+now we dont have any unnecessary div's
+
+
+Portals in React
+================
+
+=>React portals provides a way to render children into a dom node that exists outside of the
+dom hierarchy of the parent component.
+=>React portals provides us the ability to break out of this dom tree so that u can render a dom
+node which is not under the root element.
+
+
+index.html
+----------
+<div id="root-portal"></div>
+
+
+create PortalComponent.js
+-------------------------
+function PortalComponent(){
+    return <h1>This is portal component</h1>
+}
+
+export default PortalComponent;
+
+Component2.js
+-------------
+import React from "react";
+import PortalComponent from "./PortalComponent";
+function Component2(){
+    return <React.Fragment>
+        <h3>This is Component2</h3>
+        <p>This is a paragraph</p>
+        <PortalComponent></PortalComponent>
+    </React.Fragment>
+}
+
+export default Component2;
+
+
+o/p:
+console(Elements)
+-----------------
+If i expand the div the portal component is also rendered inside the root component.
+
+<div id="root">
+	<h1>This is App component</h1>
+	<h3>This is Component</h3>
+	<h3>This is Component2</h3>
+	<p>This is a paragraph</h3>
+	<h1>This is portal component</h1>
+</div>
+<div id="root-portal"></div>
+
+
+=>Instead of directly returning the jsx from the PortalComponent.js we want to call a method called
+createPortal.the createPortal is present inside the react dom object.
+
+PortalComponent.js
+------------------
+import ReactDOM  from "react-dom";
+
+function PortalComponent(){
+    return ReactDOM.createPortal(<h1>This is portal component</h1>,document.getElementById('root-portal'));
+}
+
+export default PortalComponent;
+
+
+
+o/p:
+
+<div id="root">
+	<h1>This is App component</h1>
+	<h3>This is Component</h3>
+	<h3>This is Component2</h3>
+	<p>This is a paragraph</h3>
+</div>
+<div id="root-portal">
+	<h1>This is portal component</h1>
+</div>
+
+=>using portal we can render a jsx or some html in a dom node other than the root node.
+=>the first argument of the createPortal method can be any value which can be rendered in the web page.it can 
+be a number string jsx or any other component.
+
+why do we need the Portals
+--------------------------
+
+one of the use cases where the portals are required is having to deal with the
+parent component css when the child component is a model a pop-up or a tool tip.
+
+
+
+PortalComponent.js
+------------------
+import ReactDOM  from "react-dom";
+
+function PortalComponent(){
+    return ReactDOM.createPortal(<h1>This is portal component</h1>,document.getElementById('root-portal'));
+}
+
+export default PortalComponent;
+
+
+Modal.js
+--------
+import './Modal.css'
+import React from 'react';
+import  ReactDOM from 'react-dom';
+function Modal(props) {
+  return ReactDOM.createPortal (
+    <>
+      <div className={`alert ${props.showModal ? "" : "hidden"}`}>
+        <h2>This is an Alert!</h2>
+        <p>
+          This is a very simple example of how a custom alert window can be
+          created and displayed dynamically using JavaScript.
+        </p>
+        <button className="modal-btn" onClick={props.hideModal}>
+          OK
+        </button>
+      </div>
+      <div className={`overlay ${props.showModal ? "" : "hidden"}`}></div>
+    </>,document.getElementById('root-portal')
+  );
+}
+export default Modal;
+
+Modal.css
+---------
+.modal-buttons{
+    margin:25px 0px;
+  }
+  .btn{
+    margin: 20px 5px;
+    padding: 5px 20px;
+    border: 0px solid;
+    background-color:honeydew;
+  }
+  .hidden{
+    display:none;
+  }
+  .alert{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    background-color: white;
+    padding: 20px 30px;
+    border-radius: 5px;
+    box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 5;
+  }
+  .alert > h2, p, button{
+    margin: 10px 0px;
+  }
+
+
+Component2.js
+--------------
+import React, { useState } from "react";
+import PortalComponent from "./PortalComponent";
+import Modal from "./Modal";
+
+function Component2(){
+    let[showModal,updateShowModal]=useState(false);
+    function displayModel(){
+        updateShowModal(true);
+    }
+
+    function hideModel(){
+        updateShowModal(false);
+    }
+    return <div style={{width:300,position:"relative"}}>
+        <h3>This is Component2</h3>
+        <p>This is a paragraph</p>
+        {/* <PortalComponent></PortalComponent> */}
+        <button onClick={displayModel}>Show Model</button>
+     <Modal showModal={showModal} hideModal={hideModel}></Modal>
+    </div>
+}
+
+export default Component2;
+
+Component1.js
+-------------
+import React from "react";
+import Component2 from "./Component2";
+
+function Component1(){
+    return <React.Fragment>
+        <h3>This is Component1</h3>
+        <Component2></Component2>
+    </React.Fragment>
+}
+
+export default Component1;
+
+o/p:Portals.js in Proacademy_channel_output_Fragments
+
+Refs in React
+=============
+
+=> A ref is ntg but a reference variable which stores a reference to a Dom
+element.
+
+=>A ref basically makes it possible to access dom elements directly within react.
+
+=> It is a react hook so we should use it inside the function only.
+
+ let nameInputRef=useRef('hello');
+ console.log(nameInputRef)
+
+o/p:current:hello
+
+ let nameInputRef=useRef();
+ console.log(nameInputRef)
+
+o/p:current:undefined
+
+=>using the useRef we can create a reference variable which will point to a dom
+element so here we have created reference variable and we can make the reference
+variable point to a dom element in the component.
+
+Eg:If we want to make the reference variable point to the input element
+on the input element all we have to do is we have to use the ref keyword 
+the ref attribute .this ref is a built-in props jst like key.
+and to this props we can assign the reference variable.
+
+when the RefsDemo component will be called and when the jsx will be returned when it
+will be rendered in the web page.this variable(nameInputRef) here will point
+to the input element in the dom.
+
+=>once we have a reference to a dom element we can work with that dom element directly.
+
+RefsDemo.js
+-----------
+import { useRef } from "react";
+function RefsDemo(){
+
+    let nameInputRef=useRef('hello');
+    // console.log(nameInputRef);
+    function showNameEventHandler(){
+        console.log(nameInputRef);
+    }
+    return <>
+        <span>Name:</span>
+        <input type="text" ref={nameInputRef}></input>
+        <button onClick={showNameEventHandler}>Show Name</button>
+    </>
+}
+
+export default RefsDemo;
+
+o/p:when i click on Show Name button then the console output like
+
+
+current:input
+
+This time the current property is assigned with the value of type input.
+input is ntg but the input element in the dom so that means now the current
+property is assigned with the input element
+
+RefsDemo.js
+-----------
+import { useRef } from "react";
+function RefsDemo(){
+
+    let nameInputRef=useRef('hello');
+    // console.log(nameInputRef);
+    function showNameEventHandler(){
+        console.log(nameInputRef.current);
+    }
+    return <>
+        <span>Name:</span>
+        <input type="text" ref={nameInputRef}></input>
+        <button onClick={showNameEventHandler}>Show Name</button>
+    </>
+}
+
+export default RefsDemo;
+
+
+o/p:<input type="text">
+
+
+RefsDemo.js
+-----------
+import { useRef } from "react";
+function RefsDemo(){
+
+    let nameInputRef=useRef('hello');
+    // console.log(nameInputRef);
+    function showNameEventHandler(){
+        console.log(nameInputRef.current.value);
+    }
+    return <>
+        <span>Name:</span>
+        <input type="text" ref={nameInputRef}></input>
+        <button onClick={showNameEventHandler}>Show Name</button>
+    </>
+}
+
+export default RefsDemo;
+
+
+After the user enter the data in input field and click on Show Name button
+
+o/p:nik
+useRefs.js pic in Proacademy_channel_output_fragments
+
+Understanding side effects in React 
+===================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+JSX Limitations & Workarounds
+====================
+
+=>In order to return more than one JSX  element from  the  component we need to  wrap
+it within a container element.usually we are using div element.so these div's are unnecessary to render 
+in the webpage we use Fragments.
+
+Imp:Doesn't have to be a <div> - Any element will do the trick.
+
+
+we do get a warning though because whenever you're working with an array of JSX elements
+
+React wants a key on every element.
+
+
+creating a Wrapper Component
+=====================
+
+The requirement just is, that there must be one root element
+
+that you return or that you store in a constant or variable.
+
+Wrapper component - which don't render any actual HTML element to the DOM.
+but it fulfills  Reacts/jsx requirement..
+
+
+ if we now have a look at the elements tab and therefore at the dom, which is actually being rendered,
+
+we see that if I inspect my add form component, here's my form, we see there is a div around it,
+
+but that's just this card div. But what we also see is if I click Add user, that this modal div is being added.
+
+But around that, we do have a wrapping div, but this is actually the div coming from the app component
+
+where I also have the wrapping div.This is not coming from inside the add user component.
+
+Working with Portals
+===============
+ React DOM uses React to bring that logic and these features into the web browser.
+So React DOM is kind of the adapter for React to the browser and therefore since now we're going to portal something
+into a different place in the real DOM,we need to import from React DOM.
+
+
+Working with refs
+===========
+
+A ref basically makes it possible to access DOM  elements directly within react. 
+A ref is ntg but a reference variable which stores a reference to a DOM element
+Useref will return  some value and assign to the nameInputref ..
+const nameInputref = useRef();
+if  i dont specify any value within these parenthese then undefined will be assign to nameInputref  variable....
+
+ 
+ if you only want to read a value and you never plan on changing anything,
+
+well, then you don't really need state because just to use state as a keylogger
+
+is not that great. It's a lot of unnecessary code and work.
+
+
+
+So if you just want to read a value, refs are probably better.

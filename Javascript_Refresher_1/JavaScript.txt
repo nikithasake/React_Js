@@ -1,0 +1,361 @@
+React_Js
+=====
+
+Leacture-1
+=========
+JS
+=
+=> Js runs in the browser-on loaded page.
+=> You can manipulate the HTML structure(DOM) of the page.
+=> No rqst to the server require,no need to wait for new Html page as a response.
+
+React-js
+=====
+=> React  is a js library for building user interface.
+=> A client-side js library
+
+Why React Instead Of "Just JavaScript"?
+======================================
+=> custom html elements
+=>we have jst define what we wanna on the screen is then react will do the rest.
+=>React is a Declarative way
+=> Js is a Imperative way(step-by-step).
+
+
+Building Single-Page Applications (SPAs) with React
+=====================================================
+=> Single-Page-Application(SPA) approach.Server only sends one
+HTML page,thereafter,React takes over and controls the UI.
+
+
+
+Leacture-2
+===========
+
+Next-Gen JavaScript and JavaScript concepts
+===========================================
+Let and const
+=============
+
+let myname='Max';
+console.log(myname);
+
+myname="Nikki";
+console.log(myname);
+
+o/p:Max
+Nikki
+
+const myname='Max';
+console.log(myname);
+
+myname="Nikki";
+console.log(myname);
+
+=> Error we cannot assign new value
+
+Arrow functions
+================
+
+Normal function
+---------------
+function printmyname(name){
+  console.log(name);
+}
+printmyname("Nikki");
+
+o/p:Nikki
+
+Arrow functions
+----------------
+const printmyname=(name)=>{
+  console.log(name);
+}
+printmyname("Nikki");
+
+o/p:Nikki
+
+const printname=name=>{
+  console.log(name);
+}
+printname("Nimbu");
+
+o/p:Nimbu
+
+const printnm=()=>{
+  console.log("Harish");
+}
+printnm();
+
+o/p:Harish
+
+const mul=(num)=>{
+  return num*2;
+}
+console.log(mul(5))
+
+=> o/p:10
+
+const multiply=(num)=>num*2;
+console.log(multiply(6))
+
+=> o/p:12
+
+Exports and Imports
+====================
+
+default export
+-------------
+person.js
+---------
+const person={
+  name:'MAX',
+}
+
+export default person
+
+named export
+-----------
+utility.js
+-----------
+export const clean=()=>{...}
+export const baseData=10;
+
+app.js
+------
+import person or prs from './person.js'
+
+import {baseData} from './utility.js'
+import {clean} from './utility.js'
+
+        or
+
+import {clean as Clean}  from './utility.js'
+import * as bundled from './utility.js'
+
+we can access like bundled.clean
+
+
+Understanding classes
+=====================
+
+class Human{
+  constructor(){
+    this.name="Nikki";
+  }
+  printname(){
+    console.log(this.name);
+  }
+}
+class person extends Human{
+  constructor(){
+    super();
+    this.age=18;
+  }
+  printage(){
+    console.log(this.age);
+  }
+}
+
+const p=new person();
+p.printname();
+p.printage();
+
+o/p:
+"Nikki"
+18
+
+classes,properties and Methods
+===============================
+
+properties are like "variables attached to classes/objects".
+Methods are like "functions attached to classes/objects".
+
+ES6 for properties
+------------------
+constructor(){
+  this.myproperty='value'
+}
+
+ES6 for Methods
+---------------
+myMethod(){...}
+
+ES7 for properties
+------------------
+myproperty='value'
+
+ES7 for Methods
+----------------
+myMethod=()=>{...}
+
+Example:
+-------
+class Human{
+    name="Nikki";
+  printname =()=>{
+    console.log(this.name);
+  }
+}
+class person extends Human{
+    age=18;
+  printage=()=>{
+    console.log(this.age);
+  }
+}
+
+const p=new person();
+p.printname();
+p.printage();
+
+o/p:
+"Nikki"
+18
+
+Spread and Rest Operators
+=========================
+
+Spread:
+------
+=> used to split up array elements OR object properties
+
+const newArray=[...oldArray,1,2]
+const newObject={...oldObject,newProp:5}
+
+Eg using arrays:
+---------------
+const numbers=[1,2,3,4,5]
+const newnumbers=[...numbers,6,7,8,9,10]
+console.log(newnumbers)
+
+Eg using objects:
+----------------
+const person={
+  name:'Nimbu'
+}
+const newperson={
+  ...person,
+  age:20,
+}
+
+console.log(newperson)
+
+o/p:
+[object Object] {
+  age: 20,
+  name: "Nimbu"
+}
+
+Rest:
+----
+=> used to merge a list of function arguments into an array.
+
+function sortArgs(...args){
+  return args.sort()
+}
+
+Eg:
+const filter=(...args)=>{
+  return args.filter(el => el === 1);
+}
+console.log(filter(1,2,3));
+
+o/p:
+[1]
+
+const array=(...args)=>console.log(args)
+
+array(1,2,3,4,5)
+
+o/p:
+[1, 2, 3, 4, 5]
+
+Destructing
+===========
+=> Easily extract array element or object properties and store them in variables.
+
+Array Destructing
+-----------------
+const numbers=[1,2,3];
+[num1,,num3]=numbers;
+console.log(num1,num3)
+
+o/p:
+1
+3
+
+object Destructing
+------------------
+values={
+  email:"micky@gmail.com",
+  age:20
+}
+
+const {email,age}=values;
+console.log(email);
+
+o/p:micky@gmail.com
+
+Reference and Primitive Types Refresher
+=======================================
+
+=> numbers,strings,booleans are called primitive types
+whenever you reassign or you store a variable in another
+variable it will copy the value.
+
+const number=1;
+const num2=number;
+
+console.log(num2)
+
+o/p: 1
+
+=> objects and arrays are reference types.
+=>if you reassign them you are copying the pointer not the value.
+
+const person={
+  name:"nikki"
+}
+person.name="Nimbu";
+const secondperson=person;
+console.log(secondperson)
+console.log(person)=>Nimbu
+
+o/p:
+[object Object] {
+  name: "Nimbu"
+}
+
+//u want a copy then will have to create a new object
+and jst copy the properties({...person}) and not the entire object.
+
+Eg:
+const person1={
+  name1:"nikki"
+}
+const secondperson1={
+  ...person1,
+}
+person1.name1="Nimbu";
+
+console.log(secondperson1)
+console.log(person1)=>Nimbu
+
+o/p:
+[object Object] {
+  name1: "nikki"
+}
+
+Refreshing Array Functions
+==========================
+
+const numbers=[1,2,3]
+const doublenumbers=numbers.map((num)=>{
+  return num*2;
+})
+console.log(doublenumbers);
+console.log(numbers);
+
+o/p:
+[2, 4, 6]
+[1, 2, 3]

@@ -1,0 +1,565 @@
+
+(React Redux)Venkatesh Mogili
+=============================
+=>Redux is a state Management Javascript Library.
+=>A predictable State Container for javascript Apps.
+	=> predictable = able to be known
+	=> State Container = global state for entire app(store)
+	=> javascript Apps = React,Angular,vue etc.
+
+
+with Redux
+-----------
+=> we can directly access the global state without checking all the components.
+
+
+Without Redux
+-------------
+=> we need to check all the components.
+
+Redux Core Concepts
+-------------------
+Eg:Lets take a shop where customers can buy laptops,mobiles,adapters etc.
+1.shop=store
+2.A customer wanted to BUY_LAPTOP=Action
+3.Laptop Seller=Reducer
+
+Redux principles
+---------------
+1.The sate of your whole application is stored in an object tree within a
+single store
+
+Shop:Lets assume that we are tracking the number of laptops in the shop.
+
+2.The only way to change the state is to emit an action,an object describing
+ what happened
+
+Not allowed to directly update the state object.
+
+shop:
+Let the laptop seller know about our action - BUY_LAPTOP.
+
+3.To specify how the state tree is transformed by actions,you write (Its return value is always
+ the same for the same input values)pure functions/reducers.
+
+Reducer-(previousState,action)=>newState
+
+shop:
+Laptop seller is the Reducer.
+
+
+Install Redux:
+-------------
+npm install redux
+
+index.js
+--------
+const { createStore } = require("redux")
+
+const initialState={
+    numOfLaptops:100
+}
+
+const buyLaptop=()=>{
+    return{
+        type:"BUY_LAPTOP"
+    }
+}
+
+const reducer=(state=initialState,action)=>{
+    // if(action.type==="BUY_LAPTOP"){
+    //     return {numOfLaptops:state.numOfLaptops-1}
+    // }else{
+    //     return state;
+    // }
+    switch(action.type){
+        case "BUY_LAPTOP":
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const store=createStore(reducer);
+console.log(store);//it will display the functions which is in store
+
+o/p:
+{
+  dispatch: [Function: dispatch],
+  subscribe: [Function: subscribe],
+  getState: [Function: getState],
+  replaceReducer: [Function: replaceReducer],
+  '@@observable': [Function: observable]
+}
+
+
+=>
+
+index.js
+--------
+const { createStore } = require("redux")
+
+const initialState={
+    numOfLaptops:100
+}
+
+const buyLaptop=()=>{
+    return{
+        type:"BUY_LAPTOP"
+    }
+}
+
+const reducer=(state=initialState,action)=>{
+    // if(action.type==="BUY_LAPTOP"){
+    //     return {numOfLaptops:state.numOfLaptops-1}
+    // }else{
+    //     return state;
+    // }
+    switch(action.type){
+        case "BUY_LAPTOP":
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const store=createStore(reducer);
+console.log(store);//it will display the functions which is in store
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+
+o/p:
+{
+  dispatch: [Function: dispatch],
+  subscribe: [Function: subscribe],
+  getState: [Function: getState],
+  replaceReducer: [Function: replaceReducer],
+  '@@observable': [Function: observable]
+}
+{ numOfLaptops: 99 }
+
+
+=>
+
+const store=createStore(reducer);
+console.log(store);//it will display the functions which is in store
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+
+
+{
+  dispatch: [Function: dispatch],
+  subscribe: [Function: subscribe],
+  getState: [Function: getState],
+  replaceReducer: [Function: replaceReducer],
+  '@@observable': [Function: observable]
+}
+{ numOfLaptops: 99 }
+{ numOfLaptops: 98 }
+{ numOfLaptops: 97 }
+
+=>Above code we have the type in the string form instead of that
+we can create action types.
+
+const BUY_LAPTOP="BUY_LAPTOP";
+
+index.js
+--------
+const { createStore } = require("redux")
+const BUY_LAPTOP="BUY_LAPTOP";
+const initialState={
+    numOfLaptops:100
+}
+
+const buyLaptop=()=>{
+    return{
+        type:BUY_LAPTOP
+    }
+}
+
+const reducer=(state=initialState,action)=>{
+    // if(action.type==="BUY_LAPTOP"){
+    //     return {numOfLaptops:state.numOfLaptops-1}
+    // }else{
+    //     return state;
+    // }
+    switch(action.type){
+        case BUY_LAPTOP:
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const store=createStore(reducer);
+console.log(store);//it will display the functions which is in store
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+
+
+=>more than one reducer--->Multiple reducer
+
+use combineReducer for combine the reducers
+
+index.js
+--------
+const { createStore, combineReducers } = require("redux")
+const BUY_LAPTOP="BUY_LAPTOP";
+const BUY_MOBILE="BUY_MOBILE";
+const initialState={
+    numOfLaptops:100
+}
+const initialMobile={
+    numOfMobiles:1000
+}
+
+const buyLaptop=()=>{
+    return{
+        type:BUY_LAPTOP
+    }
+}
+const buyMobile=()=>{
+    return{
+        type:BUY_MOBILE
+    }
+}
+
+const lalptopreducer=(state=initialState,action)=>{
+    switch(action.type){
+        case BUY_LAPTOP:
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const mobilereducer=(state=initialMobile,action)=>{
+    switch(action.type){
+        case BUY_MOBILE:
+            return {numOfMobiles:state.numOfMobiles-1}
+        default:
+            return state;
+    }
+
+}
+
+const rootReducer=combineReducers({lalptopreducer,mobilereducer})
+const store=createStore(rootReducer);
+console.log(store);//it will display the functions which is in store
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyMobile());
+
+
+o/p:
+{
+  dispatch: [Function: dispatch],
+  subscribe: [Function: subscribe],
+  getState: [Function: getState],
+  replaceReducer: [Function: replaceReducer],
+  '@@observable': [Function: observable]
+}
+{
+  lalptopreducer: { numOfLaptops: 99 },
+  mobilereducer: { numOfMobiles: 1000 }
+}
+{
+  lalptopreducer: { numOfLaptops: 98 },
+  mobilereducer: { numOfMobiles: 1000 }
+}
+{
+  lalptopreducer: { numOfLaptops: 97 },
+  mobilereducer: { numOfMobiles: 1000 }
+}
+{
+  lalptopreducer: { numOfLaptops: 97 },
+  mobilereducer: { numOfMobiles: 999 }
+}
+
+
+=>
+index.js
+--------
+const { createStore, combineReducers } = require("redux")
+const BUY_LAPTOP="BUY_LAPTOP";
+const BUY_MOBILE="BUY_MOBILE";
+const initialState={
+    numOfLaptops:100
+}
+const initialMobile={
+    numOfMobiles:1000
+}
+
+const buyLaptop=()=>{
+    return{
+        type:BUY_LAPTOP
+    }
+}
+const buyMobile=()=>{
+    return{
+        type:BUY_MOBILE
+    }
+}
+
+const laptopreducer=(state=initialState,action)=>{
+    switch(action.type){
+        case BUY_LAPTOP:
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const mobilereducer=(state=initialMobile,action)=>{
+    switch(action.type){
+        case BUY_MOBILE:
+            return {numOfMobiles:state.numOfMobiles-1}
+        default:
+            return state;
+    }
+
+}
+
+const rootReducer=combineReducers({laptops:laptopreducer,mobiles:mobilereducer})
+const store=createStore(rootReducer);
+console.log(store);//it will display the functions which is in store
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyMobile());
+
+o/p:
+{
+  dispatch: [Function: dispatch],
+  subscribe: [Function: subscribe],
+  getState: [Function: getState],
+  replaceReducer: [Function: replaceReducer],
+  '@@observable': [Function: observable]
+}
+{ laptops: { numOfLaptops: 99 }, mobiles: { numOfMobiles: 1000 } }   
+{ laptops: { numOfLaptops: 98 }, mobiles: { numOfMobiles: 1000 } }   
+{ laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 1000 } }   
+{ laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 999 } } 
+
+
+
+Middleware
+==========
+=>To extend the redux with custom functionality.
+=>It provides a third-party extension point b/w dispatching
+an action,and the moment it reaches the reducer.
+=>usually middlreware used for logging,performing asynchronous operations etc.
+
+install
+--------
+npm i redux-logger
+
+=>we need to pass logger in the applyMiddleWare function which is in the React.
+
+index.js
+-------
+const { createStore, combineReducers,applyMiddleware } = require("redux")
+const logger=require('redux-logger').default;
+const BUY_LAPTOP="BUY_LAPTOP";
+const BUY_MOBILE="BUY_MOBILE";
+const initialState={
+    numOfLaptops:100
+}
+const initialMobile={
+    numOfMobiles:1000
+}
+
+const buyLaptop=()=>{
+    return{
+        type:BUY_LAPTOP
+    }
+}
+const buyMobile=()=>{
+    return{
+        type:BUY_MOBILE
+    }
+}
+
+const laptopreducer=(state=initialState,action)=>{
+    switch(action.type){
+        case BUY_LAPTOP:
+            return {numOfLaptops:state.numOfLaptops-1}
+        default:
+            return state;
+    }
+
+}
+
+const mobilereducer=(state=initialMobile,action)=>{
+    switch(action.type){
+        case BUY_MOBILE:
+            return {numOfMobiles:state.numOfMobiles-1}
+        default:
+            return state;
+    }
+
+}
+
+const rootReducer=combineReducers({laptops:laptopreducer,mobiles:mobilereducer})
+const store=createStore(rootReducer,applyMiddleware(logger));
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyLaptop());
+store.dispatch(buyMobile());
+
+o/p:
+{ laptops: { numOfLaptops: 99 }, mobiles: { numOfMobiles: 1000 } }
+ action BUY_LAPTOP @ 07:43:33.640
+   prev state { laptops: { numOfLaptops: 100 }, mobiles: { numOfMobiles: 1000 } }
+   action     { type: 'BUY_LAPTOP' }
+   next state { laptops: { numOfLaptops: 99 }, mobiles: { numOfMobiles: 1000 } }
+{ laptops: { numOfLaptops: 98 }, mobiles: { numOfMobiles: 1000 } }
+ action BUY_LAPTOP @ 07:43:33.647
+   prev state { laptops: { numOfLaptops: 99 }, mobiles: { numOfMobiles: 1000 } }
+   action     { type: 'BUY_LAPTOP' }
+   next state { laptops: { numOfLaptops: 98 }, mobiles: { numOfMobiles: 1000 } }
+{ laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 1000 } }
+ action BUY_LAPTOP @ 07:43:33.648
+   prev state { laptops: { numOfLaptops: 98 }, mobiles: { numOfMobiles: 1000 } }
+   action     { type: 'BUY_LAPTOP' }
+   next state { laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 1000 } }
+{ laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 999 } }
+ action BUY_MOBILE @ 07:43:33.650
+   prev state { laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 1000 } }
+   action     { type: 'BUY_MOBILE' }
+   next state { laptops: { numOfLaptops: 97 }, mobiles: { numOfMobiles: 999 } }
+
+Async Operations
+================
+=>if you want to do some async opeartions as actions which usually takes
+sometime to give output,then we can use redux-thunk as middleware.
+
+=>Http call or Api calls we can perform with dynamic data in react using redux thunk
+
+=>for async operations we cant the predict the o/p so we can call Async operations as side effects.
+
+install:
+  
+npm i redux-thunk
+
+asyncOperations.js
+------------------
+const { default: axios } = require("axios");
+const { createStore,applyMiddleware } = require("redux")
+const thunk=require('redux-thunk').default;
+const FETCH_USERS_REQUEST="FETCH_USERS_REQUEST";
+const FETCH_USERS_SUCCESS="FETCH_USERS_SUCCESS";
+const FETCH_USERS_FAIL="FETCH_USERS_FAIL";
+
+const initialState={
+    users:[],
+    error:'',
+    isLoading:false
+}
+const fetchUsersRequest=()=>{
+    return{
+        type:FETCH_USERS_REQUEST
+    }
+}
+const fetchUsersSuccess=(users)=>{
+    return{
+        type:FETCH_USERS_SUCCESS,
+        data:users
+    }
+}
+const fetchUsersFail=(error)=>{
+    return{
+        type:FETCH_USERS_FAIL,
+        data:error
+    }
+}
+
+const usersReducer=(state=initialState,action)=>{
+    switch(action.type){
+        case FETCH_USERS_REQUEST:
+            return {...state,isLoading:true}
+        case FETCH_USERS_SUCCESS:
+            return {isLoading:false,users:action.data,error:''}
+        case FETCH_USERS_FAIL:
+            return {isLoading:false,users:[],error:action.data}
+        default:
+            return state;
+    }
+
+}
+
+const fetchUsers=()=>{
+    return function(dispatch){
+        dispatch(fetchUsersRequest())
+        axios.get('https://jsonplaceholder.typicode.com/users')
+        .then(response=>{
+            let users=response.data.map(user=>user.id);
+            dispatch(fetchUsersSuccess(users))
+        })
+        .catch(error=>{
+            dispatch(fetchUsersFail(error))
+        })
+    }
+}
+const store=createStore(usersReducer,applyMiddleware(thunk));
+store.subscribe(()=>{console.log(store.getState())});
+store.dispatch(fetchUsers());
+
+o/p:
+
+{ users: [], error: '', isLoading: true }
+{
+  isLoading: false,
+  users: [
+    1, 2, 3, 4,  5,
+    6, 7, 8, 9, 10
+  ],
+  error: ''
+}
+
+React Redux
+===========
+
+install:
+--------
+=>npx install redux react-redux redux-logger redux-thunk
+
+
+for functional components
+------------------------
+useSelector
+bindActionCreators
+
+
+Redux Adv:
+---------
+=>we can maintain a single store for the entire app to understand the
+flow of the application easily.
+=>Redux can be used in medium to large apps
+=>The use of "pure" reducer functions makes logic easier to test,and 
+enables useful features like "time-travel debugging".
+=>of courser,many companies are giving preference to the developers who ha
+knowledge in Redux.
+
+Redux disadv:
+-------------
+=>No encapsulation :Any component can access the data which can cause security
+issues.
+=>A state is immutable in redux,then reducer updates the state by returning
+a new state everytime which can cause excessive use of memory.
+
+
+******* select word ==>ctrl+d==>change all words at once 
